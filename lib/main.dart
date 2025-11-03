@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pick_my_dish/splash_screen.dart';
+import 'package:pick_my_dish/Screens/splash_screen.dart';
 
 void main() {
   runApp(const PickMyDish());
