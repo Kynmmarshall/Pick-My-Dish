@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:pick_my_dish/constants.dart';
 
-class RegisterScreen extends StatelessWidget {
+class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
+  @override
+  State<RegisterScreen> createState() => _RegisterScreenState();
+}
+
+class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,6 +41,7 @@ class RegisterScreen extends StatelessWidget {
 
               Padding(padding: EdgeInsets.all(30),
               child: Center(
+                child: SingleChildScrollView(
                 child: Column(
                   children: [
                   SizedBox(height: 20,),
@@ -62,19 +68,133 @@ class RegisterScreen extends StatelessWidget {
                   ),
 
                   SizedBox(height: 15),   
-
+              
                   Row(
-                    children: [Expanded(
-                      child: TextField(
+                    children: [
+                      Icon(Icons.person,
+                      color: Colors.white,
+                      size: iconSize,),
+                      SizedBox(width: 10,),
+                      Expanded(child:
+                      TextField(
+                        style: text,
                         decoration: InputDecoration(
                           hintText: "Full Name",
                           hintStyle: placeHolder,
                         ),
                       ),
                     )],
-                  ) 
+                  ) ,
+
+                  SizedBox(height: 5),
+
+                  Row(
+                    children: [
+                      Icon(Icons.email,
+                      color: Colors.white,
+                      size: iconSize,),
+                      SizedBox(width: 10,),
+                      Expanded(child:
+                      TextField(
+                        style: text,
+                        decoration: InputDecoration(
+                          hintText: "Email Address",
+                          hintStyle: placeHolder,
+                        ),
+                      ),
+                    )],
+                  ),
+
+                  SizedBox(height: 5),
+
+                  Row(
+                    children: [
+                      Icon(Icons.key,
+                      color: Colors.white,
+                      size: iconSize,),
+                      SizedBox(width: 10,),
+                      Expanded(child:
+                      TextField(
+                        style: text,
+                        obscureText: !isPasswordVisible,
+                        decoration: InputDecoration(
+                          hintText: "Password",
+                          hintStyle: placeHolder,
+                          suffixIcon: IconButton(
+                          icon: Icon(
+                            isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              isPasswordVisible = !isPasswordVisible;
+                            });
+                          },
+                        ),
+                        ),
+                      ),
+                    )],
+                  ),
+
+                  SizedBox(height: 5),
+
+                  Row(
+                    children: [
+                      Icon(Icons.key,
+                      color: Colors.white,
+                      size: iconSize,),
+                      SizedBox(width: 10,),
+                      Expanded(child:
+                      TextField(
+                        style: text,
+                        obscureText: !isPasswordVisible,
+                        decoration: InputDecoration(
+                          hintText: "Confirm Password",
+                          hintStyle: placeHolder,
+                          suffixIcon: IconButton(
+                          icon: Icon(
+                            isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              isPasswordVisible = !isPasswordVisible;
+                            });
+                          },
+                        ),
+                        ),
+                      ),
+                    )],
+                  ),
+
+                  SizedBox(height: 20),
+
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(Icons.g_mobiledata, color: Colors.red, size: iconSize),
+                  ),
+
+                  SizedBox(height: 20),
+
+                  ElevatedButton(
+                    onPressed: () {
+                      // Registration logic
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orange, // Your color
+                      minimumSize: Size(double.infinity, 50),
+                    ),
+                    child: Text(
+                      "Register",
+                      style:  title,
+                    ),
+                  )
                   ]
                 ),
+              ),
               ),
             ),
           ],
