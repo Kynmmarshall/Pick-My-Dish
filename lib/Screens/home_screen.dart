@@ -131,9 +131,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         final  recipe = RecipesScreenState.allRecipes[index];
                         return Column(
                         children: [
-                          _buildRecipeCard(recipe,0),
-                          _buildRecipeCard(recipe,1),
-                          if (index < 1) SizedBox(height: 25), // Adds space after each item except last
+                          _buildRecipeCard(recipe),
+                          SizedBox(height: 20), // Adds space after each item except last
                         ],
                       );
                       },
@@ -265,7 +264,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildRecipeCard(Map<String, dynamic> recipe,int index) {
+  Widget _buildRecipeCard(Map<String, dynamic> recipe) {
     return Container(
       height: 64,
       decoration: BoxDecoration(
@@ -316,13 +315,13 @@ class _HomeScreenState extends State<HomeScreen> {
             bottom: 10,
             child: Row(
               children: [
-                Icon(Icons.access_time, color: Colors.orange, size: 12),
+                Icon(Icons.access_time, color: Colors.white, size: 16),
                 SizedBox(width: 5),
                 Text(
                   recipe['time'],
                   style: TextStyle(
                     fontFamily: 'Lora',
-                    fontSize: 9.7,
+                    fontSize: 12,
                     fontWeight: FontWeight.w600,
                     color: Colors.orange,
                   ),
@@ -344,7 +343,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Icon(
                 recipe['isFavorite'] ? Icons.favorite : Icons.favorite_border,
                 color: Colors.orange,
-                size: 20,
+                size: 25,
               ),
             ),
           ),
