@@ -126,19 +126,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     ListView.builder(
                       shrinkWrap: true,
                       physics: NeverScrollableScrollPhysics(),
-                      itemCount: 2, // Since you have 2 cards
+                      itemCount: 5, // Since you have 2 cards
                       itemBuilder: (context, index) {
-                        final recipes = [
-                          {"category": "Breakfast", "title": "Toast with Berries", "calories": "1003"},
-                          {"category": "Dinner", "title": "Chicken Burger", "calories": "2008"},
-                        ];
+                        final  recipe = RecipesScreenState.allRecipes[index];
                         return Column(
                         children: [
-                          _buildRecipeCard(
-                            recipes[index]["category"]!,
-                            recipes[index]["title"]!, 
-                            recipes[index]["calories"]!
-                          ),
+                          _buildRecipeCard(recipe,0),
+                          _buildRecipeCard(recipe,1),
                           if (index < 1) SizedBox(height: 25), // Adds space after each item except last
                         ],
                       );
@@ -271,36 +265,94 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildRecipeCard(String category, String title, String calories) {
+  Widget _buildRecipeCard(Map<String, dynamic> recipe,int index) {
     return Container(
-      padding: EdgeInsets.all(15),
-      width: double.infinity,
+      height: 64,
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(15),
+        color: Color(0xFF373737),
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.25),
+            blurRadius: 5,
+            offset: Offset(0, 5),
+          ),
+        ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
+      child: Stack(
         children: [
-          Text(
-            category,
-            style: categoryText
+          // Recipe Image
+          Positioned(
+            left: 4,
+            top: 5,
+            child: Container(
+              width: 66,
+              height: 54,
+              decoration: BoxDecoration(
+                color: Colors.grey,
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
           ),
-          SizedBox(height: 5),
-          Text(
-            title,
-            style: text,
+          
+          // Recipe Name
+          Positioned(
+            left: 100,
+            top: 13,
+            child: Text(
+              recipe['name'],
+              style: TextStyle(
+                fontFamily: 'Lora',
+                fontSize: 17.5,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
           ),
-          SizedBox(height: 10),
-          Text(
-            calories,
-            style:caloriesText
+          
+          // Time with Icon
+          Positioned(
+            right: 15,
+            bottom: 10,
+            child: Row(
+              children: [
+                Icon(Icons.access_time, color: Colors.orange, size: 12),
+                SizedBox(width: 5),
+                Text(
+                  recipe['time'],
+                  style: TextStyle(
+                    fontFamily: 'Lora',
+                    fontSize: 9.7,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.orange,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          
+          // Like Icon - Clickable
+          Positioned(
+            right: 10,
+            top: 10,
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  recipe['isFavorite'] = !recipe['isFavorite'];
+                });
+              },
+              child: Icon(
+                recipe['isFavorite'] ? Icons.favorite : Icons.favorite_border,
+                color: Colors.orange,
+                size: 20,
+              ),
+            ),
           ),
         ],
       ),
     );
   }
-
+  
   Widget _buildSideMenu() {
   return Container(
     width: MediaQuery.of(context).size.width * 0.9,

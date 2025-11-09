@@ -5,11 +5,11 @@ class RecipesScreen extends StatefulWidget {
   const RecipesScreen({super.key});
 
   @override
-  State<RecipesScreen> createState() => _RecipesScreenState();
+  State<RecipesScreen> createState() => RecipesScreenState();
 }
 
-class _RecipesScreenState extends State<RecipesScreen> {
-  List<Map<String, dynamic>> allRecipes = [
+class RecipesScreenState extends State<RecipesScreen> {
+  static List<Map<String, dynamic>> allRecipes = [
     {
       'category': 'Breakfast',
       'name': 'Toast with Berries',
