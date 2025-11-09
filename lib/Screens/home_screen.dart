@@ -1,5 +1,6 @@
 import 'dart:ui'; 
 import 'package:flutter/material.dart';
+import 'package:pick_my_dish/Screens/favorite_screen.dart';
 import 'package:pick_my_dish/Screens/profile_screen.dart';
 import 'package:pick_my_dish/Screens/recipe_screen.dart';
 import 'package:pick_my_dish/constants.dart';
@@ -9,10 +10,10 @@ class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<HomeScreen> createState() => HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class HomeScreenState extends State<HomeScreen> {
   String? selectedEmotion;
   List<String> selectedIngredients = [];
   String? selectedTime;
@@ -131,7 +132,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         final  recipe = RecipesScreenState.allRecipes[index];
                         return Column(
                         children: [
-                          _buildRecipeCard(recipe),
+                          buildRecipeCard(recipe),
                           SizedBox(height: 20), // Adds space after each item except last
                         ],
                       );
@@ -264,7 +265,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildRecipeCard(Map<String, dynamic> recipe) {
+  Widget buildRecipeCard(Map<String, dynamic> recipe) {
     return Container(
       height: 64,
       decoration: BoxDecoration(
@@ -423,7 +424,9 @@ class _HomeScreenState extends State<HomeScreen> {
               // Menu Items
               _buildMenuItem(Icons.home, "Home", () {Navigator.pop(context);}),
               SizedBox(height: 20),
-              _buildMenuItem(Icons.favorite, "Favorites", () {Navigator.pop(context);}),
+              _buildMenuItem(Icons.favorite, "Favorites", () {
+                Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (context) => FavoritesScreen()));}),
               SizedBox(height: 20),
               _buildMenuItem(Icons.help, "Help", () {Navigator.pop(context);}),
               Spacer(),
