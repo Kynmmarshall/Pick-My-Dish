@@ -1,0 +1,106 @@
+pipeline {
+    agent any
+    
+    environment {
+        FLUTTER_HOME = "${WORKSPACE}/flutter"
+        PATH = "${FLUTTER_HOME}/bin:${env.PATH}"
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+        
+        stage('Setup Flutter') {
+            steps {
+                sh '''
+                    if [ ! -d "flutter" ]; then
+                        git clone https://github.com/flutter/flutter.git -b stable
+                    fi
+                    flutter doctor
+                '''
+            }
+        }
+        
+        stage('Dependencies') {
+            steps {
+                sh 'flutter pub get'
+            }
+        }
+        
+        stage('Run Tests with Coverage') {
+            steps {
+                sh '''
+                    flutter test --coverage
+                    genhtml coverage/lcov.info -o coverage/html
+                '''
+            }
+            post {
+                always {
+                    // Publish coverage report
+                    publishHTML([
+                        allowMissing: false,
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true,
+                        reportDir: 'coverage/html',
+                        reportFiles: 'index.html',
+                        reportName: 'Flutter Test Coverage'
+                    ])
+                }
+            }
+        }
+        
+        stage('Check Coverage Threshold') {
+            steps {
+                script {
+                    // Parse coverage and fail if below 80%
+                    def coverage = sh(
+                        script: '''
+                            flutter test --coverage
+                            lcov --summary coverage/lcov.info 2>/dev/null | grep lines | awk '{print \$2}' | sed 's/\%//'
+                        ''',
+                        returnStdout: true
+                    ).trim()
+                    
+                    echo "Current test coverage: ${coverage}%"
+                    
+                    if (coverage.toFloat() < 80.0) {
+                        error "Test coverage ${coverage}% is below required 80% threshold"
+                    }
+                }
+            }
+        }
+        
+        stage('Build APK') {
+            when {
+                branch 'main'
+            }
+            steps {
+                sh 'flutter build apk --release'
+                archiveArtifacts artifacts: 'build/app/outputs/flutter-apk/*.apk', fingerprint: true
+            }
+        }
+    }
+    
+    post {
+        always {
+            cleanWs()
+        }
+        success {
+            emailext (
+                subject: "SUCCESS: PickMyDish Build ${env.BUILD_NUMBER}",
+                body: "All tests passed with sufficient coverage!\nBuild: ${env.BUILD_URL}",
+                to: "kynmmarshall@gmail.com"
+            )
+        }
+        failure {
+            emailext (
+                subject: "FAILED: PickMyDish Build ${env.BUILD_NUMBER}",
+                body: "Build failed or test coverage below 80%!\nBuild: ${env.BUILD_URL}",
+                to: "kynmmarshall@gmail.com"
+            )
+        }
+    }
+}
