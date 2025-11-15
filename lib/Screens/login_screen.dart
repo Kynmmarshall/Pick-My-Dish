@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pick_my_dish/Screens/Register_screen.dart';
+import 'package:pick_my_dish/Screens/register_screen.dart';
 import 'package:pick_my_dish/constants.dart';
 
 class LoginScreen extends StatefulWidget {
