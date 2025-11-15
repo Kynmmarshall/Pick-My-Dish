@@ -3,26 +3,26 @@ if (location.protocol !== 'https:') {
 }
 
 // Load deployment time from file
-async function loadDeploymentTime() {
-    try {
-        const response = await fetch('/js/deployment-info.json');
-        const data = await response.json();
+// async function loadDeploymentTime() {
+//     try {
+//         const response = await fetch('/js/deployment-info.json');
+//         const data = await response.json();
         
-        if (data.last_deployed) {
-            // Format the date nicely
-            const date = new Date(data.timestamp * 1000);
-            document.getElementById('last-updated').textContent = data.last_deployed;
-        } else {
-            document.getElementById('last-updated').textContent = 'Unknown';
-        }
-    } catch (error) {
-        console.log('Deployment info not available, using current time');
-        document.getElementById('last-updated').textContent = new Date().toLocaleString();
-    }
-}
+//         if (data.last_deployed) {
+//             // Format the date nicely
+//             const date = new Date(data.timestamp * 1000);
+//             document.getElementById('last-updated').textContent = data.last_deployed;
+//         } else {
+//             document.getElementById('last-updated').textContent = 'Unknown';
+//         }
+//     } catch (error) {
+//         console.log('Deployment info not available, using current time');
+//         document.getElementById('last-updated').textContent = new Date().toLocaleString();
+//     }
+// }
 
-// Call the function when page loads
-loadDeploymentTime();
+// // Call the function when page loads
+// loadDeploymentTime();
 
 // Smooth scrolling for navigation links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
