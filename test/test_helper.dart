@@ -1,0 +1,28 @@
+import 'package:flutter/material.dart';
+import 'package:pick_my_dish/Screens/recipe_screen.dart';
+
+// Helper to create test recipes
+List<Map<String, dynamic>> createTestRecipes({int count = 5}) {
+  return List.generate(count, (index) => {
+    'category': index % 2 == 0 ? 'Breakfast' : 'Dinner',
+    'name': 'Test Recipe ${index + 1}',
+    'time': '${10 + index}:00',
+    'isFavorite': false,
+    'image': 'assets/recipes/test.png',
+    'calories': '${1000 + index}'
+  });
+}
+
+// Helper to reset recipe favorites
+void resetRecipeFavorites() {
+  RecipesScreenState.allRecipes.forEach((recipe) {
+    recipe['isFavorite'] = false;
+  });
+}
+
+// Test wrapper for widgets
+Widget createTestableWidget(Widget child) {
+  return MaterialApp(
+    home: Scaffold(body: child),
+  );
+}
