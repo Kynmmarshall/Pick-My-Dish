@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:pick_my_dish/Screens/register_screen.dart';
+import 'package:pick_my_dish/Screens/login_screen.dart';
 import 'package:pick_my_dish/constants.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
-    return  Scaffold(body: Container(
+    return Scaffold(
+      body: Container(
             width: double.infinity,
             height: double.infinity,
             decoration: BoxDecoration(
@@ -39,7 +40,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   )
                 ),
 
-              Padding(padding: const EdgeInsets.all(30),
+              Padding(padding: EdgeInsets.all(30),
               child: Center(
                 child: SingleChildScrollView(
                 child: Column(
@@ -63,11 +64,30 @@ class _LoginScreenState extends State<LoginScreen> {
                   SizedBox(height: 5),
 
                   Text(
-                    "Login",
+                    "Register",
                     style: title,
                   ),
 
                   SizedBox(height: 15),   
+              
+                  Row(
+                    children: [
+                      Icon(Icons.person,
+                      color: Colors.white,
+                      size: iconSize,),
+                      SizedBox(width: 10,),
+                      Expanded(child:
+                      TextField(
+                        style: text,
+                        decoration: InputDecoration(
+                          hintText: "Full Name",
+                          hintStyle: placeHolder,
+                        ),
+                      ),
+                    )],
+                  ) ,
+
+                  SizedBox(height: 5),
 
                   Row(
                     children: [
@@ -116,21 +136,34 @@ class _LoginScreenState extends State<LoginScreen> {
                     )],
                   ),
 
+                  SizedBox(height: 5),
+
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                     GestureDetector(
-                      onTap: () {
-                        // Navigate to login screen
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
-                      },
-                      child: Text(
-                        "Forgot Password? ",
-                        style: footerClickable
+                      Icon(Icons.key,
+                      color: Colors.white,
+                      size: iconSize,),
+                      SizedBox(width: 10,),
+                      Expanded(child:
+                      TextField(
+                        style: text,
+                        obscureText: !isPasswordVisible,
+                        decoration: InputDecoration(
+                          hintText: "Confirm Password",
+                          hintStyle: placeHolder,
+                          suffixIcon: IconButton(
+                          icon: Icon(
+                            isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              isPasswordVisible = !isPasswordVisible;
+                            });
+                          },
+                        ),
+                        ),
                       ),
-                    ),
-                      
-                    ],
+                    )],
                   ),
 
                   SizedBox(height: 20),
@@ -152,12 +185,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       // Registration logic
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.transparent, // Your color
-                      side: BorderSide(color: Colors.white, width: 2),
+                      backgroundColor: Colors.orange, // Your color
                       minimumSize: Size(double.infinity, 50),
                     ),
                     child: Text(
-                      "Login",
+                      "Register",
                       style:  title,
                     ),
                   ),
@@ -167,22 +199,21 @@ class _LoginScreenState extends State<LoginScreen> {
                   Align(
                   alignment: Alignment.bottomCenter,
                   child: Padding(
-                    padding: const EdgeInsets.only(bottom: 20),
+                    padding: EdgeInsets.only(bottom: 20),
                     child:
-
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        "Not Registered Yet? ",
+                        "Already Registered? ",
                         style: footer,),
                      GestureDetector(
                       onTap: () {
                         // Navigate to login screen
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterScreen()));
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
                       },
                       child: Text(
-                        "Register Now",
+                        "Login Now",
                         style: footerClickable
                       ),
                     ),
