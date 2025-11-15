@@ -3,7 +3,7 @@ if (location.protocol !== 'https:') {
 }
 
 // Load deployment time from file
-async function loadDeploymentTime() {
+/*async function loadDeploymentTime() {
     try {
         const response = await fetch('/js/deployment-info.json');
         const data = await response.json();
@@ -22,7 +22,7 @@ async function loadDeploymentTime() {
 }
 
 // Call the function when page loads
-loadDeploymentTime();
+loadDeploymentTime();*/
 
 // Smooth scrolling for navigation links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
