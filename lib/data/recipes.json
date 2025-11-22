@@ -1,0 +1,93 @@
+{
+  "recipes": [
+    {
+      "id": 1,
+      "name": "Avocado Toast",
+      "category": "Breakfast",
+      "time": "10 mins",
+      "calories": "350",
+      "image": "assets/recipes/avocado_toast.png",
+      "ingredients": ["Bread", "Avocado", "Lemon", "Salt", "Pepper"],
+      "mood": ["Healthy", "Quick"],
+      "difficulty": "Easy",
+      "steps": [
+        "Toast bread until golden brown",
+        "Mash avocado with lemon juice, salt, and pepper",
+        "Spread avocado mixture on toast",
+        "Serve immediately"
+      ],
+      "isFavorite": false
+    },
+    {
+      "id": 2,
+      "name": "Chicken Stir Fry",
+      "category": "Dinner",
+      "time": "25 mins",
+      "calories": "450",
+      "image": "assets/recipes/chicken_stir_fry.png",
+      "ingredients": ["Chicken", "Vegetables", "Soy Sauce", "Garlic", "Ginger"],
+      "mood": ["Energetic", "Comfort"],
+      "difficulty": "Medium",
+      "steps": [
+        "Cut chicken into pieces",
+        "Stir-fry vegetables until tender",
+        "Add chicken and cook until done",
+        "Add sauce and simmer"
+      ],
+      "isFavorite": false
+    },
+    {
+      "id": 3,
+      "name": "Berry Smoothie",
+      "category": "Breakfast",
+      "time": "5 mins",
+      "calories": "250",
+      "image": "assets/recipes/berry_smoothie.png",
+      "ingredients": ["Berries", "Yogurt", "Milk", "Honey"],
+      "mood": ["Healthy", "Quick"],
+      "difficulty": "Easy",
+      "steps": [
+        "Combine all ingredients in blender",
+        "Blend until smooth",
+        "Serve chilled"
+      ],
+      "isFavorite": false
+    },
+    {
+      "id": 4,
+      "name": "Pasta Carbonara",
+      "category": "Dinner",
+      "time": "20 mins",
+      "calories": "600",
+      "image": "assets/recipes/pasta_carbonara.png",
+      "ingredients": ["Pasta", "Eggs", "Bacon", "Cheese", "Pepper"],
+      "mood": ["Comfort", "Energetic"],
+      "difficulty": "Medium",
+      "steps": [
+        "Cook pasta according to package",
+        "Fry bacon until crispy",
+        "Mix eggs and cheese",
+        "Combine all ingredients"
+      ],
+      "isFavorite": false
+    },
+    {
+      "id": 5,
+      "name": "Greek Salad",
+      "category": "Lunch",
+      "time": "15 mins",
+      "calories": "300",
+      "image": "assets/recipes/greek_salad.png",
+      "ingredients": ["Lettuce", "Tomato", "Cucumber", "Feta", "Olives"],
+      "mood": ["Healthy", "Light"],
+      "difficulty": "Easy",
+      "steps": [
+        "Chop all vegetables",
+        "Combine in bowl",
+        "Add feta and olives",
+        "Dress with olive oil"
+      ],
+      "isFavorite": false
+    }
+  ]
+}
