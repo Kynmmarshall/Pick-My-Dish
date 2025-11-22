@@ -16,7 +16,7 @@ class RecipesScreenState extends State<RecipesScreen> {
       'time': '10:03',
       'isFavorite': false,
       'image': 'assets/recipes/test.png',
-      'calories': '1003'
+      'calories': '1003',
     },
     {
       'category': 'Dinner',
@@ -24,7 +24,7 @@ class RecipesScreenState extends State<RecipesScreen> {
       'time': '25:30',
       'isFavorite': true,
       'image': 'assets/recipes/test.png',
-      'calories': '2008'
+      'calories': '2008',
     },
     {
       'category': 'Dinner',
@@ -32,7 +32,7 @@ class RecipesScreenState extends State<RecipesScreen> {
       'time': '25:30',
       'isFavorite': true,
       'image': 'assets/recipes/test.png',
-      'calories': '2008'
+      'calories': '2008',
     },
     {
       'category': 'Breakfast',
@@ -40,7 +40,7 @@ class RecipesScreenState extends State<RecipesScreen> {
       'time': '10:03',
       'isFavorite': false,
       'image': 'assets/recipes/test.png',
-      'calories': '1003'
+      'calories': '1003',
     },
     {
       'category': 'Dinner',
@@ -48,7 +48,7 @@ class RecipesScreenState extends State<RecipesScreen> {
       'time': '25:30',
       'isFavorite': true,
       'image': 'assets/recipes/test.png',
-      'calories': '2008'
+      'calories': '2008',
     },
     {
       'category': 'Dinner',
@@ -56,7 +56,7 @@ class RecipesScreenState extends State<RecipesScreen> {
       'time': '25:30',
       'isFavorite': true,
       'image': 'assets/recipes/test.png',
-      'calories': '2008'
+      'calories': '2008',
     },
     {
       'category': 'Dinner',
@@ -64,7 +64,7 @@ class RecipesScreenState extends State<RecipesScreen> {
       'time': '25:30',
       'isFavorite': true,
       'image': 'assets/recipes/test.png',
-      'calories': '2008'
+      'calories': '2008',
     },
     // Add more recipes here
   ];
@@ -79,18 +79,18 @@ class RecipesScreenState extends State<RecipesScreen> {
   }
 
   void _onSearchChanged() {
-  setState(() {
-    searchQuery = searchController.text.toLowerCase();
-  });
-  } 
+    setState(() {
+      searchQuery = searchController.text.toLowerCase();
+    });
+  }
 
   List<Map<String, dynamic>> get filteredRecipes {
-  if (searchQuery.isEmpty) return allRecipes;
-  return allRecipes.where((recipe) {
-    return recipe['name'].toLowerCase().contains(searchQuery) ||
-           recipe['category'].toLowerCase().contains(searchQuery);
-  }).toList();
-}
+    if (searchQuery.isEmpty) return allRecipes;
+    return allRecipes.where((recipe) {
+      return recipe['name'].toLowerCase().contains(searchQuery) ||
+          recipe['category'].toLowerCase().contains(searchQuery);
+    }).toList();
+  }
 
   @override
   void dispose() {
@@ -105,30 +105,29 @@ class RecipesScreenState extends State<RecipesScreen> {
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: BoxDecoration(
-          color: Colors.black
-        ),
+        decoration: BoxDecoration(color: Colors.black),
         child: Padding(
           padding: const EdgeInsets.all(30),
           child: Column(
             children: [
-              SizedBox(height: 50,),
+              SizedBox(height: 50),
               // Header with title and back button
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    "All Recipes",
-                    style: title.copyWith(fontSize: 28),
-                  ),
+                  Text("All Recipes", style: title.copyWith(fontSize: 28)),
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
-                    child: Icon(Icons.arrow_back, color: Colors.orange, size: iconSize),
+                    child: Icon(
+                      Icons.arrow_back,
+                      color: Colors.orange,
+                      size: iconSize,
+                    ),
                   ),
                 ],
               ),
               SizedBox(height: 20),
-              
+
               // Search Bar
               Container(
                 height: 50,
@@ -145,9 +144,9 @@ class RecipesScreenState extends State<RecipesScreen> {
                       child: TextField(
                         style: text,
                         onChanged: (value) {
-                        setState(() {
-                          searchQuery = value.toLowerCase();
-                        });
+                          setState(() {
+                            searchQuery = value.toLowerCase();
+                          });
                         },
                         decoration: InputDecoration(
                           hintText: "Search recipes...",
@@ -167,27 +166,23 @@ class RecipesScreenState extends State<RecipesScreen> {
                 ),
               ),
               SizedBox(height: 30),
-              
+
               // Recipes Grid
               Expanded(
-                child: filteredRecipes.isEmpty ? Center(
-                  child: Text(
-                          "No recipes found",
-                          style: title,
+                child: filteredRecipes.isEmpty
+                    ? Center(child: Text("No recipes found", style: title))
+                    : GridView.builder(
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 15,
+                          mainAxisSpacing: 15,
+                          childAspectRatio: 0.8,
                         ),
-                )
-                :GridView.builder(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 15,
-                    mainAxisSpacing: 15,
-                    childAspectRatio: 0.8,
-                  ),
-                  itemCount: filteredRecipes.length,
-                  itemBuilder: (context, index) {
-                    return buildRecipeCard(filteredRecipes[index]);
-                  },
-                ),
+                        itemCount: filteredRecipes.length,
+                        itemBuilder: (context, index) {
+                          return buildRecipeCard(filteredRecipes[index]);
+                        },
+                      ),
               ),
             ],
           ),
@@ -220,7 +215,7 @@ class RecipesScreenState extends State<RecipesScreen> {
               ),
             ),
           ),
-          
+
           // Favorite Icon
           Positioned(
             top: 10,
@@ -238,7 +233,7 @@ class RecipesScreenState extends State<RecipesScreen> {
               ),
             ),
           ),
-          
+
           // Content
           Padding(
             padding: const EdgeInsets.all(15),
@@ -255,14 +250,11 @@ class RecipesScreenState extends State<RecipesScreen> {
                   ),
                 ),
                 SizedBox(height: 5),
-                
+
                 // Recipe Name
-                Text(
-                  recipe['name'],
-                  style: text.copyWith(fontSize: 17),
-                ),
+                Text(recipe['name'], style: text.copyWith(fontSize: 17)),
                 SizedBox(height: 10),
-                
+
                 // Time with Icon
                 Row(
                   children: [
