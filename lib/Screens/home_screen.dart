@@ -1,12 +1,15 @@
 import 'dart:convert';
-import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:pick_my_dish/Providers/user_provider.dart';
+import 'package:pick_my_dish/Screens/login_screen.dart';
 import 'package:pick_my_dish/constants.dart';
 import 'package:pick_my_dish/services/database_service.dart';
-import 'package:pick_my_dish/screens/favorite_screen.dart';
-import 'package:pick_my_dish/screens/profile_screen.dart';
-import 'package:pick_my_dish/screens/recipe_screen.dart';
+import 'package:pick_my_dish/Screens/favorite_screen.dart';
+import 'package:pick_my_dish/Screens/profile_screen.dart';
+import 'package:pick_my_dish/Screens/recipe_screen.dart';
+import 'package:pick_my_dish/Screens/recipe_detail_screen.dart';
 import 'package:dropdown_search/dropdown_search.dart';
+import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -180,66 +183,11 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _showRecipeDetails(Map<String, dynamic> recipe) {
-    List<String> ingredients = List<String>.from(
-      json.decode(recipe['ingredients']),
-    );
-    List<String> steps = List<String>.from(json.decode(recipe['steps']));
-    List<String> moods = List<String>.from(json.decode(recipe['mood']));
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: Colors.black,
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(recipe['name'], style: title.copyWith(fontSize: 24)),
-              const SizedBox(height: 10),
-              Container(
-                width: double.infinity,
-                height: 200,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  image: const DecorationImage(
-                    image: AssetImage('assets/recipes/test.png'),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 15),
-              Text('Ingredients:', style: mediumtitle),
-              ...ingredients.map(
-                (ingredient) => Text('• $ingredient', style: text),
-              ),
-              const SizedBox(height: 15),
-              Text('Steps:', style: mediumtitle),
-              ...steps.asMap().entries.map(
-                (entry) =>
-                    Text('${entry.key + 1}. ${entry.value}', style: text),
-              ),
-              const SizedBox(height: 15),
-              Text(
-                'Mood: ${moods.join(', ')}',
-                style: text.copyWith(color: Colors.orange),
-              ),
-              Text(
-                'Time: ${recipe['time']}',
-                style: text.copyWith(color: Colors.orange),
-              ),
-              Text(
-                'Calories: ${recipe['calories']}',
-                style: text.copyWith(color: Colors.orange),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Close', style: footerClickable),
-          ),
-        ],
+    // Navigate to Recipe Detail Screen
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => RecipeDetailScreen(recipe: recipe),
       ),
     );
   }
@@ -289,7 +237,22 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(height: 10),
 
                     // Welcome Section
-                    Row(children: [Text("Welcome", style: title)]),
+                    Row(children: [Text("Welcome", style: title),
+                    SizedBox(width: 10),
+                    Expanded(
+                    child: FittedBox( // Scales text to fit
+                      fit: BoxFit.scaleDown,
+                      child: Consumer<UserProvider>(
+                        builder: (context, userProvider, child) {
+                          return Text(
+                            '${userProvider.username}!', 
+                            style: title.copyWith(color: Colors.orange),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                    ]),
                     const SizedBox(height: 8),
                     Text(
                       "What would you like to cook today?",
@@ -363,6 +326,19 @@ class _HomeScreenState extends State<HomeScreen> {
                           'time': '${15 + index * 10} mins',
                           'image': 'assets/recipes/test.png',
                           'isFavorite': false,
+                          'category': 'Main Course',
+                          'calories': '${300 + index * 100}',
+                          'ingredients': [
+                            'Ingredient 1',
+                            'Ingredient 2',
+                            'Ingredient 3'
+                          ],
+                          'steps': [
+                            'Step 1: Prepare ingredients',
+                            'Step 2: Cook according to instructions',
+                            'Step 3: Serve hot'
+                          ],
+                          'mood': ['Comfort', 'Healthy']
                         };
                         return Column(
                           children: [
@@ -398,7 +374,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
           // Emotion Dropdown
           DropdownButtonFormField<String>(
-            value: selectedEmotion,
+            initialValue: selectedEmotion,
             decoration: InputDecoration(
               labelText: "How are you feeling?",
               labelStyle: const TextStyle(color: Colors.white70),
@@ -462,7 +438,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
           // Time Selection
           DropdownButtonFormField<String>(
-            value: selectedTime,
+            initialValue: selectedTime,
             decoration: InputDecoration(
               labelText: "Cooking Time",
               labelStyle: const TextStyle(color: Colors.white70),
@@ -491,7 +467,7 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(height: 15),
 
           // Generate Recipes Button
-          Container(
+          SizedBox(
             width: double.infinity,
             child: ElevatedButton(
               onPressed: _generateRecipes,
@@ -508,92 +484,95 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget buildRecipeCard(Map<String, dynamic> recipe) {
-    return Container(
-      height: 64,
-      decoration: BoxDecoration(
-        color: const Color(0xFF373737),
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.25),
-            blurRadius: 5,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Stack(
-        children: [
-          // Recipe Image
-          Positioned(
-            left: 20,
-            top: 5,
-            child: Container(
-              width: 66,
-              height: 54,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                image: DecorationImage(
-                  image: AssetImage(recipe['image']),
-                  fit: BoxFit.cover,
-                ),
-              ),
+    return GestureDetector(
+      onTap: () {
+        _showRecipeDetails(recipe);
+      },
+      child: Container(
+        height: 64,
+        decoration: BoxDecoration(
+          color: const Color(0xFF373737),
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.25),
+              blurRadius: 5,
+              offset: const Offset(0, 5),
             ),
-          ),
-
-          // Recipe Name
-          Positioned(
-            left: 100,
-            top: 13,
-            child: Text(
-              recipe['name'],
-              style: const TextStyle(
-                fontFamily: 'Lora',
-                fontSize: 17.5,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-          ),
-
-          // Time with Icon
-          Positioned(
-            right: 15,
-            bottom: 10,
-            child: Row(
-              children: [
-                const Icon(Icons.access_time, color: Colors.white, size: 16),
-                const SizedBox(width: 5),
-                Text(
-                  recipe['time'],
-                  style: const TextStyle(
-                    fontFamily: 'Lora',
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.orange,
+          ],
+        ),
+        child: Stack(
+          children: [
+            // Recipe Image
+            Positioned(
+              left: 20,
+              top: 5,
+              child: Container(
+                width: 66,
+                height: 54,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  image: DecorationImage(
+                    image: AssetImage(recipe['image']),
+                    fit: BoxFit.cover,
                   ),
                 ),
-              ],
-            ),
-          ),
-
-          // Like Icon - Clickable
-          Positioned(
-            right: 10,
-            top: 10,
-            child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  recipe['isFavorite'] = !recipe['isFavorite'];
-                });
-              },
-              child: Icon(
-                recipe['isFavorite'] ? Icons.favorite : Icons.favorite_border,
-                color: Colors.orange,
-                size: 25,
               ),
             ),
-          ),
-        ],
+
+            // Recipe Name
+            Positioned(
+              left: 100,
+              top: 13,
+              child: Text(
+                recipe['name'],
+                style: const TextStyle(
+                  fontFamily: 'Lora',
+                  fontSize: 17.5,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+
+            // Time with Icon
+            Positioned(
+              right: 15,
+              bottom: 10,
+              child: Row(
+                children: [
+                  const Icon(Icons.access_time, color: Colors.white, size: 16),
+                  const SizedBox(width: 5),
+                  Text(
+                    recipe['time'],
+                    style: const TextStyle(
+                      fontFamily: 'Lora',
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.orange,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Favorite Icon - Clickable
+            Positioned(
+              right: 10,
+              top: 10,
+              child: GestureDetector(
+                onTap: () {
+                  // Toggle favorite logic
+                },
+                child: Icon(
+                  recipe['isFavorite'] ? Icons.favorite : Icons.favorite_border,
+                  color: Colors.orange,
+                  size: 25,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -687,7 +666,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 }),
                 const Spacer(),
                 _buildMenuItem(Icons.logout, "Logout", () {
-                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const LoginScreen(),
+                    ),
+                  );
                 }),
               ],
             ),
