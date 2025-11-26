@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:pick_my_dish/Providers/user_provider.dart';
+import 'package:pick_my_dish/Screens/login_screen.dart';
 import 'package:pick_my_dish/constants.dart';
+import 'package:provider/provider.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -9,19 +12,19 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  String username = "FAHDIL";
+  
   TextEditingController usernameController = TextEditingController();
   bool _isEditing = false;
 
   @override
   void initState() {
     super.initState();
-    usernameController.text = username;
+   // usernameController.text = ;
   }
 
   void _saveProfile() {
     setState(() {
-      username = usernameController.text;
+     // username = usernameController.text;
       _isEditing = false;
     });
 
@@ -37,7 +40,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   void _cancelEdit() {
     setState(() {
-      usernameController.text = username;
+     // usernameController.text = ;
       _isEditing = false;
     });
   }
@@ -149,7 +152,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                             ],
                           )
-                        : Text(username, style: title.copyWith(fontSize: 24)),
+                        : 
+                        Consumer<UserProvider>(
+                        builder: (context, userProvider, child) {
+                   return Text("${userProvider.username}", style: title.copyWith(fontSize: 24));
+                }
+                ),         
 
                     const SizedBox(height: 20),
 
@@ -251,7 +259,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         key: const Key('logout_button'), // FIX: Add key
                         onPressed: () {
                           if (context.mounted) {
-                            Navigator.pop(context);
+                            Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const LoginScreen(),
+                            ),
+                          );
                           }
                         },
                         style: ElevatedButton.styleFrom(

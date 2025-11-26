@@ -666,8 +666,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       backgroundImage: AssetImage('assets/login/noPicture.png'),
                     ),
                     const SizedBox(width: 25),
-                    Text("FAHDIL", style: title.copyWith(fontSize: 22)),
-                  ],
+                     Consumer<UserProvider>(
+                        builder: (context, userProvider, child) {
+                   return Text("${userProvider.username}", style: title.copyWith(fontSize: 22));
+                }
+                )
+                ],
                 ),
                 const SizedBox(height: 5),
                 GestureDetector(
