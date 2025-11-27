@@ -105,4 +105,18 @@ static Future<void> testBaseUrl() async {
   }
 }
 
+//update user name
+static Future<bool> updateUsername(String newUsername) async {
+  try {
+    final response = await http.put(
+      Uri.parse('$baseUrl/api/users/username'),
+      body: json.encode({'username': newUsername}),
+      headers: {'Content-Type': 'application/json'},
+    );
+    return response.statusCode == 200;
+  } catch (e) {
+    return false;
+  }
+}
+
 }

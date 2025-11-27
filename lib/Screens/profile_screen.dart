@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pick_my_dish/Providers/user_provider.dart';
 import 'package:pick_my_dish/Screens/login_screen.dart';
+import 'package:pick_my_dish/Services/api_service.dart';
 import 'package:pick_my_dish/constants.dart';
 import 'package:provider/provider.dart';
 
@@ -22,21 +23,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
    // usernameController.text = ;
   }
 
-  void _saveProfile() {
+  void _saveProfile() async {
+  final userProvider = Provider.of<UserProvider>(context, listen: false);
+  
+  bool success = await ApiService.updateUsername(usernameController.text);
+  
+  if (success) {
+    userProvider.updateUsername(usernameController.text);
     setState(() {
-     // username = usernameController.text;
       _isEditing = false;
     });
-
-    if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Profile updated successfully!', style: text),
-          backgroundColor: Colors.green,
-        ),
-      );
-    }
+    // Show success snackbar
+  } else {
+    // Show error snackbar
   }
+}
 
   void _cancelEdit() {
     setState(() {
