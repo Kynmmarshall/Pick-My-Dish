@@ -130,4 +130,17 @@ static Future<bool> updateUsername(String newUsername, int userId) async {
   }
 }
 
+//user profile update
+static Future<bool> updateProfilePicture(String imagePath, int userId) async {
+  try {
+    final response = await http.put(
+      Uri.parse('$baseUrl/api/users/profile-picture'),
+      body: json.encode({'userId': userId, 'imagePath': imagePath}),
+      headers: {'Content-Type': 'application/json'},
+    );
+    return response.statusCode == 200;
+  } catch (e) {
+    return false;
+  }
+}
 }

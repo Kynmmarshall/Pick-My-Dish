@@ -75,30 +75,13 @@ class UserProvider with ChangeNotifier {
   /// Update the user's profile image and notify listeners.
   ///
   /// If there is no current user, this method does nothing.
-  void updateProfileImage(String newProfileImage) {
+  void updateProfilePicture(String ImagePath) {
     if (_user != null) {
-      _user = _user!.copyWith(profileImage: newProfileImage);
+      _user = _user!.copyWith(profileImage: ImagePath);
       notifyListeners();
     }
   }
 
-  /// Update multiple user fields at once and notify listeners.
-  ///
-  /// Useful for profile updates. If there is no current user, this method does nothing.
-  void updateUserProfile({
-    String? username,
-    String? fullName,
-    String? profileImage,
-  }) {
-    if (_user != null) {
-      _user = _user!.copyWith(
-        username: username,
-        fullName: fullName,
-        profileImage: profileImage,
-      );
-      notifyListeners();
-    }
-  }
 
   /// Clear the current user (log out) and notify listeners.
   void clearUser() {

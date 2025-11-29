@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 import 'package:pick_my_dish/Providers/user_provider.dart';
 import 'package:pick_my_dish/Screens/login_screen.dart';
 import 'package:pick_my_dish/Services/api_service.dart';
@@ -17,8 +19,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   TextEditingController usernameController = TextEditingController();
   bool _isEditing = false;
 
- @override
-void initState() {
+  @override
+  void initState() {
   super.initState();
   final userProvider = Provider.of<UserProvider>(context, listen: false);
   usernameController.text = userProvider.username;
@@ -61,6 +63,29 @@ void initState() {
     });
   }
 
+  void _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    
+    if (pickedFile != null && context.mounted) {
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      bool success = await ApiService.updateProfilePicture(
+        pickedFile.path, 
+        userProvider.userId
+      );
+      
+      if (success) {
+        userProvider.updateProfilePicture(pickedFile.path);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Profile picture updated!', style: text),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -100,29 +125,21 @@ void initState() {
                     // Profile Image with Edit Icon
                     Stack(
                       children: [
-                        const CircleAvatar(
-                          radius: 60,
-                          backgroundImage: AssetImage(
-                            'assets/login/noPicture.png',
-                          ),
+                        Consumer<UserProvider>(
+                          builder: (context, userProvider, child) {
+                            return CircleAvatar(
+                              radius: 60,
+                              backgroundImage: userProvider.user?.profileImage != null
+                                  ? FileImage(File(userProvider.user!.profileImage!))
+                                  : const AssetImage('assets/login/noPicture.png') as ImageProvider,
+                            );
+                          },
                         ),
                         Positioned(
                           bottom: 0,
                           right: 0,
                           child: GestureDetector(
-                            onTap: () {
-                              if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      'Profile picture change feature coming soon!',
-                                      style: text,
-                                    ),
-                                    backgroundColor: Colors.orange,
-                                  ),
-                                );
-                              }
-                            },
+                            onTap: _pickImage,
                             child: Container(
                               padding: const EdgeInsets.all(8),
                               decoration: const BoxDecoration(

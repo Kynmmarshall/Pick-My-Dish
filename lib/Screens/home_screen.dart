@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:pick_my_dish/Providers/user_provider.dart';
@@ -661,10 +662,16 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(height: 20),
                 Row(
                   children: [
-                    const CircleAvatar(
-                      radius: 40,
-                      backgroundImage: AssetImage('assets/login/noPicture.png'),
-                    ),
+                    Consumer<UserProvider>(
+                          builder: (context, userProvider, child) {
+                            return CircleAvatar(
+                              radius: 60,
+                              backgroundImage: userProvider.user?.profileImage != null
+                                  ? FileImage(File(userProvider.user!.profileImage!))
+                                  : const AssetImage('assets/login/noPicture.png') as ImageProvider,
+                            );
+                          },
+                        ),
                     const SizedBox(width: 25),
                      Consumer<UserProvider>(
                         builder: (context, userProvider, child) {
