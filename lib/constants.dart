@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 
 bool isPasswordVisible = false;
@@ -52,7 +50,6 @@ const categoryText = TextStyle(
   color: Colors.orange,
   fontSize: 16,
 );
-
 
 const placeHolder = TextStyle(
   fontFamily: 'TimesNewRoman',

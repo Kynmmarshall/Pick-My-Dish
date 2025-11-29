@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pick_my_dish/Screens/recipe_screen.dart';
+import 'package:pick_my_dish/Screens/recipe_detail_screen.dart';
 import 'package:pick_my_dish/constants.dart';
 
 class FavoritesScreen extends StatelessWidget {
@@ -10,6 +11,15 @@ class FavoritesScreen extends StatelessWidget {
     final favoriteRecipes = RecipesScreenState.allRecipes
         .where((recipe) => recipe['isFavorite'] == true)
         .toList();
+
+    void _showRecipeDetails(Map<String, dynamic> recipe) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => RecipeDetailScreen(recipe: recipe),
+        ),
+      );
+    }
 
     return Scaffold(
       body: Container(
@@ -47,9 +57,14 @@ class FavoritesScreen extends StatelessWidget {
                     : ListView.builder(
                         itemCount: favoriteRecipes.length,
                         itemBuilder: (context, index) {
-                          return Container(
-                            margin: EdgeInsets.only(bottom: 15),
-                            child: _buildRecipeCard(favoriteRecipes[index]),
+                          return GestureDetector(
+                            onTap: () {
+                              _showRecipeDetails(favoriteRecipes[index]);
+                            },
+                            child: Container(
+                              margin: EdgeInsets.only(bottom: 15),
+                              child: _buildRecipeCard(favoriteRecipes[index]),
+                            ),
                           );
                         },
                       ),
