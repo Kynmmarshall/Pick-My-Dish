@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'dart:io';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:pick_my_dish/Providers/user_provider.dart';
 import 'package:pick_my_dish/Screens/login_screen.dart';
@@ -7,7 +9,6 @@ import 'package:pick_my_dish/services/database_service.dart';
 import 'package:pick_my_dish/Screens/favorite_screen.dart';
 import 'package:pick_my_dish/Screens/profile_screen.dart';
 import 'package:pick_my_dish/Screens/recipe_screen.dart';
-import 'package:pick_my_dish/Screens/recipe_detail_screen.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:provider/provider.dart';
 
@@ -622,13 +623,23 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(height: 20),
                 Row(
                   children: [
-                    const CircleAvatar(
-                      radius: 40,
-                      backgroundImage: AssetImage('assets/login/noPicture.png'),
-                    ),
+                    Consumer<UserProvider>(
+                          builder: (context, userProvider, child) {
+                            return CircleAvatar(
+                              radius: 60,
+                              backgroundImage: userProvider.user?.profileImage != null
+                                  ? FileImage(File(userProvider.user!.profileImage!))
+                                  : const AssetImage('assets/login/noPicture.png') as ImageProvider,
+                            );
+                          },
+                        ),
                     const SizedBox(width: 25),
-                    Text("FAHDIL", style: title.copyWith(fontSize: 22)),
-                  ],
+                     Consumer<UserProvider>(
+                        builder: (context, userProvider, child) {
+                   return Text("${userProvider.username}", style: title.copyWith(fontSize: 22));
+                }
+                )
+                ],
                 ),
                 const SizedBox(height: 5),
                 GestureDetector(

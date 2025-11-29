@@ -1,19 +1,29 @@
 import 'dart:convert';  // For JSON encoding/decoding
-import 'package:http/http.dart' as http;  // For HTTP requests
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter/material.dart';
+import 'package:pick_my_dish/Providers/user_provider.dart';
+import 'package:provider/provider.dart';  // For HTTP requests
+
 
 class ApiService {
-  // Backend server URL - using your VPS IP address and port 3000
-  static const String baseUrl = 'http://localhost:3000';
+  // Backend server base URL
+    
+    // For physical device testing:
+   //static const String baseUrl = "http://192.168.1.110:3000";
+  
+  // For production (VPS):
+  static const String baseUrl = "http://38.242.246.126:3000";
   
   // Test if backend is reachable and database is connected
   static Future<void> testConnection() async {
     try {
       // Send GET request to test endpoint
       final response = await http.get(Uri.parse('$baseUrl/api/pick_my_dish'));
-      print('Backend status: ${response.statusCode}');  // Should be 200 if successful
-      print('Response: ${response.body}');  // Response data from backend
+      debugPrint('Backend status: ${response.statusCode}');  // Should be 200 if successful
+      debugPrint('Response: ${response.body}');  // Response data from backend
     } catch (e) {
-      print('Connection error: $e');  // Handle network/database errors
+      debugPrint('Connection error: $e');  // Handle network/database errors
     }
   }
 
@@ -25,55 +35,112 @@ class ApiService {
     return json.decode(response.body);
   }
 
-  // Register a new user with name, email, and password
-  static Future<bool> register(String fullName, String email, String password) async {
-  final response = await http.post(
-    Uri.parse('$baseUrl/api/auth/register'),
-    body: json.encode({
-      'fullName': fullName,
-      'email': email, 
-      'password': password
-    }),
-    headers: {'Content-Type': 'application/json'},
-  );
-  return response.statusCode == 201; // 201 for created
-}
+  
+  //login user
+  static Future<Map<String, dynamic>?>  login(String email, String password) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/api/auth/login'),
+        body: json.encode({'email': email, 'password': password}),
+        headers: {'Content-Type': 'application/json'},
+      );
+      final errorData = json.decode(response.body);
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        debugPrint('✅ Login successful: ${data['message']}');
+        debugPrint('👤 User: ${data['user']}');
+        return data;
+      } else {
+        debugPrint('❌ Login failed: ${response.statusCode} - ${response.body}');
+        return {'error': errorData['error'] ?? 'Login failed'};
+      }
+    } catch (e) {
+      debugPrint('❌ Login error: $e');
+      return {'error': 'Login error: $e'};
+    }
+  }
 
-  // Authenticate user with email and password
-  static Future<bool> login(String email, String password) async {
-    // Send POST request to login endpoint
-    final response = await http.post(
-      Uri.parse('$baseUrl/api/auth/login'),
-      // Convert Dart Map to JSON string for request body
-      body: json.encode({'email': email, 'password': password}),
-      // Set content type to JSON
-      headers: {'Content-Type': 'application/json'},
-    );
-    // Return true if login successful (status code 200)
-    return response.statusCode == 200;
+// Register a new user with name, email, and password
+static Future<bool> register(String userName, String email, String password) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/api/auth/register'),
+        body: json.encode({
+          'userName': userName,
+          'email': email,
+          'password': password
+        }),
+        headers: {'Content-Type': 'application/json'},
+      );
+      
+      if (response.statusCode == 201) {
+        final data = json.decode(response.body);
+        debugPrint('✅ Registration successful: ${data['message']}');
+        return true;
+      } else {
+        debugPrint('❌ Registration failed: ${response.statusCode} - ${response.body}');
+        return false;
+      }
+    } catch (e) {
+      debugPrint('❌ Registration error: $e');
+      return false;
+    }
   }
 
   static Future<void> testAuth() async {
-  print('🔐 Testing authentication...');
+  debugPrint('🔐 Testing authentication...');
   
   // Test Registration
   bool registered = await register('Test User', 'test@example.com', 'password123');
-  print(registered ? '✅ Registration successful' : '❌ Registration failed');
+  debugPrint(registered ? '✅ Registration successful' : '❌ Registration failed');
   
-  // Test Login
-  bool loggedIn = await login('test@example.com', 'password123');
-  print(loggedIn ? '✅ Login successful' : '❌ Login failed');
+
 }
 
 // Add this test
 static Future<void> testBaseUrl() async {
   try {
     final response = await http.get(Uri.parse('$baseUrl/'));
-    print('Base URL status: ${response.statusCode}');
-    print('Base URL response: ${response.body}');
+    debugPrint('Base URL status: ${response.statusCode}');
+    debugPrint('Base URL response: ${response.body}');
   } catch (e) {
-    print('Base URL error: $e');
+    debugPrint('Base URL error: $e');
   }
 }
 
+//update user name
+static Future<bool> updateUsername(String newUsername, int userId) async {
+  try {
+     debugPrint('🔄 Updating username: $newUsername for user: $userId');
+    final response = await http.put(
+      Uri.parse('$baseUrl/api/users/username'),
+      body: json.encode({
+        'username': newUsername,
+        'userId': userId  // ← Send user ID
+      }),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    debugPrint('📡 Status: ${response.statusCode}');
+    debugPrint('📡 Body: ${response.body}');
+    return response.statusCode == 200;
+  } catch (e) {
+    debugPrint('❌ Error: $e');
+    return false;
+  }
+}
+
+//user profile update
+static Future<bool> updateProfilePicture(String imagePath, int userId) async {
+  try {
+    final response = await http.put(
+      Uri.parse('$baseUrl/api/users/profile-picture'),
+      body: json.encode({'userId': userId, 'imagePath': imagePath}),
+      headers: {'Content-Type': 'application/json'},
+    );
+    return response.statusCode == 200;
+  } catch (e) {
+    return false;
+  }
+}
 }

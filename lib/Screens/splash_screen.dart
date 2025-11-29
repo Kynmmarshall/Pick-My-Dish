@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:pick_my_dish/screens/home_screen.dart';
+import 'package:pick_my_dish/Screens/home_screen.dart';
+import 'package:pick_my_dish/Screens/login_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -18,7 +19,7 @@ class _SplashScreenState extends State<SplashScreen> {
     _timer = Timer(const Duration(seconds: 3), () {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
+        MaterialPageRoute(builder: (context) => LoginScreen()),
       );
     });
   }
@@ -39,16 +40,6 @@ class _SplashScreenState extends State<SplashScreen> {
           children: [
             Image.asset('assets/logo/logo.png'),
             const SizedBox(height: 20),
-            const Text(
-              "PICK MY DISH",
-              style: TextStyle(
-                color: Colors.orange,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'TimesNewRoman',
-              ),
-            ),
-            const SizedBox(height: 10),
             const Text(
               "What should I eat today?",
               style: TextStyle(

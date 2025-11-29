@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:pick_my_dish/Providers/user_provider.dart';
 import 'package:pick_my_dish/Screens/recipe_screen.dart';
 
 // Helper to create test recipes
@@ -24,5 +26,17 @@ void resetRecipeFavorites() {
 Widget createTestableWidget(Widget child) {
   return MaterialApp(
     home: Scaffold(body: child),
+  );
+  
+}
+
+Widget wrapWithProviders(Widget child) {
+  return MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (_) => UserProvider()),
+    ],
+    child: MaterialApp(
+      home: child,
+    ),
   );
 }

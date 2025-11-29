@@ -9,6 +9,7 @@ import 'package:pick_my_dish/Screens/recipe_screen.dart';
 import 'package:pick_my_dish/Screens/favorite_screen.dart';
 import 'package:pick_my_dish/Screens/profile_screen.dart';
 import 'package:pick_my_dish/constants.dart';
+import '../test_helper.dart'; 
 
 void main() {
   // Test the screens in isolation with proper setup
@@ -19,43 +20,43 @@ void main() {
     });
 
     testWidgets('SplashScreen renders', (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(home: SplashScreen()));
+      await tester.pumpWidget(wrapWithProviders(const SplashScreen()));
       await tester.pump(); // Allow frame to render
       expect(find.byType(SplashScreen), findsOneWidget);
     });
 
     testWidgets('HomeScreen renders', (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+      await tester.pumpWidget(wrapWithProviders(const HomeScreen()));
       await tester.pump(); // Allow frame to render
       expect(find.byType(HomeScreen), findsOneWidget);
     });
 
     testWidgets('LoginScreen renders', (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(home: LoginScreen()));
+      await tester.pumpWidget(wrapWithProviders(const LoginScreen()));
       await tester.pump(); // Allow frame to render
       expect(find.byType(LoginScreen), findsOneWidget);
     });
 
     testWidgets('RegisterScreen renders', (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(home: RegisterScreen()));
+      await tester.pumpWidget(wrapWithProviders(const RegisterScreen()));
       await tester.pump(); // Allow frame to render
       expect(find.byType(RegisterScreen), findsOneWidget);
     });
 
     testWidgets('RecipeScreen renders', (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(home: RecipesScreen()));
+      await tester.pumpWidget(wrapWithProviders(const RecipesScreen()));
       await tester.pump(); // Allow frame to render
       expect(find.byType(RecipesScreen), findsOneWidget);
     });
 
     testWidgets('FavoriteScreen renders', (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(home: FavoritesScreen()));
+      await tester.pumpWidget(wrapWithProviders(const FavoritesScreen()));
       await tester.pump(); // Allow frame to render
       expect(find.byType(FavoritesScreen), findsOneWidget);
     });
 
     testWidgets('ProfileScreen renders', (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(home: ProfileScreen()));
+      await tester.pumpWidget(wrapWithProviders(const ProfileScreen()));
       await tester.pump(); // Allow frame to render
       expect(find.byType(ProfileScreen), findsOneWidget);
     });
@@ -63,36 +64,36 @@ void main() {
 
   group('Key UI Elements Tests', () {
     testWidgets('HomeScreen shows welcome text', (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+      await tester.pumpWidget(wrapWithProviders(const HomeScreen()));
       await tester.pumpAndSettle(); // Wait for all animations
       
       // Use findsAtLeast to be more flexible
-      expect(find.text('Welcome'), findsAtLeast(1));
+      expect(find.text('Welcome'), findsOneWidget);
     });
 
     testWidgets('LoginScreen shows app title', (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(home: LoginScreen()));
+      await tester.pumpWidget(wrapWithProviders(const LoginScreen()));
       await tester.pumpAndSettle();
       
       expect(find.text('PICK MY DISH'), findsAtLeast(1));
     });
 
     testWidgets('RegisterScreen shows register title', (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(home: RegisterScreen()));
+      await tester.pumpWidget(wrapWithProviders(const RegisterScreen()));
       await tester.pumpAndSettle();
       
       expect(find.text('Register'), findsAtLeast(1));
     });
 
     testWidgets('RecipeScreen shows all recipes title', (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(home: RecipesScreen()));
+      await tester.pumpWidget(wrapWithProviders(const RecipesScreen()));
       await tester.pumpAndSettle();
       
       expect(find.text('All Recipes'), findsAtLeast(1));
     });
 
     testWidgets('FavoriteScreen shows favorite recipes title', (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(home: FavoritesScreen()));
+      await tester.pumpWidget(wrapWithProviders(const FavoritesScreen()));
       await tester.pumpAndSettle();
       
       expect(find.text('Favorite Recipes'), findsAtLeast(1));
@@ -101,7 +102,7 @@ void main() {
 
   group('Form Elements Tests', () {
     testWidgets('LoginScreen has email field', (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(home: LoginScreen()));
+      await tester.pumpWidget(wrapWithProviders(const LoginScreen()));
       await tester.pumpAndSettle();
       
       // Look for TextField with hint text containing "Email"
@@ -113,7 +114,7 @@ void main() {
     });
 
     testWidgets('LoginScreen has password field', (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(home: LoginScreen()));
+      await tester.pumpWidget(wrapWithProviders(const LoginScreen()));
       await tester.pumpAndSettle();
       
       // Look for TextField with obscure text (password field)
@@ -124,25 +125,39 @@ void main() {
     });
 
     testWidgets('RegisterScreen has multiple text fields', (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(home: RegisterScreen()));
+      await tester.pumpWidget(wrapWithProviders(const RegisterScreen()));
       await tester.pumpAndSettle();
       
       // Should have multiple text fields for registration
       expect(find.byType(TextField), findsAtLeast(3));
     });
 
-    testWidgets('ProfileScreen has username field', (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(home: ProfileScreen()));
+    testWidgets('ProfileScreen shows username field when editing', (WidgetTester tester) async {
+      await tester.pumpWidget(wrapWithProviders(const ProfileScreen()));
       await tester.pumpAndSettle();
       
-      // Profile screen should have at least one text field
-      expect(find.byType(TextField), findsAtLeast(1));
+      // Initially, the TextField should not be visible (since _isEditing is false)
+      final usernameField = find.byKey(const Key('username_field'));
+      expect(usernameField, findsNothing);
+      
+      // Find and tap the edit button
+      final editButton = find.byKey(const Key('edit_button'));
+      expect(editButton, findsOneWidget);
+      await tester.tap(editButton);
+      await tester.pumpAndSettle();
+      
+      // Now the TextField should be visible
+      expect(usernameField, findsOneWidget);
+      
+      // Verify the TextField has the correct hint text
+      final textField = tester.widget<TextField>(usernameField);
+      expect(textField.decoration?.hintText, 'Enter username');
     });
   });
 
   group('Button Tests', () {
     testWidgets('LoginScreen has login button', (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(home: LoginScreen()));
+      await tester.pumpWidget(wrapWithProviders(const LoginScreen()));
       await tester.pumpAndSettle();
       
       // Look for elevated buttons
@@ -150,14 +165,14 @@ void main() {
     });
 
     testWidgets('RegisterScreen has register button', (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(home: RegisterScreen()));
+      await tester.pumpWidget(wrapWithProviders(const RegisterScreen()));
       await tester.pumpAndSettle();
       
       expect(find.byType(ElevatedButton), findsAtLeast(1));
     });
 
-    testWidgets('ProfileScreen has confirm button', (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(home: ProfileScreen()));
+    testWidgets('ProfileScreen has save button', (WidgetTester tester) async {
+      await tester.pumpWidget(wrapWithProviders(const ProfileScreen()));
       await tester.pumpAndSettle();
       
       expect(find.byType(ElevatedButton), findsAtLeast(1));
@@ -166,7 +181,7 @@ void main() {
 
   group('Icon Tests', () {
     testWidgets('RecipeScreen has favorite icons', (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(home: RecipesScreen()));
+      await tester.pumpWidget(wrapWithProviders(const RecipesScreen()));
       await tester.pumpAndSettle();
       
       // Should have favorite icons
@@ -175,7 +190,7 @@ void main() {
     });
 
     testWidgets('Screens have back buttons', (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(home: RecipesScreen()));
+      await tester.pumpWidget(wrapWithProviders(const RecipesScreen()));
       await tester.pumpAndSettle();
       
       // Many screens have back arrow icons
@@ -185,14 +200,16 @@ void main() {
 
   group('Layout Tests', () {
     testWidgets('HomeScreen has personalization section', (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+      await tester.pumpWidget(wrapWithProviders(const HomeScreen()));
       await tester.pumpAndSettle();
       
-      expect(find.text('Personalize Your Recipes'), findsAtLeast(1));
+      // Look for elements that should be in the personalization section
+      expect(find.text('Welcome'), findsOneWidget);
+      expect(find.text('What would you like to cook today?'), findsOneWidget);
     });
 
     testWidgets('RecipeScreen has search field', (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(home: RecipesScreen()));
+      await tester.pumpWidget(wrapWithProviders(const RecipesScreen()));
       await tester.pumpAndSettle();
       
       // Look for search icon or search-related text
@@ -200,7 +217,7 @@ void main() {
     });
 
     testWidgets('HomeScreen shows recipe section', (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+      await tester.pumpWidget(wrapWithProviders(const HomeScreen()));
       await tester.pumpAndSettle();
       
       expect(find.text('Today\'s Fresh Recipe'), findsAtLeast(1));
@@ -209,7 +226,7 @@ void main() {
 
   group('Input Tests', () {
     testWidgets('Can type in login email field', (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(home: LoginScreen()));
+      await tester.pumpWidget(wrapWithProviders(const LoginScreen()));
       await tester.pumpAndSettle();
       
       // Find first text field and enter text
@@ -221,7 +238,7 @@ void main() {
     });
 
     testWidgets('Can type in recipe search', (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(home: RecipesScreen()));
+      await tester.pumpWidget(wrapWithProviders(const RecipesScreen()));
       await tester.pumpAndSettle();
       
       // Find text fields and try to enter text in the first one (likely search)
