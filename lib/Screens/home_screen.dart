@@ -127,6 +127,19 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  ImageProvider _getProfileImage(String imagePath) {
+  print('🖼️ Loading image: $imagePath');
+  
+  // ALWAYS use NetworkImage for server paths
+  if (imagePath.startsWith('uploads/') || imagePath.contains('profile-')) {
+    return NetworkImage('http://38.242.246.126:3000/$imagePath');
+  } else {
+    // Only use AssetImage for actual local assets
+    return AssetImage(imagePath);
+  }
+}
+
+
   Widget _buildPersonalizedRecipeCard(Map<String, dynamic> recipe) {
     List<String> ingredients = List<String>.from(
       json.decode(recipe['ingredients']),
@@ -626,12 +639,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     Consumer<UserProvider>(
                           builder: (context, userProvider, child) {
+                            return Consumer<UserProvider>(
+                          builder: (context, userProvider, child) {
                             return CircleAvatar(
-                              radius: 60,
-                              backgroundImage: userProvider.user?.profileImage != null
-                                  ? FileImage(File(userProvider.user!.profileImage!))
-                                  : const AssetImage('assets/login/noPicture.png') as ImageProvider,
-                            );
+                            radius: 60,
+                            backgroundImage: _getProfileImage(userProvider.profilePicture),
+                          );
+                          },
+                        );
                           },
                         ),
                     const SizedBox(width: 25),

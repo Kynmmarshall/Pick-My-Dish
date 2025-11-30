@@ -25,6 +25,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
   super.initState();
   final userProvider = Provider.of<UserProvider>(context, listen: false);
   usernameController.text = userProvider.username;
+  _loadProfilePicture();
+}
+
+  void _loadProfilePicture() async {
+  if (!mounted) return;
+  
+  final userProvider = Provider.of<UserProvider>(context, listen: false);
+  String? imagePath = await ApiService.getProfilePicture(userProvider.userId);
+  debugPrint('🖼️ Image path from server: $imagePath');
+  if (imagePath != null && mounted) {
+    userProvider.updateProfilePicture(imagePath);
+    setState(() {}); // Refresh UI
+  }
 }
 
   void _saveProfile() async {
@@ -65,27 +78,56 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _pickImage() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+  final picker = ImagePicker();
+  final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+  
+  if (pickedFile != null) {
+    // Check mounted BEFORE using context
+    if (!mounted) return;
     
-    if (pickedFile != null && context.mounted) {
-      final userProvider = Provider.of<UserProvider>(context, listen: false);
-      bool success = await ApiService.updateProfilePicture(
-        pickedFile.path, 
-        userProvider.userId
-      );
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    
+    // Convert XFile to File and use UPLOAD method (not update)
+    bool success = await ApiService.uploadProfilePicture(
+      File(pickedFile.path), // Convert to File object
+      userProvider.userId
+    );
+    
+    // Check mounted again after async operation
+    if (!mounted) return;
+    
+    if (success) {
+      // Reload from server to get the actual stored path
+      _loadProfilePicture();
       
-      if (success) {
-        userProvider.updateProfilePicture(pickedFile.path);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Profile picture updated!', style: text),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Profile picture updated!', style: text),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to update picture', style: text),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
+}
+
+  ImageProvider _getProfileImage(String imagePath) {
+  print('🖼️ Loading image: $imagePath');
+  
+  // ALWAYS use NetworkImage for server paths
+  if (imagePath.startsWith('uploads/') || imagePath.contains('profile-')) {
+    return NetworkImage('http://38.242.246.126:3000/$imagePath');
+  } else {
+    // Only use AssetImage for actual local assets
+    return AssetImage(imagePath);
+  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -129,11 +171,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Consumer<UserProvider>(
                           builder: (context, userProvider, child) {
                             return CircleAvatar(
-                              radius: 60,
-                              backgroundImage: userProvider.user?.profileImage != null
-                                  ? FileImage(File(userProvider.user!.profileImage!))
-                                  : const AssetImage('assets/login/noPicture.png') as ImageProvider,
-                            );
+                            radius: 60,
+                            backgroundImage: _getProfileImage(userProvider.profilePicture),
+                          );
                           },
                         ),
                         Positioned(

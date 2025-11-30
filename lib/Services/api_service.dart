@@ -1,4 +1,5 @@
 import 'dart:convert';  // For JSON encoding/decoding
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
@@ -131,16 +132,44 @@ static Future<bool> updateUsername(String newUsername, int userId) async {
 }
 
 //update profile picture
-static Future<bool> updateProfilePicture(String imagePath, int userId) async {
+static Future<bool> uploadProfilePicture(File imageFile, int userId) async {
   try {
-    final response = await http.put(
-      Uri.parse('$baseUrl/api/users/profile-picture'),
-      body: json.encode({'userId': userId, 'imagePath': imagePath}),
-      headers: {'Content-Type': 'application/json'},
+    var request = http.MultipartRequest(
+      'PUT', 
+      Uri.parse('$baseUrl/api/users/profile-picture')
     );
+    
+    request.files.add(
+      await http.MultipartFile.fromPath('image', imageFile.path)
+    );
+    
+    // Add user ID to request
+    request.fields['userId'] = userId.toString();
+    
+    var response = await request.send();
     return response.statusCode == 200;
   } catch (e) {
     return false;
+  }
+}
+
+//Get profile picture
+static Future<String?> getProfilePicture(int userId) async {
+  try {
+    final response = await http.get(
+      Uri.parse('$baseUrl/api/users/profile-picture?userId=$userId')
+    );
+    
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      return data['imagePath']; // Returns the image path from database
+    } else {
+      print('❌ Failed to get profile picture: ${response.statusCode}');
+      return null;
+    }
+  } catch (e) {
+    print('❌ Error getting profile picture: $e');
+    return null;
   }
 }
 }

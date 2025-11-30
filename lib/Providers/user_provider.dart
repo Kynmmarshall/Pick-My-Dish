@@ -12,7 +12,8 @@ class UserProvider with ChangeNotifier {
   DateTime _joined = DateTime.now();
   /// Returns the current user, or null if not signed in.
   User? get user => _user;
-
+  String _profilePicture = 'assets/login/noPicture.png';
+  String get profilePicture => _profilePicture;
   /// Returns the username of the current user, or a default 'User' string
   /// when no user is available.
   String get username => _user?.username ?? 'User';  
@@ -60,11 +61,9 @@ class UserProvider with ChangeNotifier {
   /// Update the user's profile image and notify listeners.
   ///
   /// If there is no current user, this method does nothing.
-  void updateProfilePicture(String ImagePath) {
-    if (_user != null) {
-      _user = _user!.copyWith(profileImage: ImagePath);
-      notifyListeners();
-    }
+  void updateProfilePicture(String imagePath) {
+    _profilePicture = imagePath;
+    notifyListeners();
   }
 
 
