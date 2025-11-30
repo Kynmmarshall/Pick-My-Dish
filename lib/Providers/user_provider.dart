@@ -9,7 +9,7 @@ class UserProvider with ChangeNotifier {
   // Backing field for the current user. Null when no user is logged in.
   User? _user;
   int _userId = 0;
-
+  DateTime _joined = DateTime.now();
   /// Returns the current user, or null if not signed in.
   User? get user => _user;
 
@@ -19,12 +19,6 @@ class UserProvider with ChangeNotifier {
   int get userId => _userId;  
 
 
-  /// Returns the first name of the current user extracted from fullName,
-  /// or falls back to username, or 'User' if no user is available.
-  String get firstName => _user?.firstName ?? username;
-
-  /// Returns the full name of the current user, or empty string if not available.
-  String get fullName => _user?.fullName ?? '';
 
   /// Returns the email of the current user, or empty string if not available.
   String get email => _user?.email ?? '';
@@ -62,15 +56,6 @@ class UserProvider with ChangeNotifier {
     }
   }
 
-  /// Update the user's full name and notify listeners.
-  ///
-  /// If there is no current user, this method does nothing.
-  void updateFullName(String newFullName) {
-    if (_user != null) {
-      _user = _user!.copyWith(fullName: newFullName);
-      notifyListeners();
-    }
-  }
 
   /// Update the user's profile image and notify listeners.
   ///
@@ -99,7 +84,7 @@ class UserProvider with ChangeNotifier {
       debugPrint('UserProvider: No user logged in');
     } else {
       debugPrint('UserProvider: Current user - ${_user!.toString()}');
-      debugPrint('UserProvider: First name - $firstName');
+      debugPrint('UserProvider: First name - $username');
     }
   }
 }

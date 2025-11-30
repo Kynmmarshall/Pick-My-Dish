@@ -6,6 +6,7 @@ import 'package:pick_my_dish/Screens/login_screen.dart';
 import 'package:pick_my_dish/Services/api_service.dart';
 import 'package:pick_my_dish/constants.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -158,10 +159,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     const SizedBox(height: 30),
 
-                    // Username Section
-                    Text("Username", style: mediumtitle),
-                    const SizedBox(height: 10),
-
                     // FIX: Always render TextField but control visibility
                     _isEditing
                         ? Row(
@@ -265,13 +262,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           _buildInfoRow(
                             Icons.email,
                             "Email",
-                            "kynmmarshall@example.com",
+                            Provider.of<UserProvider>(context).email,
                           ),
                           const SizedBox(height: 10),
-                          _buildInfoRow(
+                          Consumer<UserProvider>(
+                          builder: (context, userProvider, child) {
+                            return _buildInfoRow(
                             Icons.cake,
                             "Member since",
-                            "January 2024",
+                            DateFormat('d MMMM yyyy').format(userProvider.user?.joinedDate ?? DateTime.now()),
+                          );
+                          },
                           ),
                           const SizedBox(height: 10),
                           _buildInfoRow(

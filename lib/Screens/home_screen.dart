@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:pick_my_dish/Providers/user_provider.dart';
 import 'package:pick_my_dish/Screens/login_screen.dart';
+import 'package:pick_my_dish/Screens/recipe_detail_screen.dart';
 import 'package:pick_my_dish/constants.dart';
 import 'package:pick_my_dish/services/database_service.dart';
 import 'package:pick_my_dish/Screens/favorite_screen.dart';

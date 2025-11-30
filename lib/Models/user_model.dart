@@ -2,37 +2,32 @@ class User {
   final String id;
   final String username;
   final String email;
-  final String fullName;
   final String? profileImage;
+  final DateTime joinedDate;
 
   User({
     required this.id,
     required this.username,
     required this.email,
-    required this.fullName,
-    this.profileImage,
-  });
+    this.profileImage, 
+    DateTime? joinedDate,
+  }): joinedDate = joinedDate ?? DateTime.now(); 
 
-  // Get first name from full name
-  String get firstName {
-    if (fullName.isEmpty) return username;
-    return fullName.split(' ').first;
-  }
 
   // Fixed copyWith method - includes ALL fields
   User copyWith({
     String? id,
     String? username,
     String? email,
-    String? fullName,
     String? profileImage,
+    DateTime? joinedDate,
   }) {
     return User(
       id: id ?? this.id,
       username: username ?? this.username,
       email: email ?? this.email,
-      fullName: fullName ?? this.fullName,
       profileImage: profileImage ?? this.profileImage,
+      joinedDate: joinedDate ?? this.joinedDate
     );
   }
 
@@ -42,8 +37,10 @@ class User {
       id: json['id']?.toString() ?? '',
       username: json['username'] ?? '',
       email: json['email'] ?? '',
-      fullName: json['full_name'] ?? '',
       profileImage: json['profile_image_path'] ?? json['profileImage'],
+      joinedDate: json['created_at'] != null 
+        ? DateTime.parse(json['created_at'])  // ← Parse from database
+        : null,
     );
   }
 
@@ -53,15 +50,15 @@ class User {
       'id': id,
       'username': username,
       'email': email,
-      'full_name': fullName,
       'profile_image_path': profileImage,
+      'created_at': joinedDate.toIso8601String(),
     };
   }
 
   // For debugging
   @override
   String toString() {
-    return 'User(id: $id, username: $username, email: $email, fullName: $fullName, profileImage: $profileImage)';
+    return 'User(id: $id, username: $username, email: $email, profileImage: $profileImage, joinedDate: $joinedDate)';
   }
 
   // For equality comparison
@@ -73,12 +70,13 @@ class User {
         other.id == id &&
         other.username == username &&
         other.email == email &&
-        other.fullName == fullName &&
-        other.profileImage == profileImage;
+        other.profileImage == profileImage &&
+        other.joinedDate == joinedDate;
+
   }
 
   @override
   int get hashCode {
-    return Object.hash(id, username, email, fullName, profileImage);
+    return Object.hash(id, username, email, profileImage, joinedDate);
   }
 }

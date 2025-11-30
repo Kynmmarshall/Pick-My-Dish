@@ -130,7 +130,7 @@ static Future<bool> updateUsername(String newUsername, int userId) async {
   }
 }
 
-//user profile update
+//update profile picture
 static Future<bool> updateProfilePicture(String imagePath, int userId) async {
   try {
     final response = await http.put(
