@@ -221,22 +221,23 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: Colors.black,
         elevation: 0,
         leading: Padding(
-          padding: const EdgeInsets.only(left: 30, top: 30),
+          padding: const EdgeInsets.only(left: 30, top: 20),
           child: GestureDetector(
             onTap: () {
               _scaffoldKey.currentState?.openDrawer();
             },
-            child: Image.asset(
-              'assets/icons/hamburger.png',
-              width: 24,
-              height: 24,
-            ),
+            
+              child: const Icon(
+                Icons.menu,
+                color: Colors.orange,
+                size: iconSize,
+              ),
           ),
         ),
         // Add actions (right side buttons)
         actions: [
           Padding(
-            padding: const EdgeInsets.only(top: 30, right: 20),
+            padding: const EdgeInsets.only(top: 10, right: 20),
             child: Row(
               children: [
                 // Add Recipe Icon
@@ -249,10 +250,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     );
                   },
-                  child: Image.asset(
-                    'assets/icons/add.png', // You'll need to add this icon
-                    width: 24,
-                    height: 24,
+                  child: const Icon(
+                    Icons.add,
+                    color: Colors.orange,
+                    size: iconSize,
                   ),
                 ),
                 const SizedBox(width: 20),
@@ -267,10 +268,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     );
                   },
-                  child: Image.asset(
-                    'assets/icons/heart.png', // You'll need to add this icon
-                    width: 24,
-                    height: 24,
+                  child: const Icon(
+                    Icons.favorite,
+                    color: Colors.orange,
+                    size: iconSize,
                   ),
                 ),
                 const SizedBox(width: 10), // Adjust spacing
