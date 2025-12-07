@@ -1,4 +1,6 @@
 import 'dart:convert';
+
+import 'package:flutter/material.dart';
 class Recipe {
   final int id;
   final String name;
@@ -27,6 +29,7 @@ class Recipe {
   });
 
   factory Recipe.fromJson(Map<String, dynamic> json) {
+    
     // Helper function
     List<String> parseBackendData(dynamic data) {
       if (data == null) return [];
@@ -42,6 +45,16 @@ class Recipe {
       }
       return [];
     }
+    List<String> parseIngredients() {
+    final ingredientNames = json['ingredient_names'];
+    if (ingredientNames == null || ingredientNames == 'null') return [];
+    
+    final names = ingredientNames.toString();
+    if (names.isEmpty) return [];
+    
+    // Split by comma and trim whitespace
+    return names.split(',').map((name) => name.trim()).toList();
+  }
     
     return Recipe(
       id: json['id'] ?? 0,
@@ -50,7 +63,7 @@ class Recipe {
       cookingTime: json['cooking_time'] ?? json['time'] ?? '30 mins',
       calories: json['calories']?.toString() ?? '0',
       imagePath: json['image_path'] ?? json['image'] ?? 'assets/recipes/test.png',
-      ingredients: parseBackendData(json['ingredients_names']),
+      ingredients: parseIngredients(),
       steps: parseBackendData(json['steps'] ?? json['instructions']),
       moods: parseBackendData(json['emotions'] ?? json['mood']),
       userId: json['user_id'] ?? json['userId'] ?? 0,
