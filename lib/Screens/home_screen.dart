@@ -29,6 +29,8 @@ class _HomeScreenState extends State<HomeScreen> {
   String? selectedEmotion;
   List<String> selectedIngredients = [];
   List<int> selectedIngredientIds = [];
+  List<Recipe> _todayRecipes = [];
+  bool _loadingTodayRecipes = false;
   String? selectedTime;
 
   List<String> emotions = [
@@ -93,6 +95,32 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
   
+  void _loadTodayRecipes() async {
+    if (_loadingTodayRecipes) return;
+    
+    setState(() => _loadingTodayRecipes = true);
+    
+    try {
+      final recipeMaps = await ApiService.getRecipes();
+      final recipes = recipeMaps.map((map) => Recipe.fromJson(map)).toList();
+      
+      // Take only first 3 recipes
+      setState(() {
+        _todayRecipes = recipes.take(3).toList();
+      });
+    } catch (e) {
+      print('❌ Error loading today recipes: $e');
+    } finally {
+      setState(() => _loadingTodayRecipes = false);
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTodayRecipes();
+  }
+
   void _logout() async {
     // 1. Clear all user data from provider
     final userProvider = Provider.of<UserProvider>(context, listen: false);
@@ -149,9 +177,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildPersonalizedRecipeCard(Recipe recipe) {
-    List<String> ingredients = List<String>.from(
-      recipe.ingredients,
-    );
     List<String> moods = List<String>.from(recipe.moods);
 
     return Container(
@@ -383,40 +408,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                       const SizedBox(height: 20),
                     ],
-
                     // Regular Recipe Cards
-                    ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: 3,
-                      itemBuilder: (context, index) {
-                        // Create Recipe object instead of Map
-                        final recipe = Recipe(
-                          id: index + 1000, // Temporary ID
-                          name: 'Sample Recipe ${index + 1}',
-                          cookingTime: '${15 + index * 10} mins',
-                          imagePath: 'assets/recipes/test.png',
-                          isFavorite: false,
-                          category: 'Main Course',
-                          calories: '${300 + index * 100}',
-                          ingredients: ['Ingredient 1', 'Ingredient 2', 'Ingredient 3'],
-                          steps: [
-                            'Step 1: Prepare ingredients',
-                            'Step 2: Cook according to instructions',
-                            'Step 3: Serve hot'
-                          ],
-                          moods: ['Comfort', 'Healthy'], // Note: 'moods' (plural) not 'mood'
-                          userId: 1, // Default user ID
-                          authorName: 'Unknown',
-                        );
-                        return Column(
-                          children: [
-                            buildRecipeCard(recipe), // Now passes Recipe object
-                            const SizedBox(height: 20),
-                          ],
-                        );
-                      },
-                    ),
+                    _buildRecipeList(),
                     const SizedBox(height: 30),
                   ],
                 ),
@@ -574,10 +567,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 height: 54,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
-                  image: DecorationImage(
-                    image: AssetImage(recipe.imagePath),
-                    fit: BoxFit.cover,
-                  ),
+                ),
+                child: CachedProfileImage(
+                  imagePath: recipe.imagePath,
+                  radius: 10,
+                  isProfilePicture: false,
+                  width: 66,
+                  height: 54,
+                  fit: BoxFit.cover,
                 ),
               ),
             ),
@@ -764,4 +761,27 @@ class _HomeScreenState extends State<HomeScreen> {
       contentPadding: EdgeInsets.zero,
     );
   }
+
+  Widget _buildRecipeList() {
+  if (_loadingTodayRecipes) {
+    return Center(child: CircularProgressIndicator(color: Colors.orange));
+  }
+  
+  if (_todayRecipes.isEmpty) {
+    return Center(
+      child: Text('No recipes available', style: text),
+    );
+  }
+  
+  return Column(
+    children: _todayRecipes.map((recipe) {
+      return Column(
+        children: [
+          buildRecipeCard(recipe),
+          const SizedBox(height: 20),
+        ],
+      );
+    }).toList(),
+  );
+}
 }

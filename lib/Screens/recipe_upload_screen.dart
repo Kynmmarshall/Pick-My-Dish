@@ -17,8 +17,8 @@ class RecipeUploadScreen extends StatefulWidget {
 }
 
 class _RecipeUploadScreenState extends State<RecipeUploadScreen> {
-  final TextEditingController _nameController = TextEditingController();  final TextEditingController _caloriesController = TextEditingController();
-  final TextEditingController _ingredientsController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();  
+  final TextEditingController _caloriesController = TextEditingController();
   final TextEditingController _stepsController = TextEditingController();
   
   File? _selectedImage;
