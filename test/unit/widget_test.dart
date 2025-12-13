@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:pick_my_dish/Providers/recipe_provider.dart';
+import 'package:pick_my_dish/Providers/user_provider.dart';
 import 'package:pick_my_dish/main.dart';
 import 'package:pick_my_dish/Screens/splash_screen.dart';
 import 'package:pick_my_dish/Screens/home_screen.dart';
@@ -9,6 +11,7 @@ import 'package:pick_my_dish/Screens/recipe_screen.dart';
 import 'package:pick_my_dish/Screens/favorite_screen.dart';
 import 'package:pick_my_dish/Screens/profile_screen.dart';
 import 'package:pick_my_dish/constants.dart';
+import 'package:provider/provider.dart';
 import '../test_helper.dart'; 
 
 void main() {
@@ -26,9 +29,20 @@ void main() {
     });
 
     testWidgets('HomeScreen renders', (WidgetTester tester) async {
-      await tester.pumpWidget(wrapWithProviders(const HomeScreen()));
-      await tester.pump(); // Allow frame to render
-      expect(find.byType(HomeScreen), findsOneWidget);
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => UserProvider()),
+          ChangeNotifierProvider(create: (_) => RecipeProvider()),
+        ],
+        child: MaterialApp(
+          home: HomeScreen(),
+        ),
+      ),
+    );
+
+    await tester.pump(); // Let async operations complete
+    expect(find.text('Welcome'), findsOneWidget);
     });
 
     testWidgets('LoginScreen renders', (WidgetTester tester) async {

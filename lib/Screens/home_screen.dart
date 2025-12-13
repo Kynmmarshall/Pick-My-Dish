@@ -33,6 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Recipe> _todayRecipes = [];
   bool _loadingTodayRecipes = false;
   String? selectedTime;
+  bool _recipesLoaded = false;
 
   List<String> emotions = [
     'Happy',
@@ -216,12 +217,35 @@ class _HomeScreenState extends State<HomeScreen> {
     _loadIngredients();
 
     //Load all recipes into RecipeProvider
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-    final recipeProvider = Provider.of<RecipeProvider>(context, listen: false);
-    recipeProvider.loadRecipes();
-  });
+  //   WidgetsBinding.instance.addPostFrameCallback((_) {
+  //   final recipeProvider = Provider.of<RecipeProvider>(context, listen: false);
+  //   recipeProvider.loadRecipes();
+  // });
   }
 
+// update didChangeDependencies
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    
+    // Load recipes only once
+    if (!_recipesLoaded) {
+      _recipesLoaded = true;
+      
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          try {
+            final recipeProvider = Provider.of<RecipeProvider>(context, listen: false);
+            recipeProvider.loadRecipes();
+          } catch (e) {
+            debugPrint('⚠️ Could not load recipes: $e');
+          }
+        }
+      });
+    }
+  }
+  
   void _logout() async {
     // 1. Clear all user data from provider
     final userProvider = Provider.of<UserProvider>(context, listen: false);
