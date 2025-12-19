@@ -13,6 +13,7 @@ class Recipe {
   final List<String> steps;
   final List<String> moods;
   final int userId;
+  final int? creatorId; // NEW: track recipe creator
   final bool isFavorite;
 
   Recipe({
@@ -27,6 +28,7 @@ class Recipe {
     required this.steps,
     required this.moods,
     required this.userId,
+    this.creatorId, // NEW: track recipe creator
     this.isFavorite = false,
   });
 
@@ -70,6 +72,7 @@ class Recipe {
       steps: parseBackendData(json['steps'] ?? json['instructions']),
       moods: parseBackendData(json['emotions'] ?? json['mood']),
       userId: json['user_id'] ?? json['userId'] ?? 0,
+      creatorId: json['creator_id'] ?? json['userId'] ?? 0, // NEW: track recipe creator
       isFavorite: json['isFavorite'] ?? false,
     );
   }
@@ -103,6 +106,12 @@ class Recipe {
     );
   }
 
+  // Helper method to check if user can edit/delete
+  bool canUserEdit(int userId, bool isAdmin) {
+    if (isAdmin) return true; // Admins can edit everything
+    return creatorId == userId; // Regular users only their own
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -119,4 +128,5 @@ class Recipe {
       'isFavorite': isFavorite,
     };
   }
+
 }
