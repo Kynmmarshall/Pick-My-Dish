@@ -40,13 +40,13 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
     final canEdit = recipe.canUserEdit(userProvider.userId, isAdmin);
     final canDelete = recipe.canUserDelete(userProvider.userId, isAdmin);
     
-    print('🔍 Recipe Detail Screen:');
-    print('   Recipe ID: ${recipe.id}');
-    print('   Recipe userId (creator): ${recipe.userId}');
-    print('   Current user ID: ${userProvider.userId}');
-    print('   Is admin: $isAdmin');
-    print('   Can edit: $canEdit');
-    print('   Can delete: $canDelete');
+    debugPrint('🔍 Recipe Detail Screen:');
+    debugPrint('   Recipe ID: ${recipe.id}');
+    debugPrint('   Recipe userId (creator): ${recipe.userId}');
+    debugPrint('   Current user ID: ${userProvider.userId}');
+    debugPrint('   Is admin: $isAdmin');
+    debugPrint('   Can edit: $canEdit');
+    debugPrint('   Can delete: $canDelete');
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -70,14 +70,14 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
             leading: Padding(
               padding: const EdgeInsets.only(top: 20),
               child: IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.white, size: 30),
+                icon: const Icon(Icons.arrow_back, color: Colors.black, size: 30),
                 onPressed: () => Navigator.pop(context),
               ),
             ),
             actions: [
               if (canEdit || canDelete) // Show menu if user has permissions
                 PopupMenuButton<String>(
-                  icon: Icon(Icons.more_vert, color: Colors.white),
+                  icon: Icon(Icons.more_vert, color: Colors.black, size: 50),
                   onSelected: (value) {
                     if (value == 'edit') {
                       _navigateToEditScreen(recipe);
