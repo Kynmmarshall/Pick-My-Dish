@@ -360,7 +360,7 @@ class _RecipeEditScreenState extends State<RecipeEditScreen> {
         Text(hint, style: mediumtitle),
         const SizedBox(height: 10),
         Container(
-          height: 120,
+          height: 250,
           decoration: BoxDecoration(
             border: Border.all(color: Colors.orange),
             borderRadius: BorderRadius.circular(10),
