@@ -1,39 +1,67 @@
-void _logout() async {
-  // Show confirmation dialog
+// In the ProfileScreen build method, update the logout button:
+
+// Logout Button
+SizedBox(
+  width: double.infinity,
+  child: ElevatedButton(
+    key: const Key('logout_button'),
+    onPressed: () {
+      _confirmLogout();
+    },
+    style: ElevatedButton.styleFrom(
+      backgroundColor: Colors.red,
+      minimumSize: const Size(double.infinity, 50),
+    ),
+    child: Text(
+      "Logout",
+      style: text.copyWith(fontSize: 20),
+    ),
+  ),
+),
+
+// Add this method to _ProfileScreenState:
+void _confirmLogout() {
   showDialog(
     context: context,
     builder: (context) => AlertDialog(
-      backgroundColor: Colors.black,
-      title: Text('Logout', style: title.copyWith(fontSize: 24)),
+      title: Text('Logout', style: title),
       content: Text('Are you sure you want to logout?', style: text),
+      backgroundColor: Colors.black,
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: Text('Cancel', style: footerClickable),
+          child: Text('Cancel', style: text.copyWith(color: Colors.white)),
         ),
-        ElevatedButton(
-          onPressed: () async {
+        TextButton(
+          onPressed: () {
             Navigator.pop(context); // Close dialog
-            
-            // 1. Clear all user data from provider
-            final userProvider = Provider.of<UserProvider>(context, listen: false);
-            await userProvider.logout();
-            
-            // 2. Navigate to login (clear navigation stack)
-            if (mounted) {
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (context) => const LoginScreen()),
-                (route) => false, // Remove all previous routes
-              );
-            }
+            _logout(); // Perform logout
           },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.red,
-          ),
-          child: Text('Logout', style: text),
+          child: Text('Logout', style: text.copyWith(color: Colors.red)),
         ),
       ],
     ),
   );
+}
+
+// Update the existing _logout method to clear API token:
+void _logout() async {
+  // Clear API token
+  ApiService.clearAuthToken();
+  
+  // Clear all user data from provider
+  final userProvider = Provider.of<UserProvider>(context, listen: false);
+  final recipeProvider = Provider.of<RecipeProvider>(context, listen: false);
+  
+  userProvider.logout();
+  recipeProvider.logout();
+  
+  // Navigate to login (clear navigation stack)
+  if (mounted) {
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => LoginScreen()),
+      (route) => false,
+    );
+  }
 }
