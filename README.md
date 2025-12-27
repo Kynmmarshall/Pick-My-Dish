@@ -1011,7 +1011,7 @@ curl https://pickmydish.duckdns.org/api/health
 
 ## 📈 Performance Metrics
 
-- **App Size:** 28.5MB (Android APK)
+- **App Size:** 70MB (Android APK)
 - **Web App Size:** 2.1MB (gzipped)
 - **Startup Time:** 1.2 seconds (cold), 0.3s (warm)
 - **API Response Time:** < 150ms (95th percentile)
