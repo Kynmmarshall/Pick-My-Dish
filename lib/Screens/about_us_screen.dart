@@ -432,7 +432,7 @@ class AboutUsScreen extends StatelessWidget {
       name: 'Tuheu Tchoubi Pempem Moussa Fahdil',
       role: 'Frontend & UI/UX Developer',
       description: 'Third-year Software Engineering student at ICT University specializing in user interface design and mobile application development. Focuses on creating intuitive and visually appealing cooking experiences.',
-      imageAsset: 'assets/developers/tuheu.jpg',
+      imageAsset: 'assets/developers/tuheu.png',
       linkedInUrl: 'https://linkedin.com/in/tuheu-tchoubi',
       githubUrl: 'https://github.com/TUHEU',
       contributions: [

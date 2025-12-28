@@ -590,6 +590,11 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _loadingTodayRecipes ? null : _loadTodayRecipes,
+        backgroundColor: Colors.orange,
+        child: Icon(Icons.refresh),
+      ),
     );
   }
 

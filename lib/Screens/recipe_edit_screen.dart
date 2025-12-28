@@ -50,7 +50,7 @@ class _RecipeEditScreenState extends State<RecipeEditScreen> {
     super.initState();
     _initializeForm();
   }
-  
+
   void _initializeForm() {
     final recipe = widget.recipe;
     
@@ -92,18 +92,35 @@ class _RecipeEditScreenState extends State<RecipeEditScreen> {
   }
   
   void _updateRecipe() async {
-    debugPrint('🔄 Update button pressed');
+      debugPrint('🔄 UPDATE RECIPE DEBUG INFO:');
+      debugPrint('   Recipe ID: ${widget.recipe.id}');
+      debugPrint('   Recipe from widget: ${widget.recipe.name}');
+      debugPrint('   Recipe userId from widget: ${widget.recipe.userId}');
     if (_nameController.text.isEmpty) {
       debugPrint('🔄 Update button pressed');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please fill required fields')),
+        SnackBar(content: Text('Please fill required fields'),
+        backgroundColor: Colors.orange,),
       );
       return;
     }
     
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     final recipeProvider = Provider.of<RecipeProvider>(context, listen: false);
+
+    debugPrint('   Current user ID: ${userProvider.userId}');
+    debugPrint('   Current user isAdmin: ${userProvider.user?.isAdmin}');
+    debugPrint('   Current username: ${userProvider.username}');
     
+    // Check if recipe exists in provider
+  final recipeInProvider = recipeProvider.recipes.firstWhere(
+    (r) => r.id == widget.recipe.id,
+    orElse: () => Recipe.empty(),
+  );
+  
+  debugPrint('   Recipe in provider: ${recipeInProvider.id != 0}');
+  debugPrint('   Recipe userId in provider: ${recipeInProvider.userId}');
+
     // Check if user can still edit (in case permissions changed)
     final canEdit = recipeProvider.canEditRecipe(
       widget.recipe.id, 
@@ -111,9 +128,14 @@ class _RecipeEditScreenState extends State<RecipeEditScreen> {
       userProvider.user?.isAdmin ?? false
     );
     
+    debugPrint('   Final canEdit result: $canEdit');
+
     if (!canEdit) {
+
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('You are no longer authorized to edit this recipe')),
+        SnackBar(content: Text('You are no longer authorized to edit this recipe',style: text),
+        backgroundColor: Colors.orange,),
+
       );
       return;
     }
@@ -165,22 +187,26 @@ class _RecipeEditScreenState extends State<RecipeEditScreen> {
       if (success && mounted) {
         debugPrint('✅ Recipe updated successfully!');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Recipe updated successfully!')),
+          SnackBar(content: Text('Recipe updated successfully!'),
+          backgroundColor: Colors.green,),
         );
         Navigator.pop(context); // Go back
       } else {
         debugPrint('❌ Recipe update failed.');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Update failed. Please try again.')),
+          SnackBar(content: Text('Update failed. Please try again.'),
+          backgroundColor: Colors.red,),
         );
       }
     } catch (e) {
       Navigator.pop(context);
       debugPrint('🔥 Exception during update: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Update failed: $e')),
+        SnackBar(content: Text('Update failed: $e'),
+        backgroundColor: Colors.red,),
       );
     }
+    
   }
 
   @override

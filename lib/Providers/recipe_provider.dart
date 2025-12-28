@@ -204,10 +204,34 @@ class RecipeProvider with ChangeNotifier {
   }
 
   // Check if recipe can be edited/deleted by current user
+  // In RecipeProvider class
   bool canEditRecipe(int recipeId, int userId, bool isAdmin) {
-    final recipe = getRecipeById(recipeId);
-    if (recipe == null) return false;
-    return isAdmin || recipe.userId == userId;
+    debugPrint('🔍 Checking edit permission:');
+    debugPrint('   Recipe ID: $recipeId');
+    debugPrint('   User ID: $userId');
+    debugPrint('   Is Admin: $isAdmin');
+    debugPrint('   Available recipes count: ${_recipes.length}');
+    
+    // Check admin first
+    if (isAdmin) {
+      debugPrint('   ✅ User is admin - allowing edit');
+      return true;
+    }
+    
+    // Find the recipe
+    final recipe = _recipes.firstWhere(
+      (recipe) => recipe.id == recipeId,
+      orElse: () => Recipe.empty(),
+    );
+    
+    debugPrint('   Recipe found: ${recipe.id != 0}');
+    debugPrint('   Recipe creator ID: ${recipe.userId}');
+    debugPrint('   Current user ID: $userId');
+    
+    final canEdit = recipe.id != 0 && recipe.userId == userId;
+    debugPrint('   Can edit (non-admin): $canEdit');
+    
+    return canEdit;
   }
 
   bool canDeleteRecipe(int recipeId, int userId, bool isAdmin) {
@@ -254,4 +278,26 @@ class RecipeProvider with ChangeNotifier {
     }
   }
 
+  // Load single recipe by ID
+  Future<void> loadSingleRecipe(int recipeId) async {
+    try {
+      final recipeMaps = await ApiService.getRecipes();
+      final allRecipes = recipeMaps.map((map) => Recipe.fromJson(map)).toList();
+      final currentRecipe = allRecipes.firstWhere(
+        (r) => r.id == recipeId,
+        orElse: () => Recipe.empty(),
+      );
+      
+      // Replace in list or store separately
+      final index = _recipes.indexWhere((r) => r.id == recipeId);
+      if (index != -1) {
+        _recipes[index] = currentRecipe;
+      } else {
+        _recipes.add(currentRecipe);
+      }
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error loading single recipe: $e');
+    }
+  }
 }

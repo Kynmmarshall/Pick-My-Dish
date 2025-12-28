@@ -80,7 +80,8 @@ class _RecipeUploadScreenState extends State<RecipeUploadScreen> {
   // Validate
   if (_nameController.text.isEmpty || _selectedImage == null) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Please fill required fields')),
+      SnackBar(content: Text('Please fill required fields'),
+      backgroundColor: Colors.orange,),
     );
     return;
   }
@@ -116,14 +117,16 @@ class _RecipeUploadScreenState extends State<RecipeUploadScreen> {
     
     if (success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Recipe uploaded successfully!')),
+        SnackBar(content: Text('Recipe uploaded successfully!'),
+        backgroundColor: Colors.green,),
       );
       Navigator.pop(context); // Go back
     }
   } catch (e) {
     Navigator.pop(context);
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Upload failed: $e')),
+      SnackBar(content: Text('Upload failed: $e'),
+      backgroundColor: Colors.red,),
     );
   }
 }

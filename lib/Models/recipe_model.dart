@@ -122,6 +122,22 @@ class Recipe {
     );
   }
 
+  // check if Recipe is empty
+  factory Recipe.empty() => Recipe(
+    id: 0,
+    name: '',
+    userId: 0,
+    // Add all other required fields with default values
+    category: '',
+    cookingTime: '',
+    calories: '',
+    imagePath: '',
+    ingredients: [],
+    steps: [],
+    moods: [],
+    authorName: '',
+    isFavorite: false,
+  );
 
   Map<String, dynamic> toJson() {
     return {

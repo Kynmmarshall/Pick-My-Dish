@@ -378,6 +378,14 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+      onPressed: () async {
+        await recipeProvider.loadSingleRecipe(recipe.id);
+        setState(() {}); // Refresh UI if needed
+      },
+      backgroundColor: Colors.orange,
+      child: const Icon(Icons.refresh),
+    ),
     );
   }
 
@@ -426,7 +434,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
             backgroundColor: Colors.green,
           ),
         );
-        Navigator.pop(context); // Go back to previous screen
+        Navigator.pop(context); // Go back after deletion
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
