@@ -308,7 +308,7 @@ class RecipesScreenState extends State<RecipesScreen> {
                 child: Icon(
                   isFavorite ? Icons.favorite : Icons.favorite_border, // Use Recipe property
                   color: Colors.orange,
-                  size: iconSize,
+                  size: 30,
                 ),
               ),
             ),
