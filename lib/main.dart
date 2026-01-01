@@ -1,4 +1,4 @@
-// main.dart
+
 import 'package:flutter/material.dart';
 import 'package:pick_my_dish/Providers/recipe_provider.dart';
 import 'package:pick_my_dish/Providers/user_provider.dart';
@@ -102,3 +102,4 @@ class _PickMyDishState extends State<PickMyDish> {
   }
 
 }
+
