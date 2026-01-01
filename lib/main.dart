@@ -92,7 +92,7 @@ class _PickMyDishState extends State<PickMyDish> {
         if (settings.name == '/login') {
           final userProvider = Provider.of<UserProvider>(context, listen: false);
           if (userProvider.isLoggedIn) {
-            // If
+            //
             return MaterialPageRoute(builder: (context) => const HomeScreen());
           }
         }
@@ -102,6 +102,7 @@ class _PickMyDishState extends State<PickMyDish> {
   }
 
 }
+
 
 
 
