@@ -39,7 +39,7 @@ class _PickMyDishState extends State<PickMyDish> {
   Future<void> _initializeApp() async {
     debugPrint('🚀 Initializing application...');
     
-    // Initialize UserProvider
+    // 
     final userProvider = Provider.of<UserProvider>(
       context,
       listen: false,
@@ -102,5 +102,6 @@ class _PickMyDishState extends State<PickMyDish> {
   }
 
 }
+
 
 
