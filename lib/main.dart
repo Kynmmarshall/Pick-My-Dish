@@ -54,7 +54,7 @@ class _PickMyDishState extends State<PickMyDish> {
       setState(() {
         _isInitializing = false;
         
-        // Determine initial screen based on authentication state
+        // Determine initial screen based
         if (userProvider.isLoggedIn) {
           debugPrint('✅ User is logged in, going to HomeScreen');
           _initialScreen = const HomeScreen();
@@ -102,6 +102,7 @@ class _PickMyDishState extends State<PickMyDish> {
   }
 
 }
+
 
 
 
