@@ -87,7 +87,7 @@ class _PickMyDishState extends State<PickMyDish> {
         '/login': (context) => const LoginScreen(),
       },
       
-      // Prevent navigation to login if already logged in
+      // Prevent navigation to login
       onGenerateRoute: (settings) {
         if (settings.name == '/login') {
           final userProvider = Provider.of<UserProvider>(context, listen: false);
@@ -102,6 +102,7 @@ class _PickMyDishState extends State<PickMyDish> {
   }
 
 }
+
 
 
 
