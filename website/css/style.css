@@ -139,6 +139,85 @@ header {
     margin-right: auto;
 }
 
+/* This targets ONLY the first hero section on the page */
+.hero:first-of-type {
+    padding: 160px 0 100px;
+    background: 
+        linear-gradient(rgba(26, 26, 46, 0.85), rgba(26, 26, 46, 0.9)),
+        url('../images/background.png');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    color: white;
+    position: relative;
+    overflow: hidden;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Target only the container in the first hero */
+.hero:first-of-type .container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+/* Target only the content in the first hero */
+.hero:first-of-type .hero-content {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+/* First hero heading */
+.hero:first-of-type h1 {
+    font-size: 4rem;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+    background: linear-gradient(45deg, #fff, var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1.2;
+    text-align: center;
+    width: 100%;
+}
+
+/* First hero paragraph */
+.hero:first-of-type p {
+    font-size: 1.4rem;
+    opacity: 0.9;
+    margin-bottom: 2.5rem;
+    max-width: 600px;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+}
+
+/* First hero buttons */
+.hero:first-of-type .hero-content > div {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+
 /* Button Styles */
 .btn {
     display: inline-flex;
