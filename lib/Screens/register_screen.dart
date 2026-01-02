@@ -162,18 +162,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                   SizedBox(height: 20),
 
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(Icons.g_mobiledata, color: Colors.red, size: iconSize),
-                  ),
-
-                  SizedBox(height: 20),
-
                   ElevatedButton(
                     onPressed: _register,
                     style: ElevatedButton.styleFrom(

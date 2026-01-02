@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:pick_my_dish/Models/user_model.dart';
@@ -163,45 +164,79 @@ class UserProvider with ChangeNotifier {
     // Clear image cache
     _clearImageCache();
     
-    // Clear local storage (optional)
-    _clearLocalStorage();
-    
     safeNotify();
   }
 
   Future<void> _clearImageCache() async {
-    try {
-      final cacheManager = DefaultCacheManager();
+  try {
+    // 1. Clear specific cached profile image URL if it exists
+    if (_user?.profileImage != null && !_user!.profileImage!.startsWith('assets/')) {
+      final profileImageUrl = 'http://38.242.246.126:3000/${_user!.profileImage}';
       
-      // Clear ALL cached images (more thorough)
-      await cacheManager.emptyCache();
+      // Method 1: Use evictFromCache (most reliable for CachedNetworkImage)
+      await CachedNetworkImage.evictFromCache(profileImageUrl);
       
-      // OR clear only specific profile picture URLs
-      // if you want more targeted clearing:
-      if (_profilePicture.startsWith('http')) {
-        await cacheManager.removeFile(_profilePicture);
-      }
+      // Method 2: Use DefaultCacheManager
+      await DefaultCacheManager().removeFile(profileImageUrl);
       
-      debugPrint('🗑️ Image cache cleared');
-    } catch (e) {
-      debugPrint('⚠️ Error clearing cache: $e');
+      debugPrint('🗑️ Cleared cached profile image: $profileImageUrl');
     }
+    
+    // 2. Clear Flutter's built-in image cache
+    imageCache.clear();
+    imageCache.clearLiveImages();
+    
+    // 3. Optional: Clear entire DefaultCacheManager
+    await DefaultCacheManager().emptyCache();
+    
+    debugPrint('✅ Image cache cleared successfully');
+  } catch (e) {
+    debugPrint('⚠️ Error clearing image cache: $e');
   }
+}
 
-  Future<void> _clearLocalStorage() async {
-    // Implement local storage clearing if using packages like SharedPreferences
-    // Example:
-    // final prefs = await SharedPreferences.getInstance();
-    // await prefs.clear();
-  }
   
   Future<void> logout() async {
+  try {
+    // 1. Clear API token
     await ApiService.removeToken();
+    
+    // 2. Clear cached profile image URL specifically
+    if (_user?.profileImage != null && !_user!.profileImage!.startsWith('assets/')) {
+      final profileImageUrl = 'http://38.242.246.126:3000/${_user!.profileImage}';
+      
+      // Clear from CachedNetworkImage cache
+      await CachedNetworkImage.evictFromCache(profileImageUrl);
+      
+      // Clear from DefaultCacheManager
+      await DefaultCacheManager().removeFile(profileImageUrl);
+      
+      debugPrint('🗑️ Cleared cached profile image: $profileImageUrl');
+    }
+    
+    // 3. Clear user data
     _user = null;
     _token = null;
-    clearAllUserData();
+    
+    // 4. Reset profile picture to default
+    _profilePicture = 'assets/login/noPicture.png';
+    
+    // 5. Clear other user data
+    _userRecipes = [];
+    _userFavorites = [];
+    _userSettings = {};
+    
+    // 6. Force a complete image cache clear
+    await _clearImageCache();
+    
+    // 7. Notify listeners
     safeNotify();
+    
+    debugPrint('✅ Logout complete - all data cleared');
+  } catch (e) {
+    debugPrint('❌ Logout error: $e');
   }
+}
 
 
 }
