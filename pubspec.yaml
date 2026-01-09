@@ -47,7 +47,6 @@ dependencies:
   path_provider: ^2.1.0
   shared_preferences: ^2.2.2
   url_launcher: ^6.1.10
-  sqlite3_flutter_libs: ^0.5.7
   
 dev_dependencies:
   flutter_test:
