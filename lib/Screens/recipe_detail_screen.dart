@@ -76,7 +76,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                 size: 30,
                 shadows: [
                   Shadow(
-                    color: const Color.fromARGB(255, 0, 0, 0).withOpacity(1),
+                    color: const Color.fromARGB(255, 0, 0, 0),
                     blurRadius: 6,
                     offset: Offset(0,3),
                   ),
@@ -90,7 +90,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                 PopupMenuButton<String>(
                   icon: Icon(Icons.more_vert, color: const Color.fromARGB(255, 255, 255, 255), size: 50,shadows: [
                   Shadow(
-                    color: const Color.fromARGB(255, 0, 0, 0).withOpacity(1),
+                    color: const Color.fromARGB(255, 0, 0, 0),
                     blurRadius: 6,
                     offset: Offset(0,3),
                   ),
@@ -147,7 +147,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                     size: 30,
                     shadows: [
                   Shadow(
-                    color: const Color.fromARGB(255, 0, 0, 0).withOpacity(1),
+                    color: const Color.fromARGB(255, 0, 0, 0),
                     blurRadius: 6,
                     offset: Offset(0,3),
                   ),
@@ -230,7 +230,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(15),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.1),
+                      color: Colors.white.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(15),
                     ),
                     child: Row(
@@ -256,7 +256,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.1),
+                      color: Colors.white.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(15),
                     ),
                     child: Column(
@@ -278,7 +278,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                               ],
                             ),
                           ),
-                        ).toList(),
+                        ),
                       ],
                     ),
                   ),
@@ -293,7 +293,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.1),
+                      color: Colors.white.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(15),
                     ),
                     child: Column(
@@ -333,7 +333,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                               ],
                             ),
                           ),
-                        ).toList(),
+                        ),
                       ],
                     ),
                   ),
@@ -351,7 +351,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                         (mood) => Container(
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                           decoration: BoxDecoration(
-                            color: Colors.orange.withOpacity(0.2),
+                            color: Colors.orange.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(color: Colors.orange),
                           ),
@@ -423,6 +423,10 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
   }
 
   void _deleteRecipe(Recipe recipe, int userId) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+    final recipeProvider = Provider.of<RecipeProvider>(context, listen: false);
+
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -444,23 +448,26 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
 
     debugPrint('✅ Dialog result: $confirmed');
 
+    if (!mounted) return;
+
     if (confirmed == true) {
       debugPrint('🚀 Calling deleteRecipe API...');
-      final recipeProvider = Provider.of<RecipeProvider>(context, listen: false);
       final success = await recipeProvider.deleteRecipe(recipe.id);
       
       debugPrint('📡 API Response: $success');
 
-      if (success && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+      if (!mounted) return;
+
+      if (success) {
+        messenger.showSnackBar(
           SnackBar(
             content: Text('Recipe deleted successfully', style: text),
             backgroundColor: Colors.green,
           ),
         );
-        Navigator.pop(context); // Go back after deletion
+        navigator.pop();
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
+        messenger.showSnackBar(
           SnackBar(
             content: Text('Failed to delete recipe', style: text),
             backgroundColor: Colors.red,

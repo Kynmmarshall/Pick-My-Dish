@@ -6,7 +6,6 @@ import 'package:pick_my_dish/Screens/home_screen.dart';
 import 'package:pick_my_dish/Screens/login_screen.dart';
 import 'package:pick_my_dish/Services/api_service.dart';
 import 'package:provider/provider.dart';
-import 'package:pick_my_dish/Screens/splash_screen.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -42,16 +41,17 @@ class _PickMyDishState extends State<PickMyDish> {
 
   Future<void> _autoLogin() async {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final recipeProvider = Provider.of<RecipeProvider>(context, listen: false);
     
     try {
       // Try to auto-login with stored token
       final success = await userProvider.autoLogin();
-      
+
+      if (!mounted) return;
+
       if (success) {
         debugPrint('✅ Auto-login successful');
         
-        // Load user favorites if logged in
-        final recipeProvider = Provider.of<RecipeProvider>(context, listen: false);
         await recipeProvider.loadUserFavorites();
       } else {
         debugPrint('❌ No valid token found');
@@ -59,7 +59,9 @@ class _PickMyDishState extends State<PickMyDish> {
     } catch (e) {
       debugPrint('❌ Auto-login error: $e');
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 

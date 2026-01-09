@@ -23,21 +23,20 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> _checkAuth() async {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final navigator = Navigator.of(context);
     
-    await Future.delayed(Duration(seconds: 2)); // Show splash for 2 seconds
+    await Future.delayed(const Duration(seconds: 2));
     
     final success = await userProvider.autoLogin();
+
+    if (!mounted) return;
     
     if (success) {
-      // Navigate to home
-      Navigator.pushReplacement(
-        context,
+      navigator.pushReplacement(
         MaterialPageRoute(builder: (context) => HomeScreen()),
       );
     } else {
-      // Navigate to login
-      Navigator.pushReplacement(
-        context,
+      navigator.pushReplacement(
         MaterialPageRoute(builder: (context) => LoginScreen()),
       );
     }

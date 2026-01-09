@@ -6,14 +6,15 @@ import 'package:pick_my_dish/Providers/recipe_provider.dart';
 import 'package:pick_my_dish/Providers/user_provider.dart';
 import 'package:pick_my_dish/Services/api_service.dart';
 import 'package:pick_my_dish/constants.dart';
-import 'package:pick_my_dish/widgets/ingredient_Selector.dart';
+import 'package:pick_my_dish/widgets/ingredient_selector.dart';
 import 'dart:io';
 import 'package:provider/provider.dart';
 
 class RecipeEditScreen extends StatefulWidget {
   final Recipe recipe;
+  final Future<List<Map<String, dynamic>>> Function()? ingredientLoaderOverride;
   
-  const RecipeEditScreen({super.key, required this.recipe});
+  const RecipeEditScreen({super.key, required this.recipe, this.ingredientLoaderOverride});
 
   @override
   State<RecipeEditScreen> createState() => _RecipeEditScreenState();
@@ -25,7 +26,7 @@ class _RecipeEditScreenState extends State<RecipeEditScreen> {
   final TextEditingController _stepsController = TextEditingController();
   
   File? _selectedImage;
-  String? _originalImagePath;
+  bool _isPickingImage = false;
   final List<String> _selectedEmotions = [];
   String _selectedTime = '30 mins';
   
@@ -60,24 +61,60 @@ class _RecipeEditScreenState extends State<RecipeEditScreen> {
     _selectedTime = recipe.cookingTime;
     _selectedCategory = recipe.category;
     _selectedEmotions.addAll(recipe.moods);
-    _originalImagePath = recipe.imagePath;
     
     // You'll need to load ingredient IDs from API
     // This is a placeholder - you'll need to implement based on your API
   }
   
-  Future<void> _pickImage() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(
-      source: ImageSource.gallery,
-      maxWidth: 800,
-      maxHeight: 800,
-      imageQuality: 85,
+  Future<ImageSource?> _chooseImageSource() {
+    return showModalBottomSheet<ImageSource>(
+      context: context,
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.photo_camera, color: Colors.orange),
+                title: Text('Take Photo', style: text.copyWith(color: Colors.orangeAccent)),
+                onTap: () => Navigator.pop(context, ImageSource.camera),
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library, color: Colors.orange),
+                title: Text('Choose from Gallery', style: text.copyWith(color: Colors.orangeAccent)),
+                onTap: () => Navigator.pop(context, ImageSource.gallery),
+              ),
+            ],
+          ),
+        );
+      },
     );
-    if (pickedFile != null) {
-      setState(() {
-        _selectedImage = File(pickedFile.path);
-      });
+  }
+
+  Future<void> _pickImage() async {
+    if (_isPickingImage) return;
+
+    final source = await _chooseImageSource();
+    if (source == null) return;
+
+    _isPickingImage = true;
+    final picker = ImagePicker();
+    try {
+      final pickedFile = await picker.pickImage(
+        source: source,
+        maxWidth: 800,
+        maxHeight: 800,
+        imageQuality: 85,
+      );
+      if (pickedFile != null && mounted) {
+        setState(() {
+          _selectedImage = File(pickedFile.path);
+        });
+      }
+    } on PlatformException catch (e) {
+      debugPrint('Image picker error: $e');
+    } finally {
+      _isPickingImage = false;
     }
   }
   
@@ -96,15 +133,17 @@ class _RecipeEditScreenState extends State<RecipeEditScreen> {
       debugPrint('   Recipe ID: ${widget.recipe.id}');
       debugPrint('   Recipe from widget: ${widget.recipe.name}');
       debugPrint('   Recipe userId from widget: ${widget.recipe.userId}');
+    final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
     if (_nameController.text.isEmpty) {
       debugPrint('🔄 Update button pressed');
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         SnackBar(content: Text('Please fill required fields'),
         backgroundColor: Colors.orange,),
       );
       return;
     }
-    
+
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     final recipeProvider = Provider.of<RecipeProvider>(context, listen: false);
 
@@ -132,7 +171,7 @@ class _RecipeEditScreenState extends State<RecipeEditScreen> {
 
     if (!canEdit) {
 
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         SnackBar(content: Text('You are no longer authorized to edit this recipe',style: text),
         backgroundColor: Colors.orange,),
 
@@ -165,7 +204,6 @@ class _RecipeEditScreenState extends State<RecipeEditScreen> {
     
     debugPrint('📤 Sending update request...');
 
-    // Show loading
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -181,26 +219,30 @@ class _RecipeEditScreenState extends State<RecipeEditScreen> {
       );
 
       debugPrint('📡 API Response: $success');
-      Navigator.pop(context); // Hide loading
+
+      if (!mounted) return;
+
+      navigator.pop();
       
-      if (success && mounted) {
+      if (success) {
         debugPrint('✅ Recipe updated successfully!');
-        ScaffoldMessenger.of(context).showSnackBar(
+        messenger.showSnackBar(
           SnackBar(content: Text('Recipe updated successfully!'),
           backgroundColor: Colors.green,),
         );
-        Navigator.pop(context); // Go back
+        navigator.pop();
       } else {
         debugPrint('❌ Recipe update failed.');
-        ScaffoldMessenger.of(context).showSnackBar(
+        messenger.showSnackBar(
           SnackBar(content: Text('Update failed. Please try again.'),
           backgroundColor: Colors.red,),
         );
       }
     } catch (e) {
-      Navigator.pop(context);
+      if (!mounted) return;
+      navigator.pop();
       debugPrint('🔥 Exception during update: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         SnackBar(content: Text('Update failed: $e'),
         backgroundColor: Colors.red,),
       );
@@ -304,7 +346,7 @@ class _RecipeEditScreenState extends State<RecipeEditScreen> {
             width: double.infinity,
             height: 200,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.1),
+              color: Colors.white.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(15),
               border: Border.all(color: Colors.orange, width: 2),
             ),
@@ -342,7 +384,7 @@ class _RecipeEditScreenState extends State<RecipeEditScreen> {
               label: Text(emotion, style: text),
               selected: isSelected,
               onSelected: (_) => _toggleEmotion(emotion),
-              backgroundColor: const Color.fromARGB(255, 46, 32, 3).withOpacity(0.3),
+              backgroundColor: const Color.fromARGB(255, 46, 32, 3).withValues(alpha: 0.3),
               selectedColor: Colors.orange,
               checkmarkColor: Colors.white,
               labelStyle: text.copyWith(
@@ -489,6 +531,7 @@ class _RecipeEditScreenState extends State<RecipeEditScreen> {
           });
         },
         hintText: "Search ingredients...",
+        ingredientLoader: widget.ingredientLoaderOverride,
       ),
     ],
   );

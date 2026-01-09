@@ -126,21 +126,6 @@ class DatabaseService {
     );
   }
 
-  int _convertTimeToMinutes(String time) {
-    switch (time) {
-      case '15 mins':
-        return 15;
-      case '30 mins':
-        return 30;
-      case '1 hour':
-        return 60;
-      case '2+ hours':
-        return 120;
-      default:
-        return 120;
-    }
-  }
-
   Future<void> toggleFavorite(int recipeId, bool isFavorite) async {
     final db = await database;
     await db.update(

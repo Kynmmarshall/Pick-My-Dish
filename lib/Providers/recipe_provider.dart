@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:pick_my_dish/Models/recipe_model.dart';
-import 'package:pick_my_dish/Providers/user_provider.dart';
 import 'package:pick_my_dish/Services/api_service.dart';
 
 class RecipeProvider with ChangeNotifier {
@@ -8,6 +7,12 @@ class RecipeProvider with ChangeNotifier {
   List<Recipe> _userFavorites = [];
   bool _isLoading = false;
   String? _error;
+  Future<List<Map<String, dynamic>>> Function()? _fetchRecipesOverride;
+  Future<List<Map<String, dynamic>>> Function()? _fetchRecipesWithPermissionsOverride;
+  Future<List<Map<String, dynamic>>> Function()? _fetchFavoritesOverride;
+  Future<bool> Function(int recipeId)? _addFavoriteOverride;
+  Future<bool> Function(int recipeId)? _removeFavoriteOverride;
+  Future<bool> Function(int recipeId)? _deleteRecipeOverride;
 
   // Getters
   List<Recipe> get recipes => _recipes;
@@ -28,15 +33,76 @@ class RecipeProvider with ChangeNotifier {
       notifyListeners();
     }
   }
+
+  @visibleForTesting
+  void overrideApiForTest({
+    Future<List<Map<String, dynamic>>> Function()? fetchRecipes,
+    Future<List<Map<String, dynamic>>> Function()? fetchRecipesWithPermissions,
+    Future<List<Map<String, dynamic>>> Function()? fetchFavorites,
+    Future<bool> Function(int recipeId)? addFavorite,
+    Future<bool> Function(int recipeId)? removeFavorite,
+    Future<bool> Function(int recipeId)? deleteRecipe,
+  }) {
+    _fetchRecipesOverride = fetchRecipes ?? _fetchRecipesOverride;
+    _fetchRecipesWithPermissionsOverride =
+        fetchRecipesWithPermissions ?? _fetchRecipesWithPermissionsOverride;
+    _fetchFavoritesOverride = fetchFavorites ?? _fetchFavoritesOverride;
+    _addFavoriteOverride = addFavorite ?? _addFavoriteOverride;
+    _removeFavoriteOverride = removeFavorite ?? _removeFavoriteOverride;
+    _deleteRecipeOverride = deleteRecipe ?? _deleteRecipeOverride;
+  }
+
+  @visibleForTesting
+  void resetApiOverrides() {
+    _fetchRecipesOverride = null;
+    _fetchRecipesWithPermissionsOverride = null;
+    _fetchFavoritesOverride = null;
+    _addFavoriteOverride = null;
+    _removeFavoriteOverride = null;
+    _deleteRecipeOverride = null;
+  }
+
+  @visibleForTesting
+  void setRecipesForTest(List<Recipe> recipes) {
+    _recipes = List<Recipe>.from(recipes);
+    safeNotify();
+  }
+
+  @visibleForTesting
+  void setFavoritesForTest(List<Recipe> favorites) {
+    _userFavorites = List<Recipe>.from(favorites);
+    safeNotify();
+  }
+
+  @visibleForTesting
+  void syncFavoritesForTest() {
+    _syncFavoriteStatus();
+    safeNotify();
+  }
   // Check if recipe is favorite
   bool isFavorite(int recipeId) => _userFavorites.any((recipe) => recipe.id == recipeId);
+
+  Recipe? _favoriteById(int recipeId) {
+    try {
+      return _userFavorites.firstWhere((recipe) => recipe.id == recipeId);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  void _updateFavoriteFlag(int recipeId, bool isFavorite) {
+    final index = _recipes.indexWhere((recipe) => recipe.id == recipeId);
+    if (index != -1) {
+      _recipes[index] = _recipes[index].copyWith(isFavorite: isFavorite);
+    }
+  }
 
   // Toggle favorite
   Future<void> toggleFavorite( int recipeId) async {
     debugPrint('🔄 RecipeProvider.toggleFavorite called');
     debugPrint('   📝 Recipe ID: $recipeId');
 
-    final recipe = getRecipeById(recipeId);
+    final recipe = getRecipeById(recipeId) ?? _favoriteById(recipeId);
     if (recipe == null) {
       debugPrint('❌ Cannot toggle favorite: Recipe $recipeId not found');
       return;
@@ -46,20 +112,34 @@ class RecipeProvider with ChangeNotifier {
     bool wasFavorite = isFavorite(recipeId);
     debugPrint('   📊 Currently favorite? $wasFavorite');
     
-    bool success;
+    bool success = false;
+    final addFavorite = _addFavoriteOverride ?? ApiService.addToFavorites;
+    final removeFavorite = _removeFavoriteOverride ?? ApiService.removeFromFavorites;
     if (wasFavorite) {
       debugPrint('🗑️ Removing from favorites...');
-      success = await ApiService.removeFromFavorites(recipeId);
-      if (success) {
-        _userFavorites.removeWhere((r) => r.id == recipeId);
-        debugPrint('✅ Removed from local list');
+      final removedFavorite = _favoriteById(recipeId);
+      _userFavorites.removeWhere((r) => r.id == recipeId);
+      _updateFavoriteFlag(recipeId, false);
+      safeNotify(); // Optimistic removal keeps Dismissible from throwing
+      success = await removeFavorite(recipeId);
+      if (!success && removedFavorite != null) {
+        debugPrint('↩️ Remove failed, restoring favorite locally');
+        _userFavorites.add(removedFavorite);
+        _updateFavoriteFlag(recipeId, true);
+        safeNotify();
       }
     } else {
       debugPrint('💖 Adding to favorites...');
-      success = await ApiService.addToFavorites(recipeId);
-      if (success) {
-        _userFavorites.add(recipe);
-        debugPrint('✅ Added to local list');
+      final favoriteEntry = recipe.copyWith(isFavorite: true);
+      _userFavorites.add(favoriteEntry);
+      _updateFavoriteFlag(recipeId, true);
+      safeNotify(); // Update listeners immediately so UI reflects new favorite
+      success = await addFavorite(recipeId);
+      if (!success) {
+        debugPrint('↩️ Add failed, rolling back local favorite');
+        _userFavorites.removeWhere((r) => r.id == recipeId);
+        _updateFavoriteFlag(recipeId, false);
+        safeNotify();
       }
     }
 
@@ -67,11 +147,8 @@ class RecipeProvider with ChangeNotifier {
     
     if (success) {
       // Update main recipes list
-      final index = _recipes.indexWhere((r) => r.id == recipeId);
-      if (index != -1) {
-        _recipes[index] = _recipes[index].copyWith(isFavorite: !wasFavorite);
-        debugPrint('🔄 Updated recipe in main list');
-      }
+      _updateFavoriteFlag(recipeId, !wasFavorite);
+      debugPrint('🔄 Updated recipe in main list');
       
       // Sync all recipes
       _syncFavoriteStatus();
@@ -101,7 +178,8 @@ class RecipeProvider with ChangeNotifier {
   _isLoading = true;
   
   try {
-    final favoriteMaps = await ApiService.getUserFavorites();
+    final loader = _fetchFavoritesOverride ?? ApiService.getUserFavorites;
+    final favoriteMaps = await loader();
     _userFavorites = favoriteMaps.map((map) => Recipe.fromJson(map)).toList();
   } catch (e) {
     _error = 'Failed to load favorites: $e';
@@ -129,7 +207,8 @@ class RecipeProvider with ChangeNotifier {
     safeNotify();
 
     try {
-      final List<Map<String, dynamic>> recipeMaps = await ApiService.getRecipes();
+      final fetcher = _fetchRecipesOverride ?? ApiService.getRecipes;
+      final List<Map<String, dynamic>> recipeMaps = await fetcher();
       _recipes = recipeMaps.map((json) => Recipe.fromJson(json)).toList();
       
       // CRITICAL: Sync favorite status with _userFavorites list
@@ -242,7 +321,9 @@ class RecipeProvider with ChangeNotifier {
     safeNotify();
 
     try {
-      final recipeMaps = await ApiService.getRecipesWithPermissions();
+        final fetcher =
+          _fetchRecipesWithPermissionsOverride ?? ApiService.getRecipesWithPermissions;
+        final recipeMaps = await fetcher();
       _recipes = recipeMaps.map((json) => Recipe.fromJson(json)).toList();
       
       _syncFavoriteStatus();
@@ -260,7 +341,8 @@ class RecipeProvider with ChangeNotifier {
   Future<bool> deleteRecipe(int recipeId) async {
     debugPrint('📤 RecipeProvider.deleteRecipe called: recipeId=$recipeId');
     try {
-      final success = await ApiService.deleteRecipe(recipeId);
+      final deleter = _deleteRecipeOverride ?? ApiService.deleteRecipe;
+      final success = await deleter(recipeId);
       debugPrint('📡 ApiService.deleteRecipe response: $success');
       if (success) {
         _recipes.removeWhere((recipe) => recipe.id == recipeId);

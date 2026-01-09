@@ -259,7 +259,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                       itemBuilder: (context, index) {
                         final recipe = favoriteRecipes[index];
                         return Dismissible(
-                          key: Key('fav_${recipe.id}_${index}'),
+                          key: Key('fav_${recipe.id}_$index'),
                           background: Container(
                             color: Colors.red,
                             alignment: Alignment.centerRight,
@@ -322,7 +322,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         borderRadius: BorderRadius.circular(10),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.25),
+            color: Colors.black.withValues(alpha: 0.25),
             blurRadius: 5,
             offset: const Offset(0, 5),
           ),

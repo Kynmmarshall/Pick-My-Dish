@@ -8,20 +8,36 @@ class CachedProfileImage extends StatelessWidget {
   final double? width;
   final double? height;
   final BoxFit fit;
+  final ImageProvider? testImageProvider;
+  final bool testShowPlaceholder;
+  final bool testShowError;
 
   const CachedProfileImage({
-    Key? key,
+    super.key,
     required this.imagePath,
     this.radius = 60,
     this.isProfilePicture = true,
     this.width,
     this.height,
     this.fit = BoxFit.cover,
-  }) : super(key: key);
+    this.testImageProvider,
+    this.testShowPlaceholder = false,
+    this.testShowError = false,
+  });
 
   @override
   Widget build(BuildContext context) {
-    String fullPath = imagePath;
+    if (testShowPlaceholder) {
+      return _buildPlaceholder();
+    }
+
+    if (testShowError) {
+      return _buildErrorWidget();
+    }
+
+    if (testImageProvider != null) {
+      return _buildFromProvider(testImageProvider!);
+    }
     
     // Check if it's a server path
     if (imagePath.startsWith('assets/')) {
@@ -44,27 +60,31 @@ class CachedProfileImage extends StatelessWidget {
       return CachedNetworkImage(
         imageUrl: url,
         imageBuilder: (context, imageProvider) {
-          return isProfilePicture
-              ? CircleAvatar(
-                  radius: radius,
-                  backgroundImage: imageProvider,
-                )
-              : Container(
-                  width: width,
-                  height: height,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(isProfilePicture ? radius : 10),
-                    image: DecorationImage(
-                      image: imageProvider,
-                      fit: fit,
-                    ),
-                  ),
-                );
+          return _buildFromProvider(imageProvider);
         },
         placeholder: (context, url) => _buildPlaceholder(),
         errorWidget: (context, url, error) => _buildErrorWidget(),
       );
     }
+  }
+
+  Widget _buildFromProvider(ImageProvider imageProvider) {
+    return isProfilePicture
+        ? CircleAvatar(
+            radius: radius,
+            backgroundImage: imageProvider,
+          )
+        : Container(
+            width: width,
+            height: height,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(isProfilePicture ? radius : 10),
+              image: DecorationImage(
+                image: imageProvider,
+                fit: fit,
+              ),
+            ),
+          );
   }
   
   Widget _buildPlaceholder() {

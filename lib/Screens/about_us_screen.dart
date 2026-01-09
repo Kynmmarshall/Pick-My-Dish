@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:pick_my_dish/Models/developer_model.dart';
 import 'package:pick_my_dish/constants.dart';
-import 'package:pick_my_dish/widgets/cached_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AboutUsScreen extends StatelessWidget {
@@ -79,9 +78,9 @@ class AboutUsScreen extends StatelessWidget {
                   const SizedBox(height: 20),
                   
                   // Developers List
-                  ...developers.map((developer) => 
+                  ...developers.map((developer) =>
                     _buildDeveloperCard(context, developer)
-                  ).toList(),
+                  ),
                   
                   const SizedBox(height: 30),
                   
@@ -102,7 +101,7 @@ class AboutUsScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.1),
+        color: Colors.white.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(15),
       ),
       child: Column(
@@ -147,7 +146,7 @@ class AboutUsScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(15),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
+            color: Colors.black.withValues(alpha: 0.3),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -230,7 +229,7 @@ class AboutUsScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
             decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.3),
+              color: Colors.black.withValues(alpha: 0.3),
               borderRadius: const BorderRadius.only(
                 bottomLeft: Radius.circular(15),
                 bottomRight: Radius.circular(15),
@@ -248,7 +247,7 @@ class AboutUsScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 8),
-                ...developer.contributions.map((contribution) => 
+                ...developer.contributions.map((contribution) =>
                   Padding(
                     padding: const EdgeInsets.only(bottom: 6),
                     child: Row(
@@ -269,7 +268,7 @@ class AboutUsScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                ).toList(),
+                ),
                 
                 // Social Links
                 if (developer.linkedInUrl != null || developer.githubUrl != null)
@@ -308,7 +307,7 @@ class AboutUsScreen extends StatelessWidget {
     return ElevatedButton.icon(
       onPressed: () => _launchUrl(url),
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.black.withOpacity(0.5),
+        backgroundColor: Colors.black.withValues(alpha: 0.5),
         foregroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         shape: RoundedRectangleBorder(
@@ -327,7 +326,7 @@ class AboutUsScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.1),
+        color: Colors.white.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(15),
       ),
       child: Column(
@@ -403,8 +402,9 @@ class AboutUsScreen extends StatelessWidget {
   }
 
   Future<void> _launchUrl(String url) async {
-    if (await canLaunch(url)) {
-      await launch(url);
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
     }
   }
 

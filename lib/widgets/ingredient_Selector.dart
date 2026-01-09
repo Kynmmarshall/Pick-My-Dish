@@ -6,6 +6,7 @@ class IngredientSelector extends StatefulWidget {
   final Function(List<int>) onSelectionChanged;
   final String? hintText;
   final bool allowAddingNew; // <-- ADD THIS
+  final Future<List<Map<String, dynamic>>> Function()? ingredientLoader;
   
   const IngredientSelector({
     super.key,
@@ -13,6 +14,7 @@ class IngredientSelector extends StatefulWidget {
     required this.onSelectionChanged,
     this.hintText = "Select ingredients",
     this.allowAddingNew = true, // <-- Default to true for upload screen
+    this.ingredientLoader,
   });
 
   @override
@@ -22,8 +24,8 @@ class IngredientSelector extends StatefulWidget {
 class _IngredientSelectorState extends State<IngredientSelector> {
   List<Map<String, dynamic>> _allIngredients = [];
   List<Map<String, dynamic>> _filteredIngredients = [];
-  TextEditingController _searchController = TextEditingController();
-  TextEditingController _newIngredientController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
+  final TextEditingController _newIngredientController = TextEditingController();
   bool _showAddIngredient = false;
 
   @override
@@ -34,14 +36,22 @@ class _IngredientSelectorState extends State<IngredientSelector> {
 
   Future<void> _loadIngredients() async {
     try {
-      final ingredients = await ApiService.getIngredients();
+      final loader = widget.ingredientLoader ?? ApiService.getIngredients;
+      final ingredients = await loader();
       setState(() {
         _allIngredients = ingredients;
         _filteredIngredients = ingredients;
       });
     } catch (e) {
-      print('Error loading ingredients: $e');
+      debugPrint('Error loading ingredients: $e');
     }
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _newIngredientController.dispose();
+    super.dispose();
   }
 
   void _filterIngredients(String query) {
@@ -135,7 +145,7 @@ class _IngredientSelectorState extends State<IngredientSelector> {
               return Chip(
                 label: Text(_getIngredientName(id)),
                 onDeleted: () => _toggleIngredient(id),
-                backgroundColor: Colors.orange.withOpacity(0.2),
+                backgroundColor: Colors.orange.withValues(alpha: 0.2),
                 deleteIconColor: Colors.orange,
               );
             }).toList(),

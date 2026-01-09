@@ -21,8 +21,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
 
   void _login() async {
+    final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+
     if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         SnackBar(
           content: Text('Please fill in all fields', style: text),
           backgroundColor: Colors.orange,
@@ -31,11 +35,6 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
-
-    // Get email from your TextEditingController
-    final email = _emailController.text.trim();
-
-    // Show loading
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -45,11 +44,14 @@ class _LoginScreenState extends State<LoginScreen> {
     );
 
     try {
-      // Call your backend API
       final Map<String, dynamic>? response = await ApiService.login(
         _emailController.text.trim(),
         _passwordController.text,
       );
+
+      if (!mounted) return;
+
+      navigator.pop();
 
       // if (response != null && response['user'] != null) {
       //   final userProvider = Provider.of<UserProvider>(context, listen: false);
@@ -75,25 +77,14 @@ class _LoginScreenState extends State<LoginScreen> {
       //   }
 
       if (response != null && response['user'] != null) {
-        // Login successful - navigate to home
-      final userProvider = Provider.of<UserProvider>(context, listen: false);
-      
-      // Use the actual user data from API
-      userProvider.setUser(User.fromJson(response['user']));
-      // Store the user ID from login response
-      userProvider.setUserId(response['userId'] ?? 0);
-      
-      if (context.mounted) {
-        Navigator.pushReplacement(
-          context, 
-          MaterialPageRoute(builder: (context) => HomeScreen())
+        userProvider.setUser(User.fromJson(response['user']));
+        userProvider.setUserId(response['userId'] ?? 0);
+
+        navigator.pushReplacement(
+          MaterialPageRoute(builder: (context) => HomeScreen()),
         );
-      }
       } else {
-        // Login failed
-        // Hide loading
-        Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
+        messenger.showSnackBar(
           SnackBar(
             content: Text('Invalid email or password', style: text),
             backgroundColor: Colors.red,
@@ -101,10 +92,10 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       }
     } catch (e) {
-      // Hide loading
-      Navigator.pop(context);
-      
-      ScaffoldMessenger.of(context).showSnackBar(
+      if (!mounted) return;
+      navigator.pop();
+
+      messenger.showSnackBar(
         SnackBar(
           content: Text('Connection error: $e', style: text),
           backgroundColor: Colors.red,

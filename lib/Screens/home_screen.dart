@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'dart:io';
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:pick_my_dish/Models/recipe_model.dart';
 import 'package:pick_my_dish/Providers/recipe_provider.dart';
@@ -11,17 +8,24 @@ import 'package:pick_my_dish/Screens/recipe_detail_screen.dart';
 import 'package:pick_my_dish/Screens/recipe_upload_screen.dart';
 import 'package:pick_my_dish/Services/api_service.dart';
 import 'package:pick_my_dish/constants.dart';
-import 'package:pick_my_dish/Services/database_service.dart';
 import 'package:pick_my_dish/Screens/favorite_screen.dart';
 import 'package:pick_my_dish/Screens/profile_screen.dart';
 import 'package:pick_my_dish/Screens/recipe_screen.dart';
-import 'package:dropdown_search/dropdown_search.dart';
 import 'package:pick_my_dish/widgets/cached_image.dart';
-import 'package:pick_my_dish/widgets/ingredient_Selector.dart';
+import 'package:pick_my_dish/widgets/ingredient_selector.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final bool enableAutoFetch;
+  final bool fetchProfilePictureInDrawer;
+  final Future<List<Map<String, dynamic>>> Function()? ingredientLoaderOverride;
+
+  const HomeScreen({
+    super.key,
+    this.enableAutoFetch = true,
+    this.fetchProfilePictureInDrawer = true,
+    this.ingredientLoaderOverride,
+  });
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -49,7 +53,6 @@ class _HomeScreenState extends State<HomeScreen> {
   List<String> timeOptions = ['<= 15mins', '<= 30mins', '<= 1hour', '<= 1hour 30mins', '2+ hours'];
   List<Map<String, dynamic>> allIngredients = [];
 
-  final DatabaseService _databaseService = DatabaseService();
   List<Recipe> personalizedRecipes = [];
   bool showPersonalizedResults = false;
   bool _isLoading = false;
@@ -57,27 +60,30 @@ class _HomeScreenState extends State<HomeScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   void _generatePersonalisedRecipes() async {
-  if (selectedIngredients.isEmpty &&
-      selectedEmotion == null &&
-      selectedTime == null) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Please select at least one filter', style: text),
-        backgroundColor: Colors.orange,
-      ),
-    );
-    return;
-  }
+    final messenger = ScaffoldMessenger.of(context);
 
-   // Show loading
-  setState(() {
-    _loadingTodayRecipes = true;
-  });
+    if (selectedIngredients.isEmpty &&
+        selectedEmotion == null &&
+        selectedTime == null) {
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text('Please select at least one filter', style: text),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      _loadingTodayRecipes = true;
+    });
 
   try {
     // Get all recipes from API
     final recipeMaps = await ApiService.getRecipes();
     final allRecipes = recipeMaps.map((map) => Recipe.fromJson(map)).toList();
+
+    if (!mounted) return;
     
     // Apply filters
     final List<Recipe> filteredRecipes = allRecipes.where((recipe) {
@@ -128,7 +134,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
 
     if (filteredRecipes.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         SnackBar(
           content: Text('No recipes found with your criteria', style: text),
           backgroundColor: Colors.orange,
@@ -138,10 +144,11 @@ class _HomeScreenState extends State<HomeScreen> {
       _showPersonalizedResults(filteredRecipes);
     }
   } catch (e) {
+    if (!mounted) return;
     setState(() {
       _loadingTodayRecipes = false;
     });
-    ScaffoldMessenger.of(context).showSnackBar(
+    messenger.showSnackBar(
       SnackBar(
         content: Text('Error generating recipes: $e', style: text),
         backgroundColor: Colors.red,
@@ -195,7 +202,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _loadTodayRecipes() async {
     if (_loadingTodayRecipes) return;
-    
+
+    if (!mounted) return;
     setState(() => _loadingTodayRecipes = true);
     
     try {
@@ -203,13 +211,16 @@ class _HomeScreenState extends State<HomeScreen> {
       final recipes = recipeMaps.map((map) => Recipe.fromJson(map)).toList();
       
       // Take only first 3 recipes
+      if (!mounted) return;
       setState(() {
         _todayRecipes = recipes.take(3).toList();
       });
     } catch (e) {
-      print('❌ Error loading today recipes: $e');
+        debugPrint('❌ Error loading today recipes: $e');
     } finally {
-      setState(() => _loadingTodayRecipes = false);
+      if (mounted) {
+        setState(() => _loadingTodayRecipes = false);
+      }
     }
   }
 
@@ -238,13 +249,61 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() => _isLoading = false);
     }
   }
+
+  @visibleForTesting
+  void setTodayRecipesForTest(List<Recipe> recipes) {
+    setState(() {
+      _todayRecipes = List<Recipe>.from(recipes);
+    });
+  }
+
+  @visibleForTesting
+  void setLoadingStateForTest(bool value) {
+    setState(() {
+      _loadingTodayRecipes = value;
+    });
+  }
+
+  @visibleForTesting
+  void showPersonalizedDialogForTest(List<Recipe> recipes) {
+    _showPersonalizedResults(recipes);
+  }
+
+  @visibleForTesting
+  void setAllIngredientsForTest(List<Map<String, dynamic>> ingredients) {
+    setState(() {
+      allIngredients = List<Map<String, dynamic>>.from(ingredients);
+    });
+  }
+
+  @visibleForTesting
+  void setFiltersForTest({
+    String? emotion,
+    List<int>? ingredientIds,
+    String? time,
+  }) {
+    setState(() {
+      if (emotion != null) {
+        selectedEmotion = emotion;
+      }
+      if (ingredientIds != null) {
+        selectedIngredientIds = List<int>.from(ingredientIds);
+        selectedIngredients = ingredientIds.map(_getIngredientName).toList();
+      }
+      if (time != null) {
+        selectedTime = time;
+      }
+    });
+  }
   
   @override
   void initState() {
     super.initState();
-    _loadTodayRecipes();
     _loadIngredients();
+    if (widget.enableAutoFetch) {
+      _loadTodayRecipes();
       _loadFavorites();
+    }
     
     //Load all recipes into RecipeProvider
   //   WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -260,7 +319,7 @@ class _HomeScreenState extends State<HomeScreen> {
     super.didChangeDependencies();
     
     // Load recipes only once
-    if (!_recipesLoaded) {
+    if (!_recipesLoaded && widget.enableAutoFetch) {
       _recipesLoaded = true;
       
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -349,12 +408,14 @@ class _HomeScreenState extends State<HomeScreen> {
   // Add a method to load ingredients
   Future<void> _loadIngredients() async {
     try {
-      final ingredients = await ApiService.getIngredients();
+      final loader = widget.ingredientLoaderOverride ?? ApiService.getIngredients;
+      final ingredients = await loader();
+      if (!mounted) return;
       setState(() {
         allIngredients = ingredients;
       });
     } catch (e) {
-      print('Error loading ingredients: $e');
+      debugPrint('Error loading ingredients: $e');
     }
   }
 
@@ -607,7 +668,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.1),
+        color: Colors.white.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(15),
       ),
       child: Column(
@@ -624,7 +685,7 @@ class _HomeScreenState extends State<HomeScreen> {
               labelStyle: const TextStyle(color: Colors.white70),
               border: const OutlineInputBorder(),
               filled: true,
-              fillColor: Colors.black.withOpacity(0.3),
+              fillColor: Colors.black.withValues(alpha: 0.3),
             ),
             dropdownColor: Colors.grey[900],
             items: emotions.map((emotion) {
@@ -671,6 +732,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 },
                 hintText: "Search ingredients...",
                 allowAddingNew: false,
+                ingredientLoader: widget.ingredientLoaderOverride,
               ),
             ],
           ),
@@ -684,7 +746,7 @@ class _HomeScreenState extends State<HomeScreen> {
               labelStyle: const TextStyle(color: Colors.white70),
               border: const OutlineInputBorder(),
               filled: true,
-              fillColor: Colors.black.withOpacity(0.3),
+              fillColor: Colors.black.withValues(alpha: 0.3),
             ),
             dropdownColor: Colors.grey[900],
             items: timeOptions.map((time) {
@@ -737,7 +799,7 @@ class _HomeScreenState extends State<HomeScreen> {
           borderRadius: BorderRadius.circular(10),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.25),
+              color: Colors.black.withValues(alpha: 0.25),
               blurRadius: 5,
               offset: const Offset(0, 5),
             ),
@@ -826,21 +888,23 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildSideMenu() {
     
     // Load profile picture when menu opens
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final userProvider = Provider.of<UserProvider>(context, listen: false);
-    String? imagePath = await ApiService.getProfilePicture();
-    
-    // Check mounted BEFORE updating UI
-    if (mounted && imagePath != null && imagePath.isNotEmpty) {
-      userProvider.updateProfilePicture(imagePath);
-      setState(() {});
+    if (widget.fetchProfilePictureInDrawer) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        final userProvider = Provider.of<UserProvider>(context, listen: false);
+        String? imagePath = await ApiService.getProfilePicture();
+        
+        // Check mounted BEFORE updating UI
+        if (mounted && imagePath != null && imagePath.isNotEmpty) {
+          userProvider.updateProfilePicture(imagePath);
+          setState(() {});
+        }
+      });
     }
-    });
 
     return Container(
       width: MediaQuery.of(context).size.width * 0.9,
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.8),
+        color: Colors.black.withValues(alpha: 0.8),
         borderRadius: const BorderRadius.only(
           topRight: Radius.circular(20),
           bottomRight: Radius.circular(20),
@@ -857,7 +921,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-          Container(color: Colors.black.withOpacity(0.5)),
+          Container(color: Colors.black.withValues(alpha: 0.5)),
 
           Padding(
             padding: const EdgeInsets.all(30),
@@ -889,7 +953,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(width: 25),
                      Consumer<UserProvider>(
                         builder: (context, userProvider, child) {
-                   return Text("${userProvider.username}", style: title.copyWith(fontSize: 22));
+                   return Text(userProvider.username, style: title.copyWith(fontSize: 22));
                 }
                 )
                 ],

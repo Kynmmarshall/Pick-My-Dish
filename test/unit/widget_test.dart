@@ -230,7 +230,7 @@ testWidgets('RecipeDetailScreen shows recipe name', (WidgetTester tester) async 
   await tester.pumpWidget(wrapWithProviders(
     RecipeDetailScreen(initialRecipe: recipe),
   ));
-  await tester.pump;
+  await tester.pump();
   
   expect(find.text('Test Recipe Name'), findsAtLeast(1));
 });
@@ -855,40 +855,8 @@ test('RecipeProvider initial state', () {
 
 test('RecipeProvider can filter recipes', () {
   final provider = RecipeProvider();
-  
-  // Mock some recipes
-  final recipe1 = Recipe(
-    id: 1,
-    name: 'Chicken Curry',
-    authorName: 'Chef',
-    category: 'Dinner',
-    cookingTime: '30 mins',
-    calories: '400',
-    imagePath: 'test.jpg',
-    ingredients: ['chicken', 'curry'],
-    steps: ['step1'],
-    moods: ['Happy'],
-    userId: 1,
-    isFavorite: false,
-  );
-  
-  final recipe2 = Recipe(
-    id: 2,
-    name: 'Vegetable Soup',
-    authorName: 'Chef',
-    category: 'Lunch',
-    cookingTime: '20 mins',
-    calories: '200',
-    imagePath: 'test2.jpg',
-    ingredients: ['vegetables', 'broth'],
-    steps: ['step1'],
-    moods: ['Comfort'],
-    userId: 1,
-    isFavorite: false,
-  );
 
-  // Use reflection or public method to add recipes
-  // Since _recipes is private, we'll test the filter method with empty list
+  // Since _recipes is private, calling filter without data should yield empty
   final filtered = provider.filterRecipes('chicken');
   expect(filtered, isEmpty);
 });

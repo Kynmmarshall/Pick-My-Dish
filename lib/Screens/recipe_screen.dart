@@ -3,7 +3,6 @@ import 'package:pick_my_dish/Models/recipe_model.dart';
 import 'package:pick_my_dish/Providers/recipe_provider.dart'; // Add this
 import 'package:pick_my_dish/Providers/user_provider.dart';
 import 'package:pick_my_dish/Screens/favorite_screen.dart';
-import 'package:pick_my_dish/Screens/recipe_edit_screen.dart';
 import 'package:pick_my_dish/Screens/recipe_upload_screen.dart';
 import 'package:pick_my_dish/Services/api_service.dart';
 import 'package:pick_my_dish/constants.dart';
@@ -13,10 +12,14 @@ import 'package:provider/provider.dart'; // Add this
 
 class RecipesScreen extends StatefulWidget {
   final bool showUserRecipesOnly; // Add this parameter
+  final bool enableAutoLoad;
+  final List<Recipe>? initialRecipes;
   
   const RecipesScreen({
     super.key,
     this.showUserRecipesOnly = false,
+    this.enableAutoLoad = true,
+    this.initialRecipes,
   });
 
   @override
@@ -27,7 +30,7 @@ class RecipesScreenState extends State<RecipesScreen> {
   List<Recipe> allRecipes = [];
   bool isLoading = true;
   bool hasError = false;
-  String header = "All Recipes";
+  late String header;
 
   String searchQuery = '';
   TextEditingController searchController = TextEditingController();
@@ -35,21 +38,27 @@ class RecipesScreenState extends State<RecipesScreen> {
   @override
   void initState() {
     super.initState();
+    header = widget.showUserRecipesOnly ? "My Recipes" : "All Recipes";
     searchController.addListener(_onSearchChanged);
-    _loadRecipes();
+    if (widget.initialRecipes != null) {
+      allRecipes = _applyUserFilter(List<Recipe>.from(widget.initialRecipes!));
+      isLoading = false;
+      hasError = false;
+    }
+    if (widget.enableAutoLoad) {
+      _loadRecipes();
+    } else if (widget.initialRecipes == null) {
+      isLoading = false;
+    }
   }
 
   Future<void> _loadRecipes() async {
     try {
       final recipeMaps = await ApiService.getRecipes(); // This returns List<Map>
       var recipes = recipeMaps.map((map) => Recipe.fromJson(map)).toList();
-      
-      // Filter user's recipes if needed
-      if (widget.showUserRecipesOnly) {
-        header = "My Recipes";
-        final userProvider = Provider.of<UserProvider>(context, listen: false);
-        recipes = recipes.where((recipe) => recipe.userId == userProvider.userId).toList();
-      }
+      recipes = _applyUserFilter(recipes);
+
+      if (!mounted) return;
 
       setState(() {
         allRecipes = recipes;
@@ -57,12 +66,23 @@ class RecipesScreenState extends State<RecipesScreen> {
         hasError = false;
       });
     } catch (e) {
-      print('❌ Error loading recipes: $e');
+      debugPrint('❌ Error loading recipes: $e');
+      if (!mounted) return;
       setState(() {
         isLoading = false;
         hasError = true;
       });
     }
+  }
+
+  List<Recipe> _applyUserFilter(List<Recipe> recipes) {
+    if (!widget.showUserRecipesOnly) {
+      return recipes;
+    }
+
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final targetUserId = userProvider.userId;
+    return recipes.where((recipe) => recipe.userId == targetUserId).toList();
   }
 
   void _onSearchChanged() {
@@ -86,6 +106,14 @@ class RecipesScreenState extends State<RecipesScreen> {
         builder: (context) => RecipeDetailScreen(initialRecipe: recipe),
       ),
     );
+  }
+
+  @visibleForTesting
+  void setErrorStateForTest(bool error) {
+    setState(() {
+      hasError = error;
+      isLoading = false;
+    });
   }
 
   @override
@@ -171,7 +199,7 @@ class RecipesScreenState extends State<RecipesScreen> {
               Container(
                 height: 50,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.1),
+                  color: Colors.white.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(15),
                 ),
                 child: Row(
@@ -266,16 +294,13 @@ class RecipesScreenState extends State<RecipesScreen> {
 
   Widget buildRecipeCard(Recipe recipe) {
     final recipeProvider = Provider.of<RecipeProvider>(context);
-    final userProvider = Provider.of<UserProvider>(context);
     bool isFavorite = recipeProvider.isFavorite(recipe.id);
-    final isAdmin = userProvider.user?.isAdmin ?? false;
-    final canEdit = recipe.canUserEdit(userProvider.userId, isAdmin);
     
     return GestureDetector(
       onTap: () => _showRecipeDetails(recipe),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.1),
+          color: Colors.white.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Stack(
@@ -284,7 +309,7 @@ class RecipesScreenState extends State<RecipesScreen> {
             Positioned(
               top: 5,
               right: 5,
-              child: Container(
+              child: SizedBox(
                 width: 99,
                 height: 87,
                 child: CachedProfileImage(
@@ -366,7 +391,6 @@ class RecipesScreenState extends State<RecipesScreen> {
 
   void _toggleFavorite(Recipe recipe) {
     final recipeProvider = Provider.of<RecipeProvider>(context, listen: false);
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
     
     recipeProvider.toggleFavorite(recipe.id);
     
@@ -381,13 +405,4 @@ class RecipesScreenState extends State<RecipesScreen> {
     });
   }
   
-  void _editRecipe(Recipe recipe) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => RecipeEditScreen(recipe: recipe),
-      ),
-    );
-  }
-
 }

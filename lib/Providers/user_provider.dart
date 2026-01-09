@@ -11,9 +11,7 @@ import 'package:pick_my_dish/Services/api_service.dart';
 class UserProvider with ChangeNotifier {
   // Backing field for the current user. Null when no user is logged in.
   User? _user;
-  String? _token;
   int _userId = 0;
-  DateTime _joined = DateTime.now();
   /// Returns the current user, or null if not signed in.
   User? get user => _user;
   String _profilePicture = 'assets/login/noPicture.png';
@@ -23,10 +21,11 @@ class UserProvider with ChangeNotifier {
   String get username => _user?.username ?? 'Guest';  
   int get userId => _userId;  
 
-  // Add these for complete cleanup
-  List<Map<String, dynamic>> _userRecipes = [];
-  List<int> _userFavorites = [];
-  Map<String, dynamic> _userSettings = {};
+  Future<Map<String, dynamic>?> Function()? _verifyTokenOverride;
+  Future<Map<String, dynamic>?> Function(String email, String password)?
+      _loginOverride;
+  Future<void> Function()? _removeTokenOverride;
+  Future<void> Function()? _clearImageCacheOverride;
 
   /// Returns the email of the current user, or empty string if not available.
   String get email => _user?.email ?? '';
@@ -52,6 +51,27 @@ class UserProvider with ChangeNotifier {
       notifyListeners();
     }
   }
+
+  @visibleForTesting
+  void overrideApiForTest({
+    Future<Map<String, dynamic>?> Function()? verifyToken,
+    Future<Map<String, dynamic>?> Function(String email, String password)? login,
+    Future<void> Function()? removeToken,
+    Future<void> Function()? clearImageCache,
+  }) {
+    _verifyTokenOverride = verifyToken ?? _verifyTokenOverride;
+    _loginOverride = login ?? _loginOverride;
+    _removeTokenOverride = removeToken ?? _removeTokenOverride;
+    _clearImageCacheOverride = clearImageCache ?? _clearImageCacheOverride;
+  }
+
+  @visibleForTesting
+  void resetApiOverrides() {
+    _verifyTokenOverride = null;
+    _loginOverride = null;
+    _removeTokenOverride = null;
+    _clearImageCacheOverride = null;
+  }
   
   // Update ALL notifyListeners() calls to safeNotify():
   void setUser(User user) {
@@ -63,7 +83,8 @@ class UserProvider with ChangeNotifier {
     try {
       debugPrint('🔐 Attempting auto-login...');
       
-      final result = await ApiService.verifyToken();
+      final verifyFn = _verifyTokenOverride ?? ApiService.verifyToken;
+      final result = await verifyFn();
       
       if (result?['valid'] == true && result?['user'] != null) {
         debugPrint('✅ Token valid, setting user...');
@@ -81,7 +102,8 @@ class UserProvider with ChangeNotifier {
         return true;
       } else {
         debugPrint('❌ Token invalid or expired');
-        await ApiService.removeToken(); // Clear invalid token
+        final removeTokenFn = _removeTokenOverride ?? ApiService.removeToken;
+        await removeTokenFn(); // Clear invalid token
         return false;
       }
     } catch (e) {
@@ -91,7 +113,8 @@ class UserProvider with ChangeNotifier {
   }
   
   Future<void> login(String email, String password) async {
-    final result = await ApiService.login(email, password);
+    final loginFn = _loginOverride ?? ApiService.login;
+    final result = await loginFn(email, password);
     
     if (result != null && result['error'] == null) {
       _user = User.fromJson(result['user']);
@@ -157,9 +180,6 @@ class UserProvider with ChangeNotifier {
     _user = null;
     _userId = 0;
     _profilePicture = 'assets/login/noPicture.png';
-    _userRecipes = [];
-    _userFavorites = [];
-    _userSettings = {};
     
     // Clear image cache
     _clearImageCache();
@@ -168,6 +188,10 @@ class UserProvider with ChangeNotifier {
   }
 
   Future<void> _clearImageCache() async {
+  if (_clearImageCacheOverride != null) {
+    await _clearImageCacheOverride!.call();
+    return;
+  }
   try {
     // 1. Clear specific cached profile image URL if it exists
     if (_user?.profileImage != null && !_user!.profileImage!.startsWith('assets/')) {
@@ -199,7 +223,8 @@ class UserProvider with ChangeNotifier {
   Future<void> logout() async {
   try {
     // 1. Clear API token
-    await ApiService.removeToken();
+    final removeTokenFn = _removeTokenOverride ?? ApiService.removeToken;
+    await removeTokenFn();
     
     // 2. Clear cached profile image URL specifically
     if (_user?.profileImage != null && !_user!.profileImage!.startsWith('assets/')) {
@@ -216,20 +241,14 @@ class UserProvider with ChangeNotifier {
     
     // 3. Clear user data
     _user = null;
-    _token = null;
     
     // 4. Reset profile picture to default
     _profilePicture = 'assets/login/noPicture.png';
     
-    // 5. Clear other user data
-    _userRecipes = [];
-    _userFavorites = [];
-    _userSettings = {};
-    
-    // 6. Force a complete image cache clear
+    // 5. Force a complete image cache clear
     await _clearImageCache();
     
-    // 7. Notify listeners
+    // 6. Notify listeners
     safeNotify();
     
     debugPrint('✅ Logout complete - all data cleared');

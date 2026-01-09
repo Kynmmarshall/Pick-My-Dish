@@ -4,13 +4,15 @@ import 'package:image_picker/image_picker.dart';
 import 'package:pick_my_dish/Providers/user_provider.dart';
 import 'package:pick_my_dish/Services/api_service.dart';
 import 'package:pick_my_dish/constants.dart';
-import 'package:pick_my_dish/widgets/ingredient_Selector.dart';
+import 'package:pick_my_dish/widgets/ingredient_selector.dart';
 import 'dart:io';
 
 import 'package:provider/provider.dart';
 
 class RecipeUploadScreen extends StatefulWidget {
-  const RecipeUploadScreen({super.key});
+  final Future<List<Map<String, dynamic>>> Function()? ingredientLoaderOverride;
+
+  const RecipeUploadScreen({super.key, this.ingredientLoaderOverride});
 
   @override
   State<RecipeUploadScreen> createState() => _RecipeUploadScreenState();
@@ -22,6 +24,7 @@ class _RecipeUploadScreenState extends State<RecipeUploadScreen> {
   final TextEditingController _stepsController = TextEditingController();
   
   File? _selectedImage;
+  bool _isPickingImage = false;
   final List<String> _selectedEmotions = [];
   String _selectedTime = '30 mins';
 
@@ -51,18 +54,54 @@ class _RecipeUploadScreenState extends State<RecipeUploadScreen> {
     'Healthy', 'Quick', 'Light'
   ];
 
-  Future<void> _pickImage() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(
-      source: ImageSource.gallery,
-      maxWidth: 800,
-      maxHeight: 800,
-      imageQuality: 85, // Add compression
+  Future<ImageSource?> _chooseImageSource() {
+    return showModalBottomSheet<ImageSource>(
+      context: context,
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.photo_camera, color: Colors.orange),
+                title: Text('Take Photo', style: text.copyWith(color: Colors.orangeAccent)),
+                onTap: () => Navigator.pop(context, ImageSource.camera),
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library, color: Colors.orange),
+                title: Text('Choose from Gallery', style: text.copyWith(color: Colors.orangeAccent)),
+                onTap: () => Navigator.pop(context, ImageSource.gallery),
+              ),
+            ],
+          ),
+        );
+      },
     );
-    if (pickedFile != null) {
-      setState(() {
-        _selectedImage = File(pickedFile.path);
-      });
+  }
+
+  Future<void> _pickImage() async {
+    if (_isPickingImage) return;
+    final source = await _chooseImageSource();
+    if (source == null) return;
+
+    _isPickingImage = true;
+    try {
+      final picker = ImagePicker();
+      final pickedFile = await picker.pickImage(
+        source: source,
+        maxWidth: 800,
+        maxHeight: 800,
+        imageQuality: 85,
+      );
+      if (pickedFile != null && mounted) {
+        setState(() {
+          _selectedImage = File(pickedFile.path);
+        });
+      }
+    } on PlatformException catch (e) {
+      debugPrint('Image picker error: $e');
+    } finally {
+      _isPickingImage = false;
     }
   }
 
@@ -77,16 +116,18 @@ class _RecipeUploadScreenState extends State<RecipeUploadScreen> {
   }
 
   void _uploadRecipe() async {
-  // Validate
-  if (_nameController.text.isEmpty || _selectedImage == null) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Please fill required fields'),
-      backgroundColor: Colors.orange,),
-    );
-    return;
-  }
-  
-  final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+
+    if (_nameController.text.isEmpty || _selectedImage == null) {
+      messenger.showSnackBar(
+        SnackBar(content: Text('Please fill required fields'),
+        backgroundColor: Colors.orange,),
+      );
+      return;
+    }
+    
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
   
   final recipeData = {
     'name': _nameController.text,
@@ -100,36 +141,43 @@ class _RecipeUploadScreenState extends State<RecipeUploadScreen> {
   };
   
     // ADD THIS DEBUG LINE
-  print('📤 Uploading recipe with moods: $_selectedEmotions');
-  print('📤 Recipe data: $recipeData');
+  debugPrint('📤 Uploading recipe with moods: $_selectedEmotions');
+  debugPrint('📤 Recipe data: $recipeData');
   
-  // Show loading
-  showDialog(
-    context: context,
-    barrierDismissible: false,
-    builder: (context) => Center(child: CircularProgressIndicator()),
-  );
-  
-  try {
-    bool success = await ApiService.uploadRecipe(recipeData, _selectedImage);
-    
-    Navigator.pop(context); // Hide loading
-    
-    if (success && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Recipe uploaded successfully!'),
-        backgroundColor: Colors.green,),
-      );
-      Navigator.pop(context); // Go back
-    }
-  } catch (e) {
-    Navigator.pop(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Upload failed: $e'),
-      backgroundColor: Colors.red,),
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Center(child: CircularProgressIndicator()),
     );
+    
+    try {
+      final success = await ApiService.uploadRecipe(recipeData, _selectedImage);
+
+      if (!mounted) return;
+
+      navigator.pop();
+      
+      if (success) {
+        messenger.showSnackBar(
+          SnackBar(content: Text('Recipe uploaded successfully!'),
+          backgroundColor: Colors.green,),
+        );
+        navigator.pop();
+      } else {
+        messenger.showSnackBar(
+          SnackBar(content: Text('Upload failed. Please try again.'),
+          backgroundColor: Colors.red,),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      navigator.pop();
+      messenger.showSnackBar(
+        SnackBar(content: Text('Upload failed: $e'),
+        backgroundColor: Colors.red,),
+      );
+    }
   }
-}
   
   @override
   Widget build(BuildContext context) {
@@ -222,7 +270,7 @@ class _RecipeUploadScreenState extends State<RecipeUploadScreen> {
             width: double.infinity,
             height: 200,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.1),
+              color: Colors.white.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(15),
               border: Border.all(color: Colors.orange, width: 2),
             ),
@@ -260,7 +308,7 @@ class _RecipeUploadScreenState extends State<RecipeUploadScreen> {
               label: Text(emotion, style: text),
               selected: isSelected,
               onSelected: (_) => _toggleEmotion(emotion),
-              backgroundColor: const Color.fromARGB(255, 46, 32, 3).withOpacity(0.3),
+              backgroundColor: const Color.fromARGB(255, 46, 32, 3).withValues(alpha: 0.3),
               selectedColor: Colors.orange,
               checkmarkColor: Colors.white,
               labelStyle: text.copyWith(
@@ -407,6 +455,7 @@ class _RecipeUploadScreenState extends State<RecipeUploadScreen> {
           });
         },
         hintText: "Search ingredients...",
+        ingredientLoader: widget.ingredientLoaderOverride,
       ),
     ],
   );

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:pick_my_dish/Providers/recipe_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:pick_my_dish/Providers/user_provider.dart';
-import 'package:pick_my_dish/Screens/recipe_screen.dart';
 
 class FakeFavoriteProvider extends ChangeNotifier {
   List<dynamic> favorites = [];

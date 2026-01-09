@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
@@ -12,7 +13,9 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  final bool enableProfilePictureFetch;
+
+  const ProfileScreen({super.key, this.enableProfilePictureFetch = true});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -22,13 +25,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
   
   TextEditingController usernameController = TextEditingController();
   bool _isEditing = false;
+  bool _isPickingImage = false;
 
   @override
   void initState() {
   super.initState();
   final userProvider = Provider.of<UserProvider>(context, listen: false);
   usernameController.text = userProvider.username;
-  _loadProfilePicture();
+  if (widget.enableProfilePictureFetch) {
+    _loadProfilePicture();
+  }
 }
 
   void _loadProfilePicture() async {
@@ -43,33 +49,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _saveProfile() async {
-  // Add this check first
-  if (!mounted) return;
-  
-  final userProvider = Provider.of<UserProvider>(context, listen: false);
-  
-  bool success = await ApiService.updateUsername(
-    usernameController.text,
-  );
+    if (!mounted) return;
 
-  
-  // Check mounted again after async operation
-  if (!mounted) return;
-  
-  if (success) {
-    userProvider.updateUsername(usernameController.text);
-    setState(() {
-      _isEditing = false;
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Username updated!'), backgroundColor: Colors.green),
-    );
-  } else {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Update failed!'), backgroundColor: Colors.red),
-    );
+    final messenger = ScaffoldMessenger.of(context);
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+
+    final success = await ApiService.updateUsername(usernameController.text);
+
+    if (!mounted) return;
+
+    if (success) {
+      userProvider.updateUsername(usernameController.text);
+      setState(() {
+        _isEditing = false;
+      });
+      messenger.showSnackBar(
+        SnackBar(content: Text('Username updated!'), backgroundColor: Colors.green),
+      );
+    } else {
+      messenger.showSnackBar(
+        SnackBar(content: Text('Update failed!'), backgroundColor: Colors.red),
+      );
+    }
   }
-}
 
   void _logout() async {
     // 1. Clear all user data from provider
@@ -90,60 +92,90 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   void _cancelEdit() {
     setState(() {
-     // usernameController.text = ;
+      usernameController.text = Provider.of<UserProvider>(context, listen: false).username;
       _isEditing = false;
     });
   }
 
+  Future<ImageSource?> _chooseImageSource() {
+    return showModalBottomSheet<ImageSource>(
+      context: context,
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.photo_camera, color: Colors.orange),
+                title: Text('Take Photo', style: text.copyWith(color: Colors.orangeAccent)),
+                onTap: () => Navigator.pop(context, ImageSource.camera),
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library, color: Colors.orange),
+                title: Text('Choose from Gallery', style: text.copyWith(color: Colors.orangeAccent)),
+                onTap: () => Navigator.pop(context, ImageSource.gallery),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   void _pickImage() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(
-      source: ImageSource.gallery,
-      maxWidth: 800,
-      maxHeight: 800,
-    );
-    
-    if (pickedFile == null) return;
-    
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
-    
-    bool success = await ApiService.uploadProfilePicture(
-      File(pickedFile.path),
-    );
-    
-    // Check mounted FIRST before using context
-    if (!mounted) return;
-    
-    if (success) {
-      // Get actual filename
-      String? actualImagePath = await ApiService.getProfilePicture();
-      
-      // Check mounted again after async
+    if (_isPickingImage) return;
+
+    _isPickingImage = true;
+    try {
+      final source = await _chooseImageSource();
+      if (source == null || !mounted) return;
+
+      final messenger = ScaffoldMessenger.of(context);
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      final picker = ImagePicker();
+
+      final pickedFile = await picker.pickImage(
+        source: source,
+        maxWidth: 800,
+        maxHeight: 800,
+      );
+
+      if (pickedFile == null || !mounted) return;
+
+      final success = await ApiService.uploadProfilePicture(File(pickedFile.path));
+
       if (!mounted) return;
-      
-      if (actualImagePath != null) {
-        // Clear old cache before updating
-        final cacheManager = DefaultCacheManager();
-        await cacheManager.removeFile('http://38.242.246.126:3000/${userProvider.profilePicture}');
-        userProvider.updateProfilePicture(actualImagePath);
-        setState(() {});
-        
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
+
+      if (success) {
+        final actualImagePath = await ApiService.getProfilePicture();
+
+        if (!mounted) return;
+
+        if (actualImagePath != null) {
+          final cacheManager = DefaultCacheManager();
+          await cacheManager.removeFile('http://38.242.246.126:3000/${userProvider.profilePicture}');
+          userProvider.updateProfilePicture(actualImagePath);
+          setState(() {});
+
+          messenger.showSnackBar(
             SnackBar(
               content: Text('Profile picture updated!', style: text),
               backgroundColor: Colors.green,
             ),
           );
         }
+      } else {
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text('Failed to update picture', style: text),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
-    } else if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to update picture', style: text),
-          backgroundColor: Colors.red,
-        ),
-      );
+    } on PlatformException catch (e) {
+      debugPrint('Image picker error: $e');
+    } finally {
+      _isPickingImage = false;
     }
   }
 
@@ -239,10 +271,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           )
                         : 
                         Consumer<UserProvider>(
-                        builder: (context, userProvider, child) {
-                   return Text("${userProvider.username}", style: title.copyWith(fontSize: 24));
-                }
-                ),         
+                          builder: (context, userProvider, child) {
+                            return Text(userProvider.username, style: title.copyWith(fontSize: 24));
+                          },
+                        ),        
 
                     const SizedBox(height: 20),
 
@@ -306,7 +338,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       width: double.infinity,
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.1), 
+                        color: Colors.white.withValues(alpha: 0.1), 
                         borderRadius: BorderRadius.circular(15),
                       ),
                       child: Column(
@@ -342,7 +374,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 30), // FIX: Replace Spacer with SizedBox
 
                     // Logout Button
-                    Container(
+                    SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
                         key: const Key('logout_button'), // FIX: Add key
@@ -370,11 +402,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildInfoRow(IconData icon, String title, String value) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Icon(icon, color: Colors.orange, size: 20),
         const SizedBox(width: 10),
         Text("$title: ", style: text.copyWith(fontWeight: FontWeight.bold)),
-        Text(value, style: text),
+        Expanded(
+          child: Text(
+            value,
+            style: text,
+            softWrap: true,
+          ),
+        ),
       ],
     );
   }

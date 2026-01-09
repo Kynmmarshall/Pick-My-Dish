@@ -272,6 +272,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
     void _register() async {
+  final messenger = ScaffoldMessenger.of(context);
+  final navigator = Navigator.of(context);
+
   // Get trimmed values
   final userName = _userNameController.text.trim();
   final email = _emailController.text.trim();
@@ -280,7 +283,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   // Check for empty fields
   if (userName.isEmpty || email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
-    ScaffoldMessenger.of(context).showSnackBar(
+    messenger.showSnackBar(
       SnackBar(
         content: Text('Please fill in all fields', style: text),
         backgroundColor: Colors.orange,
@@ -291,7 +294,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   // Validate email format
   if (!_isValidEmail(email)) {
-    ScaffoldMessenger.of(context).showSnackBar(
+    messenger.showSnackBar(
       SnackBar(
         content: Text('Please enter a valid email address (e.g., john.smith@gmail.com)', style: text),
         backgroundColor: Colors.orange,
@@ -302,7 +305,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   // Validate password length
   if (password.length < 8) {
-    ScaffoldMessenger.of(context).showSnackBar(
+    messenger.showSnackBar(
       SnackBar(
         content: Text('Password must be at least 8 characters long', style: text),
         backgroundColor: Colors.orange,
@@ -314,7 +317,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   // Check password strength
   final passwordStrength = _checkPasswordStrength(password);
   if (passwordStrength == PasswordStrength.weak) {
-    ScaffoldMessenger.of(context).showSnackBar(
+    messenger.showSnackBar(
       SnackBar(
         content: Text('Password is too weak. Include uppercase, lowercase, numbers, and special characters', style: text),
         backgroundColor: Colors.orange,
@@ -325,7 +328,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   // Check if passwords match
   if (password != confirmPassword) {
-    ScaffoldMessenger.of(context).showSnackBar(
+    messenger.showSnackBar(
       SnackBar(
         content: Text('Passwords do not match', style: text),
         backgroundColor: Colors.orange,
@@ -334,7 +337,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return;
   }
 
-  // Show loading
   showDialog(
     context: context,
     barrierDismissible: false,
@@ -345,20 +347,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   try {
     var result = await ApiService.register(userName, email, password);
-    Navigator.pop(context); // Hide loading
+    if (!mounted) return;
+
+    navigator.pop();
 
     if (result != null && result['error'] == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         SnackBar(
           content: Text('Registration successful! Please login.', style: text),
           backgroundColor: Colors.green,
         ),
       );
-      if (context.mounted) {
-        Navigator.pop(context); // Go back to login
-      }
+      navigator.pop();
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         SnackBar(
           content: Text('Registration failed', style: text),
           backgroundColor: Colors.red,
@@ -366,15 +368,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
       );
     }
   } catch (e) {
-    Navigator.pop(context); // Hide loading
-    if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error: $e', style: text),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
+    if (!mounted) return;
+    navigator.pop();
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text('Error: $e', style: text),
+        backgroundColor: Colors.red,
+      ),
+    );
   }
 }
   // Email validation function
