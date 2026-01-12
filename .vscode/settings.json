@@ -1,4 +1,20 @@
 {
     "dart.flutterSdkPath": "C:\\flutter",
-    "cmake.sourceDirectory": "C:/Users/kynm/Desktop/Pick-My-Dish-/linux"
+    "cmake.sourceDirectory": "C:/Users/kynm/Desktop/Pick-My-Dish-/linux",
+
+    "latex-workshop.latex.tools": [
+  {
+    "name": "pdflatex",
+    "command": "pdflatex",
+    "args": ["-interaction=nonstopmode", "-synctex=1", "%DOCFILE%"],
+    "env": {}
+  }
+],
+"latex-workshop.latex.recipes": [
+  {
+    "name": "pdflatex",
+    "tools": ["pdflatex"]
+  }
+]
 }
+
