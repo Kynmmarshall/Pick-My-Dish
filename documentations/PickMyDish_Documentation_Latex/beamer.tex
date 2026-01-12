@@ -7,12 +7,14 @@
 \usepackage{tabularx} % flexible tables
 \usepackage{tikz}
 \usepackage{amsmath}
+\usetikzlibrary{fadings}
 \usepackage{amssymb}
 \usepackage{xcolor}
 \usepackage{hyperref}
 \usepackage{fontawesome5}
 \usepackage{multicol}
 \usepackage{listings}
+\usetikzlibrary{calc}
 
 % TikZ Libraries
 \usetikzlibrary{shapes, arrows, positioning, fit, shadows, calc}
@@ -97,7 +99,7 @@
             line width=0.5pt,
             rounded corners=12pt,
             inner sep=20pt,
-            text width=0.78\paperwidth,
+            text width=0.7\paperwidth,
             drop shadow={shadow xshift=0pt, shadow yshift=-3pt, opacity=0.3}
         ] at (1.20,0) {
             \centering
@@ -122,6 +124,62 @@
     \begin{beamercolorbox}[sep=0.3cm,wd=\paperwidth,ht=0.8cm]{frametitle}
         \textbf{\insertframetitle}
     \end{beamercolorbox}
+}
+
+\setbeamertemplate{background}{
+    \begin{tikzpicture}[remember picture, overlay]
+        % Main gradient background
+        \fill[top color=white, bottom color=Primary!5] 
+            (current page.south west) rectangle (current page.north east);
+        
+        % Decorative circles pattern
+        \foreach \i in {1,...,20} {
+            \fill[Primary!3, rotate around={20*\i:(current page.center)}] 
+                (current page.center) ellipse[x radius=0.2\paperwidth, y radius=0.4\paperheight];
+        }
+        
+        % Geometric accent top-right
+        \fill[Primary!10, rounded corners=10pt] 
+            ($(current page.north east)+(-3cm,-1.5cm)$) rectangle 
+            ($(current page.north east)+(-0.5cm,-0.5cm)$);
+        \fill[Secondary!15, rotate=45] 
+            ($(current page.north east)+(-2cm,-2cm)$) rectangle 
+            ($(current page.north east)+(-1.5cm,-3cm)$);
+        
+        % Geometric accent bottom-left  
+        \fill[Secondary!10, rounded corners=10pt] 
+            ($(current page.south west)+(0.5cm,0.5cm)$) rectangle 
+            ($(current page.south west)+(3cm,1.5cm)$);
+        \fill[Primary!15, rotate=45] 
+            ($(current page.south west)+(1.5cm,1.5cm)$) rectangle 
+            ($(current page.south west)+(2cm,3cm)$);
+        
+        % Top gradient bar (under title)
+        \fill[Primary, opacity=0.1, path fading=east] 
+            (current page.north west) ++(0,-1.8cm) rectangle 
+            ($(current page.north east)+(0,-2cm)$);
+        
+        % Decorative dots pattern
+        \foreach \x in {0.1,0.2,...,0.9} {
+            \foreach \y in {0.2,0.4,0.6,0.8} {
+                \fill[Accent!30] ($(current page.west)!\x!(current page.east)$) 
+                    ++(0,-\y*\paperheight) circle (0.5pt);
+            }
+        }
+        
+        % Corner decorative elements
+        \begin{scope}[rotate around={45:($(current page.north east)+(-0.8cm,-0.8cm)$)}]
+            \draw[Primary!20, line width=2pt] 
+                ($(current page.north east)+(-1.2cm,-1.2cm)$) -- 
+                ($(current page.north east)+(-2cm,-2cm)$);
+        \end{scope}
+        
+        \begin{scope}[rotate around={-45:($(current page.south west)+(0.8cm,0.8cm)$)}]
+            \draw[Secondary!20, line width=2pt] 
+                ($(current page.south west)+(1.2cm,1.2cm)$) -- 
+                ($(current page.south west)+(2cm,2cm)$);
+        \end{scope}
+    \end{tikzpicture}
 }
 
 % Remove navigation symbols
@@ -155,197 +213,429 @@
 % SLIDE 2: THE PROBLEM & SOLUTION
 % ============================================================
 \begin{frame}{The Problem \& Our Solution}
-    \vspace*{0.5cm}
+    \vspace*{0.2cm}
     
     \begin{columns}[T]
+        % PROBLEM COLUMN
         \column{0.48\textwidth}
         \centering
-        \textcolor{Warning}{\Large \textbf{THE CHALLENGE}}
-        
-        \vspace{0.8cm}
-        
-        \begin{tikzpicture}[scale=0.9]
-            % Problem boxes
-            \draw[fill=Warning!20, thick] (0,0) rectangle (3.5,0.8);
-            \node at (1.75, 0.4) {\small \textbf{Decision Fatigue}};
-            
-            \draw[fill=Warning!20, thick] (0,-1.2) rectangle (3.5,-0.4);
-            \node at (1.75, -0.8) {\small \textbf{Limited Resources}};
-            
-            \draw[fill=Warning!20, thick] (0,-2.4) rectangle (3.5,-1.6);
-            \node at (1.75, -2.0) {\small \textbf{Time Constraints}};
-            
-            \draw[fill=Warning!20, thick] (0,-3.6) rectangle (3.5,-2.8);
-            \node at (1.75, -3.2) {\small \textbf{No Personalization}};
+        \begin{tikzpicture}
+            % Header with icon
+            \node[fill=Warning, text=white, minimum width=0.9\textwidth, 
+                  minimum height=0.8cm, rounded corners=8pt, font=\bfseries\Large] 
+                at (0,0) {\faExclamationTriangle~THE CHALLENGE};
         \end{tikzpicture}
         
+        \vspace{0.3cm}
+        
+        \begin{tikzpicture}
+            % Problem items with icons
+            \node[draw=Warning, fill=Warning!8, thick, rounded corners=10pt,
+                  minimum width=0.9\textwidth, minimum height=0.8cm,
+                  label={[xshift=-2.5cm, Warning]\faUserClock}] (p1) at (0,0) 
+                  {\textbf{Decision Fatigue}};
+                  
+            \node[draw=Warning, fill=Warning!8, thick, rounded corners=10pt,
+                  minimum width=0.9\textwidth, minimum height=0.8cm,
+                  label={[xshift=-2.5cm, Warning]\faMoneyBillWave}] (p2) at (0,-1.4) 
+                  {\textbf{Limited Resources}};
+                  
+            \node[draw=Warning, fill=Warning!8, thick, rounded corners=10pt,
+                  minimum width=0.9\textwidth, minimum height=0.8cm,
+                  label={[xshift=-2.5cm, Warning]\faHourglassHalf}] (p3) at (0,-2.85) 
+                  {\textbf{Time Constraints}};
+                  
+            \node[draw=Warning, fill=Warning!8, thick, rounded corners=10pt,
+                  minimum width=0.9\textwidth, minimum height=0.8cm,
+                  label={[xshift=-2.5cm, Warning]\faUserSlash}] (p4) at (0,-4.25) 
+                  {\textbf{No Personalization}};
+        \end{tikzpicture}
+        
+        % SOLUTION COLUMN  
         \column{0.48\textwidth}
         \centering
-        \textcolor{Accent}{\Large \textbf{OUR SOLUTION}}
+        \begin{tikzpicture}
+            % Header with icon
+            \node[fill=Accent, text=white, minimum width=0.9\textwidth, 
+                  minimum height=0.8cm, rounded corners=8pt, font=\bfseries\Large] 
+                at (0,0) {\faLightbulb~OUR SOLUTION};
+        \end{tikzpicture}
         
-        \vspace{0.8cm}
+        \vspace{0.3cm}
         
-        \begin{tikzpicture}[scale=0.9]
-            % Solution boxes
-            \draw[fill=Accent!20, thick] (0,0) rectangle (3.5,0.8);
-            \node at (1.75, 0.4) {\small \textbf{AI Recommendations}};
-            
-            \draw[fill=Accent!20, thick] (0,-1.2) rectangle (3.5,-0.4);
-            \node at (1.75, -0.8) {\small \textbf{Smart Filtering}};
-            
-            \draw[fill=Accent!20, thick] (0,-2.4) rectangle (3.5,-1.6);
-            \node at (1.75, -2.0) {\small \textbf{Time-Based}};
-            
-            \draw[fill=Accent!20, thick] (0,-3.6) rectangle (3.5,-2.8);
-            \node at (1.75, -3.2) {\small \textbf{Mood-Aware}};
+        \begin{tikzpicture}
+            % Solution items with icons
+            \node[draw=Accent, fill=Accent!8, thick, rounded corners=10pt,
+                  minimum width=0.9\textwidth, minimum height=0.8cm,
+                  label={[xshift=-2.5cm, Accent]\faRobot}] (s1) at (0,0) 
+                  {\textbf{AI Recommendations}};
+                  
+            \node[draw=Accent, fill=Accent!8, thick, rounded corners=10pt,
+                  minimum width=0.9\textwidth, minimum height=0.8cm,
+                  label={[xshift=-2.5cm, Accent]\faFilter}] (s2) at (0,-1.4) 
+                  {\textbf{Smart Filtering}};
+                  
+            \node[draw=Accent, fill=Accent!8, thick, rounded corners=10pt,
+                  minimum width=0.9\textwidth, minimum height=0.8cm,
+                  label={[xshift=-2.5cm, Accent]\faBolt}] (s3) at (0,-2.85) 
+                  {\textbf{Quick Planning}};
+                  
+            \node[draw=Accent, fill=Accent!8, thick, rounded corners=10pt,
+                  minimum width=0.9\textwidth, minimum height=0.8cm,
+                  label={[xshift=-2.5cm, Accent]\faHeart}] (s4) at (0,-4.25) 
+                  {\textbf{Mood-Aware}};
         \end{tikzpicture}
     \end{columns}
+    
+    % Add connecting arrow in middle
+    \begin{tikzpicture}[remember picture, overlay]
+        \node at (7.65,4.6) {\Huge \textcolor{Primary!60}{\faLongArrowAltRight}};
+        \node at (7.65,3.3) {\Huge \textcolor{Primary!60}{\faLongArrowAltRight}};
+        \node at (7.65,1.8) {\Huge \textcolor{Primary!60}{\faLongArrowAltRight}};
+        \node at (7.65,0.5) {\Huge \textcolor{Primary!60}{\faLongArrowAltRight}};
+    \end{tikzpicture}
 \end{frame}
-
 % ============================================================
 % SLIDE 3: KEY FEATURES
 % ============================================================
 \begin{frame}{Key Features}
-    \vspace*{0.3cm}
+    \vspace*{0.2cm}
+    
+    \centering
+    \textcolor{Primary}{\large \textbf{Intelligent Features for Seamless Cooking}}
     
     \begin{tikzpicture}[
         feature/.style={
             rectangle,
-            rounded corners=5pt,
+            rounded corners=12pt,
             inner sep=12pt,
-            text width=2.8cm,
+            text width=2.9cm,
+            minimum height=0.5cm,
             text centered,
-            font=\small\bfseries
+            font=\small\bfseries,
+            drop shadow={shadow xshift=2pt, shadow yshift=2pt, opacity=0.2},
+            align=center
         }
     ]
-        % Row 1
-        \node[feature, fill=Primary!30] (f1) at (0, 5) {Mood\\Filtering};
-        \node[feature, fill=Secondary!30] (f2) at (3.2, 5) {Ingredient\\Matching};
-        \node[feature, fill=Accent!30] (f3) at (6.4, 5) {Time-\\Aware};
+        % Row 1 - Top Features
+        \node[feature, 
+              fill=Primary!15, 
+              draw=Primary!40, 
+              line width=1pt,
+              label={[Primary, yshift=0.06cm]\large\faSmileBeam}] 
+              (f1) at (0, 15) {Mood\\Filtering};
+              
+        \node[feature, 
+              fill=Secondary!15, 
+              draw=Secondary!40, 
+              line width=1pt,
+              label={[Secondary, yshift=0.06cm]\large\faCarrot}] 
+              (f2) at (6, 15) {Smart Ingredient\\Matching};
+              
+        \node[feature, 
+              fill=Accent!15, 
+              draw=Accent!40, 
+              line width=1pt,
+              label={[Accent, yshift=0.06cm]\large\faClock}] 
+              (f3) at (11.5, 15) {Time-Aware\\Planning};
+
+        % Decorative connector
+        \draw[Primary!30, line width=2pt, dashed] (f1) -- (f2);
+        \draw[Secondary!30, line width=2pt, dashed] (f2) -- (f3);
         
-        % Row 2
-        \node[feature, fill=Primary!30] (f4) at (0, 2.8) {Favorites\\System};
-        \node[feature, fill=Secondary!30] (f5) at (3.2, 2.8) {Offline\\Capable};
-        \node[feature, fill=Accent!30] (f6) at (6.4, 2.8) {User\\Profiles};
-        
-        % Row 3
-        \node[feature, fill=Primary!30] (f7) at (1.6, 0.6) {Recipe\\Upload};
-        \node[feature, fill=Secondary!30] (f8) at (4.8, 0.6) {Admin\\Controls};
+        % Row 2 - Middle Features
+        \node[feature, 
+              fill=Primary!10, 
+              draw=Primary!30, 
+              line width=1pt,
+              label={[Primary, yshift=0.06cm]\large\faHeart}] 
+              (f4) at (0, 11.4) {Personal\\Favorites};
+              
+        \node[feature, 
+              fill=Secondary!10, 
+              draw=Secondary!30, 
+              line width=1pt,
+              label={[Secondary, yshift=0.06cm]\large\faWifi}] 
+              (f5) at (6, 11.4) {Offline\\Access};
+              
+        \node[feature, 
+              fill=Accent!10, 
+              draw=Accent!30, 
+              line width=1pt,
+              label={[Accent, yshift=0.06cm]\large\faUserCircle}] 
+              (f6) at (11.5, 11.4) {User\\Profiles};
+
+        % Row 3 - Bottom Features
+        \node[feature, 
+              fill=Primary!20, 
+              draw=Primary!50, 
+              line width=1pt,
+              label={[Primary, yshift=0.06cm]\large\faUpload}] 
+              (f7) at (3, 13.4) {Recipe\\Sharing};
+              
+        \node[feature, 
+              fill=Secondary!20, 
+              draw=Secondary!50, 
+              line width=1pt,
+              label={[Secondary, yshift=0.06cm]\large\faCogs}] 
+              (f8) at (8.8, 13.4) {Admin\\Dashboard};
+
+        % Background highlight
+        \fill[Primary!3, rounded corners=20pt] 
+            (current page.west) ++(0.5cm, 1cm) rectangle 
+            (current page.east) ++(-0.5cm, 6.5cm);
     \end{tikzpicture}
     
-    \vspace*{2.5cm}
-    \centering
-    \small \textcolor{gray}{All features designed for intuitive user experience}
+    \vspace*{0.12cm}
+    
+    \begin{tikzpicture}[overlay, remember picture]
+        % Decorative bottom bar
+        \fill[Primary!20, rounded corners=4pt] 
+            (current page.south west) ++(2cm, 0.8cm) rectangle 
+            (current page.south east) ++(-2cm, 1cm);
+            
+        \node[text=DarkBg, font=\small] at (current page.south) 
+            {\faStar~All features designed for intuitive user experience~\faStar};
+    \end{tikzpicture}
 \end{frame}
 
 % ============================================================
 % SLIDE 4: TECHNOLOGY STACK
 % ============================================================
 \begin{frame}{Technology Stack}
-    \vspace*{0.5cm}
+    \vspace*{0.1cm}
+    
+    \centering
+    \textcolor{Primary}{\large \textbf{Modern Stack for Scalable Solutions}}
+    
+    \vspace{0.1cm}
     
     \begin{columns}[T]
-        \column{0.32\textwidth}
+        % FRONTEND COLUMN
+        \column{0.33\textwidth}
         \centering
-        \textcolor{Primary}{\textbf{\large Frontend}}
-        
-        \vspace{0.5cm}
-        
-        \begin{tikzpicture}[scale=1.1]
-            \draw[fill=Primary!20, thick, rounded corners] (0,0) rectangle (2.5,1);
-            \node at (1.25, 0.5) [align=center] {\textbf{Flutter}};
+        \begin{tikzpicture}
+            % Header with icon
+            \node[fill=Primary, text=white, rounded corners=8pt, 
+                  minimum width=0.95\textwidth, minimum height=0.8cm,
+                  font=\bfseries\large] 
+                at (0,0) {\faMobile~Frontend};
             
-            \draw[fill=Primary!20, thick, rounded corners] (0,-1.3) rectangle (2.5,-0.3);
-            \node at (1.25, -0.8) [align=center] {\textbf{Provider}};
-            
-            \draw[fill=Primary!20, thick, rounded corners] (0,-2.6) rectangle (2.5,-1.6);
-            \node at (1.25, -2.1) [align=center] {\textbf{SQLite}};
+            % Items with icons
+            \node[draw=Primary, fill=Primary!8, thick, rounded corners=10pt,
+                  minimum width=0.9\textwidth, minimum height=1cm] 
+                (flutter) at (0,-1.3) {\textbf{Flutter}};
+            \node[Primary] at ($(flutter.west)+(0.5cm,0)$) {\faCode};
+                
+            \node[draw=Primary, fill=Primary!8, thick, rounded corners=10pt,
+                  minimum width=0.9\textwidth, minimum height=1cm] 
+                (provider) at (0,-2.7) {\textbf{Provider State}};
+            \node[Primary] at ($(provider.west)+(0.5cm,0)$) {\faCube};
+                
+            \node[draw=Primary, fill=Primary!8, thick, rounded corners=10pt,
+                  minimum width=0.9\textwidth, minimum height=1cm] 
+                (material) at (0,-4.1) {\textbf{Material UI}};
+            \node[Primary] at ($(material.west)+(0.5cm,0)$) {\faPaintBrush};
         \end{tikzpicture}
         
-        \column{0.32\textwidth}
+        % BACKEND COLUMN
+        \column{0.33\textwidth}
         \centering
-        \textcolor{Secondary}{\textbf{\large Backend}}
-        
-        \vspace{0.5cm}
-        
-        \begin{tikzpicture}[scale=1.1]
-            \draw[fill=Secondary!20, thick, rounded corners] (0,0) rectangle (2.5,1);
-            \node at (1.25, 0.5) [align=center] {\textbf{Node.js}};
+        \begin{tikzpicture}
+            % Header with icon
+            \node[fill=Secondary, text=white, rounded corners=8pt,
+                  minimum width=0.95\textwidth, minimum height=0.8cm,
+                  font=\bfseries\large] 
+                at (0,0) {\faServer~Backend};
             
-            \draw[fill=Secondary!20, thick, rounded corners] (0,-1.3) rectangle (2.5,-0.3);
-            \node at (1.25, -0.8) [align=center] {\textbf{Express}};
-            
-            \draw[fill=Secondary!20, thick, rounded corners] (0,-2.6) rectangle (2.5,-1.6);
-            \node at (1.25, -2.1) [align=center] {\textbf{MySQL}};
+            % Items with icons
+            \node[draw=Secondary, fill=Secondary!8, thick, rounded corners=10pt,
+                  minimum width=0.9\textwidth, minimum height=1cm] 
+                (node) at (0,-1.3) {\textbf{Node.js}};
+            \node[Secondary] at ($(node.west)+(0.5cm,0)$) {\faBolt};
+                
+            \node[draw=Secondary, fill=Secondary!8, thick, rounded corners=10pt,
+                  minimum width=0.9\textwidth, minimum height=1cm] 
+                (express) at (0,-2.7) {\textbf{Express.js}};
+            \node[Secondary] at ($(express.west)+(0.5cm,0)$) {\faRocket};
+                
+            \node[draw=Secondary, fill=Secondary!8, thick, rounded corners=10pt,
+                  minimum width=0.9\textwidth, minimum height=1cm] 
+                (mysql) at (0,-4.1) {\textbf{MySQL}};
+            \node[Secondary] at ($(mysql.west)+(0.5cm,0)$) {\faDatabase};
+                
+            \node[draw=Secondary, fill=Secondary!8, thick, rounded corners=10pt,
+                  minimum width=0.9\textwidth, minimum height=1cm] 
+                (auth) at (0,-5.5) {\textbf{JWT + Bcrypt}};
+            \node[Secondary] at ($(auth.west)+(0.5cm,0)$) {\faLock};
         \end{tikzpicture}
         
-        \column{0.32\textwidth}
+        % DEVOPS & TOOLS COLUMN
+        \column{0.33\textwidth}
         \centering
-        \textcolor{Accent}{\textbf{\large DevOps}}
-        
-        \vspace{0.5cm}
-        
-        \begin{tikzpicture}[scale=1.1]
-            \draw[fill=Accent!20, thick, rounded corners] (0,0) rectangle (2.5,1);
-            \node at (1.25, 0.5) [align=center] {\textbf{Jenkins}};
+        \begin{tikzpicture}
+            % Header with icon
+            \node[fill=Accent, text=white, rounded corners=8pt,
+                  minimum width=0.95\textwidth, minimum height=0.8cm,
+                  font=\bfseries\large] 
+                at (0,0) {\faWrench~DevOps \& Tools};
             
-            \draw[fill=Accent!20, thick, rounded corners] (0,-1.3) rectangle (2.5,-0.3);
-            \node at (1.25, -0.8) [align=center] {\textbf{Nginx}};
-            
-            \draw[fill=Accent!20, thick, rounded corners] (0,-2.6) rectangle (2.5,-1.6);
-            \node at (1.25, -2.1) [align=center] {\textbf{Contabo VPS}};
+            % Items with icons
+            \node[draw=Accent, fill=Accent!8, thick, rounded corners=10pt,
+                  minimum width=0.9\textwidth, minimum height=1cm] 
+                (git) at (0,-1.3) {\textbf{Git/GitHub}};
+            \node[Accent] at ($(git.west)+(0.5cm,0)$) {\faGithub};
+                
+            \node[draw=Accent, fill=Accent!8, thick, rounded corners=10pt,
+                  minimum width=0.9\textwidth, minimum height=1cm] 
+                (pm) at (0,-2.7) {\textbf{Jenkins}};
+            \node[Accent] at ($(pm.west)+(0.5cm,0)$) {\faTasks};
+                
+            \node[draw=Accent, fill=Accent!8, thick, rounded corners=10pt,
+                  minimum width=0.9\textwidth, minimum height=1cm] 
+                (nginx) at (0,-4.1) {\textbf{Nginx}};
+            \node[Accent] at ($(nginx.west)+(0.5cm,0)$) {\faGlobe};
+                
+            \node[draw=Accent, fill=Accent!8, thick, rounded corners=10pt,
+                  minimum width=0.9\textwidth, minimum height=1cm] 
+                (vps) at (0,-5.5) {\textbf{Contabo VPS}};
+            \node[Accent] at ($(vps.west)+(0.5cm,0)$) {\faCloud};
         \end{tikzpicture}
     \end{columns}
 \end{frame}
+
 
 % ============================================================
 % SLIDE 5: SYSTEM ARCHITECTURE
 % ============================================================
 \begin{frame}{System Architecture}
-    \vspace*{0.3cm}
+    \vspace*{0.2cm}
     
-    \begin{tikzpicture}[scale=0.95, thick]
-        % Mobile Client
-        \draw[fill=Primary!30, thick, rounded corners=8pt] (1.5, 8) rectangle (4, 9);
-        \node at (2.75, 8.5) [align=center] {\textbf{Flutter}\\Client};
+    \centering
+    \textcolor{Primary}{\large \textbf{PickMyDish - Complete Architecture with GitHub Integration}}
+    
+    \vspace{0.3cm}
+    
+    \begin{tikzpicture}[
+        box/.style={draw, thick, rounded corners=8pt, inner sep=8pt, align=center, minimum width=3cm},
+        cloud/.style={draw, thick, dashed, rounded corners=8pt, inner sep=10pt, fill=white},
+        arrow/.style={->, >=stealth, thick},
+        note/.style={font=\scriptsize, text=gray}
+    ]
+    
+        % ==================== TOP LAYER: GITHUB & CLIENTS ====================
+        % GitHub section
+        \node[box, fill=Primary!15, draw=Primary!50] (github) at (0, 8.5) 
+            {\textbf{GitHub Repositories}\\[2pt]
+            \scriptsize Backend (Node.js) Repo\\Frontend (Flutter) Repo};
+        \node[below=0.1cm of github, note] {\faGithub~github.com/Kynmmarshall/Pick-My-Dish};
         
-        % Cloud symbol
-        \draw[fill=Secondary!20, thick, rounded corners=8pt] (6, 8) rectangle (8.5, 9);
-        \node at (7.25, 8.5) [align=center] {\textbf{API}\\Gateway};
+        % Mobile Clients
+        \node[box, fill=Primary!20, draw=Primary!60, right=2cm of github] (mobile) 
+            {\textbf{Mobile Clients}\\[2pt]
+            \scriptsize Dark Theme UI\\Provider State Management\\Local Flutter Cache};
         
-        % Backend Services
-        \draw[fill=Secondary!30, thick, rounded corners=8pt] (0.5, 5.5) rectangle (2.8, 6.5);
-        \node at (1.65, 6) {\textbf{Auth}};
+        % Arrow from GitHub to Mobile
+        \draw[arrow, Primary!60] (github) -- (mobile) 
+            node[midway, above, note] {CI/CD Pipeline};
         
-        \draw[fill=Secondary!30, thick, rounded corners=8pt] (3.2, 5.5) rectangle (5.5, 6.5);
-        \node at (4.35, 6) {\textbf{Recipe}};
+        % ==================== MIDDLE LAYER: NETWORK & SECURITY ====================
+        % External Access
+        \node[box, fill=Secondary!15, draw=Secondary!50] (dns) at (-3, 6) 
+            {\textbf{External Access}\\[2pt]
+            \scriptsize DuckDNS\\pickmydish.duckdns.org};
         
-        \draw[fill=Secondary!30, thick, rounded corners=8pt] (5.8, 5.5) rectangle (8.1, 6.5);
-        \node at (6.95, 6) {\textbf{Favorites}};
+        % SSL Certificates
+        \node[box, fill=Accent!15, draw=Accent!50, right=1.5cm of dns] (ssl) 
+            {\textbf{SSL}\\[2pt]
+            \scriptsize Let's Encrypt\\Certificates};
         
-        % Database
-        \draw[fill=Accent!30, thick, rounded corners=8pt] (3, 2.5) rectangle (5.5, 3.5);
-        \node at (4.25, 3) [align=center] {\textbf{MySQL}\\Database};
+        % VPS Server
+        \node[box, fill=Secondary!20, draw=Secondary!60, right=1.5cm of ssl] (vps) 
+            {\textbf{Contabo VPS}\\[2pt]
+            \scriptsize 38.242.246.126\\Ubuntu Server};
         
-        % Cache
-        \draw[fill=Accent!30, thick, rounded corners=8pt] (6.2, 2.5) rectangle (8.5, 3.5);
-        \node at (7.35, 3) [align=center] {\textbf{Redis}\\Cache};
+        % HTTPS connection
+        \draw[arrow, Secondary!60, shorten >=5pt, shorten <=5pt] 
+            (dns) -- node[above, note] {HTTPS (Port 443)} (ssl);
+        \draw[arrow, Secondary!60, shorten >=5pt, shorten <=5pt] 
+            (ssl) -- (vps);
         
-        % Arrows
-        \draw[->, thick, Primary, shorten >=3pt, shorten <=3pt] (4, 8) -- (7.2, 9);
-        \draw[->, thick, Primary, shorten >=3pt, shorten <=3pt] (7.2, 8) -- (4, 8);
+        % ==================== FIREWALL LAYER ====================
+        \node[box, fill=Warning!15, draw=Warning!50, minimum width=8cm] (firewall) at (0, 4.2) 
+            {\textbf{UFW Firewall Configuration}\\[2pt]
+            \scriptsize
+            \begin{tabular}{ll}
+                \textbf{Inbound:} & Port 22 (SSH), 80 (HTTP), 443 (HTTPS), 3000 (Node.js), 8080 (Jenkins)\\
+                \textbf{Outbound:} & All allowed, Port 3306 (MySQL local)
+            \end{tabular}};
         
-        \draw[->, thick, Secondary, shorten >=3pt, shorten <=3pt] (4.35, 5.5) -- (4.35, 3.5);
-        \draw[->, thick, Secondary, shorten >=3pt, shorten <=3pt] (5.5, 6) -- (6.2, 3);
+        % ==================== VPS INTERNAL LAYERS ====================
+        % Web Layer (Nginx)
+        \node[box, fill=Primary!10, draw=Primary!40] (web) at (-4, 2.2) 
+            {\textbf{Web Layer (Nginx)}\\[2pt]
+            \scriptsize Reverse Proxy\\Static File Serving\\SSL Termination};
         
-        % Labels
-        \node[above, font=\tiny, text=gray] at (5.6, 8.5) {REST API};
-        \node[left, font=\tiny, text=gray] at (4.2, 4.5) {Queries};
+        % CI/CD Layer
+        \node[box, fill=Accent!10, draw=Accent!40, right=2cm of web] (ci) 
+            {\textbf{CI/CD Layer (Jenkins)}\\[2pt]
+            \scriptsize Automated Pipeline\\Flutter Build\\VPS Deployment};
+        
+        % Application Layer
+        \node[box, fill=Secondary!10, draw=Secondary!40] (app) at (-4, 0) 
+            {\textbf{Application Layer}\\[2pt]
+            \scriptsize Express.js Framework\\REST API Endpoints\\JWT Authentication};
+        
+        % Data Layer
+        \node[box, fill=Accent!20, draw=Accent!60, right=2cm of app] (data) 
+            {\textbf{Data Layer}\\[2pt]
+            \scriptsize MySQL Database\\Port: 3306\\Users, Recipes, Favorites};
+        
+        % ==================== STORAGE COMPONENTS ====================
+        % File Storage
+        \node[box, fill=gray!10, draw=gray!40, minimum width=4cm] (storage) at (2, -1.5) 
+            {\textbf{File Storage}\\[2pt]
+            \scriptsize
+            \begin{tabular}{l}
+                • APK Storage (Local)\\
+                • Website Files\\
+                • Uploads Directory\\
+                • Serve APK Download
+            \end{tabular}};
+        
+        % ==================== CONNECTIONS ====================
+        % VPS to Firewall
+        \draw[arrow, thick] (vps.south) -- (firewall.north);
+        
+        % Firewall to internal layers
+        \draw[arrow, thick] (firewall.south) -- (web.north);
+        \draw[arrow, thick] (firewall.south) -- (ci.north);
+        
+        % Web Layer connections
+        \draw[arrow, Primary!50, <->] (web.east) -- node[above, note] {Proxy /api/} (app.north);
+        \draw[arrow, Primary!50] (web) -- node[right, note] {Static Files} (storage);
+        
+        % CI/CD connections
+        \draw[arrow, Accent!50] (ci) -- node[right, note] {Deploy APK} (storage);
+        
+        % App to Data layer
+        \draw[arrow, Secondary!50, <->] (app.east) -- node[above, note] {Database Queries} (data.west);
+        
+        % Data to Storage
+        \draw[arrow, gray!50] (data.south) -- (storage.north);
+        
+        % Mobile to DNS
+        \draw[arrow, Primary!60, dashed] (mobile.south) to[out=-90, in=90] node[left, pos=0.3, note] {HTTP Requests} (dns.north);
+        
+        % ==================== BACKGROUND HIGHLIGHTS ====================
+        % Cloud boundary
+        \node[cloud, fit=(web) (ci) (app) (data) (storage), label={above:\textbf{VPS Internal Components}}] {};
+        
     \end{tikzpicture}
     
-    \vspace*{1cm}
+    \vspace*{0.2cm}
     \centering
-    \small \textcolor{gray}{Layered architecture with Repository pattern}
+    \textcolor{gray}{\scriptsize \faCogs~Integrated CI/CD Pipeline • \faLock~Secure Multi-layer Architecture • \faArrowsAlt~Scalable Design}
 \end{frame}
 
 % ============================================================
