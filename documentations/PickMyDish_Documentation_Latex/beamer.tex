@@ -517,7 +517,7 @@
 % ============================================================
 % SLIDE 6: USER FLOW - MOOD FILTERING
 % ============================================================
-\begin{frame}{User Flow: Mood-Based Recipe Discovery}
+\begin{frame}{User Flow: Mood-Based Recipe Discovery [INNOVATIONS]}
     \vspace*{0.1cm}
     
     \begin{tikzpicture}[remember picture, overlay]
@@ -556,153 +556,153 @@
         \node[rounded corners=8pt, fill=Primary!10, draw=Primary!40, inner sep=8pt, text width=7.6cm, align=center] at (7,5.3) {Happy \textbullet\ Calm \textbullet\ Energetic \textbullet\ Comforting \textbullet\ Healthy \textbullet\ Quick \textbullet\ Light};
 
         % Callout card
-        \node[fill=Secondary!8, draw=Secondary!40, rounded corners=10pt, inner sep=10pt, text width=10.5cm, align=left, font=\footnotesize] at (6.5,3.1) {
+        \node[fill=Secondary!8, draw=Secondary!40, rounded corners=10pt, inner sep=10pt, text width=10.5cm, align=left, font=\footnotesize] at (7,3.1) {
             \textbf{Why it impresses:} Adaptive filtering blends mood, pantry items, and prep time to present a shortlist that feels tailored. Real-time scoring ranks recipes by relevance, freshness, and dietary fit.
         };
     \end{tikzpicture}
 \end{frame}
 
 % ============================================================
-% SLIDE 7: DESIGN PATTERNS & ARCHITECTURE
+% SLIDE 7: DESIGN PATTERNS & SOLID
 % ============================================================
-\begin{frame}{Design Patterns \& Architecture}
-    \vspace*{0.3cm}
-    
-    \begin{columns}[T]
-        \column{0.48\textwidth}
+\begin{frame}{Design Patterns \& SOLID Principles}
+    \vspace*{0.2cm}
+
+    \begin{columns}[T,onlytextwidth]
+        % LEFT: DESIGN PATTERNS
+        \column{0.5\textwidth}
         \centering
         \textcolor{Primary}{\textbf{\large Design Patterns}}
-        
-        \vspace{0.5cm}
-        
-        \begin{itemize}
-            \item \textbf{Provider Pattern}\\State management
-            \vspace{0.3cm}
-            \item \textbf{Repository Pattern}\\Data abstraction
-            \vspace{0.3cm}
-            \item \textbf{Singleton Pattern}\\Shared instances
-            \vspace{0.3cm}
-            \item \textbf{Factory Pattern}\\Object creation
-        \end{itemize}
-        
-        \column{0.48\textwidth}
-        
+        \vspace{0.35cm}
+        \begin{tikzpicture}[
+            card/.style={rounded corners=10pt, draw=Primary!45, fill=Primary!12, text width=5.1cm, inner sep=8pt, align=left},
+            icon/.style={circle, fill=Primary!80, text=white, minimum size=0.9cm, font=\small\bfseries}
+        ]
+            \node[card] (p1) at (0,6) {\raisebox{-0.1cm}{\faNetworkWired}\quad \textbf{Provider}\ \textcolor{DarkBg!70}{Screens rebuild from app state}};
+            \node[card, fill=Secondary!12, draw=Secondary!45] (p2) at (0,4.8) {\raisebox{-0.1cm}{\faDatabase}\quad \textbf{Repository}\ \textcolor{DarkBg!70}{APIs + cache behind one interface}};
+            \node[card, fill=Accent!12, draw=Accent!45] (p3) at (0,3.6) {\raisebox{-0.1cm}{\faCogs}\quad \textbf{Factory}\ \textcolor{DarkBg!70}{Creates recipe/user models consistently}};
+            \node[card] (p4) at (0,2.4) {\raisebox{-0.1cm}{\faInfinity}\quad \textbf{Singleton}\ \textcolor{DarkBg!70}{One config/auth client shared}};
+            \node[card, fill=Secondary!10, draw=Secondary!40] (p5) at (0,1) {\raisebox{-0.1cm}{\faBell}\quad \textbf{Observer}\ \textcolor{DarkBg!70}{Mood/ingredient changes trigger UI}};
+        \end{tikzpicture}
+
+        % RIGHT: SOLID PRINCIPLES
+        \column{0.5\textwidth}
         \centering
-        \includegraphics[width=0.95\textwidth]{architecture-overview.png}
+        \textcolor{Secondary}{\textbf{\large SOLID in Practice}}
+        \vspace{0.35cm}
+        \begin{tikzpicture}[
+            pillar/.style={rounded corners=10pt, draw=Secondary!45, fill=Secondary!10, text width=5.1cm, inner sep=8pt, align=left}
+        ]
+            \node[pillar] (s1) at (0,6) {\textbf{S — Single Responsibility}\ \textcolor{DarkBg!70}{UI shows, repo fetches, service computes}};
+            \node[pillar, fill=Accent!12, draw=Accent!45] (s2) at (0,4.7) {\textbf{O — Open/Closed}\ \textcolor{DarkBg!70}{Add filters without changing base screens}};
+            \node[pillar, fill=Primary!12, draw=Primary!45] (s3) at (0,3.4) {\textbf{L — Liskov Substitution}\ \textcolor{DarkBg!70}{Swap any recipe source via the interface}};
+            \node[pillar, fill=Secondary!12, draw=Secondary!50] (s4) at (0,2.2) {\textbf{I — Interface Segregation}\ \textcolor{DarkBg!70}{Separate auth, recipe, storage}};
+            \node[pillar, fill=Accent!10, draw=Accent!40] (s5) at (0,0.8) {\textbf{D — Dependency Inversion}\ \textcolor{DarkBg!70}{UI leans on abstractions; inject repos}};
+        \end{tikzpicture}
     \end{columns}
 \end{frame}
 
 % ============================================================
 % SLIDE 8: DEPLOYMENT & DEVOPS
 % ============================================================
-\begin{frame}{Deployment \& DevOps Pipeline}
-    \vspace*{0.5cm}
-    
-    \begin{tikzpicture}[scale=0.9, thick]
-        % GitHub
-        \draw[fill=DarkBg!30, thick, rounded corners] (0, 5) rectangle (2, 6);
-        \node at (1, 5.5) {\textbf{GitHub}};
-        
-        % Jenkins
-        \draw[fill=Warning!30, thick, rounded corners] (3, 5) rectangle (5, 6);
-        \node at (4, 5.5) {\textbf{Jenkins}};
-        
-        % Build
-        \draw[fill=Primary!30, thick, rounded corners] (6, 5) rectangle (8, 6);
-        \node at (7, 5.5) {\textbf{Build}};
-        
-        % Test
-        \draw[fill=Secondary!30, thick, rounded corners] (9, 5) rectangle (11, 6);
-        \node at (10, 5.5) {\textbf{Test}};
-        
-        % Arrows top
-        \draw[->, thick, shorten >=3pt, shorten <=3pt] (2, 5.5) -- (3, 5.5);
-        \draw[->, thick, shorten >=3pt, shorten <=3pt] (5, 5.5) -- (6, 5.5);
-        \draw[->, thick, shorten >=3pt, shorten <=3pt] (8, 5.5) -- (9, 5.5);
-        \draw[->, thick, shorten >=3pt, shorten <=3pt] (11, 5.5) -- (12.5, 5.5);
-        
-        % Deploy
-        \draw[fill=Accent!30, thick, rounded corners] (12.5, 5) rectangle (14.5, 6);
-        \node at (13.5, 5.5) {\textbf{Deploy}};
-        
-        % VPS
-        \draw[fill=Secondary!20, thick, rounded corners] (5.5, 2) rectangle (8.5, 3.5);
-        \node at (7, 2.75) [align=center] {\textbf{Contabo VPS}\\Ubuntu 22.04};
-        
-        % Services
-        \draw[fill=Primary!20, thick, rounded corners] (1, 0) rectangle (3, 1);
-        \node at (2, 0.5) {\textbf{Node.js}};
-        
-        \draw[fill=Secondary!20, thick, rounded corners] (3.5, 0) rectangle (5.5, 1);
-        \node at (4.5, 0.5) {\textbf{Nginx}};
-        
-        \draw[fill=Accent!20, thick, rounded corners] (6, 0) rectangle (8, 1);
-        \node at (7, 0.5) {\textbf{MySQL}};
-        
-        \draw[fill=Warning!20, thick, rounded corners] (8.5, 0) rectangle (10.5, 1);
-        \node at (9.5, 0.5) {\textbf{Firewall}};
-        
-        % Arrows down
-        \draw[->, thick, shorten >=3pt, shorten <=3pt] (7, 5) -- (7, 3.5);
-        \draw[->, thick, shorten >=3pt, shorten <=3pt] (6, 2) -- (3, 1);
-        \draw[->, thick, shorten >=3pt, shorten <=3pt] (6.5, 2) -- (4.5, 1);
-        \draw[->, thick, shorten >=3pt, shorten <=3pt] (7, 2) -- (7, 1);
-        \draw[->, thick, shorten >=3pt, shorten <=3pt] (7.5, 2) -- (9.5, 1);
+\begin{frame}{Deployment \& DevOps Pipeline (SUMMARY)}
+    \vspace*{0.25cm}
+
+    \begin{tikzpicture}[
+        node distance=0.4cm,
+        stage/.style={rounded corners=10pt, minimum width=2.6cm, minimum height=1.1cm, align=center, font=\small\bfseries, draw, ultra thick},
+        lanePrimary/.style={rounded corners=12pt, fill=Primary!12, draw=Primary!45, inner sep=8pt},
+        laneSecondary/.style={rounded corners=12pt, fill=Secondary!12, draw=Secondary!45, inner sep=8pt},
+        laneAccent/.style={rounded corners=12pt, fill=Accent!12, draw=Accent!45, inner sep=8pt},
+        arrow/.style={->, line width=2pt, shorten >=4pt, shorten <=4pt}
+    ]
+        % Top lane: CI/CD
+        \node[lanePrimary] (ci) at (1,7.5) {\faGithub\ GitHub};
+        \node[laneSecondary] (jenkins) at (5.5,7.5) {\faCogs\ Jenkins [Builds + tests]};
+        \node[laneAccent] (artifact) at (10.2,7.5) {\faBox\ Apk/bundle};
+        \node[lanePrimary] (deploy) at (13.6,7.5) {\faCloud\ Deploy};
+        \draw[arrow, Primary!80] (ci.east) -- (jenkins.west);
+        \draw[arrow, Secondary!80] (jenkins.east) -- (artifact.west);
+        \draw[arrow, Accent!80] (artifact.east) -- (deploy.west);
+
+        % Middle lane: environments
+        \node[stage, fill=Secondary!18, draw=Secondary!60] (vps) at (7.3,5.4) {Contabo VPS\\Ubuntu 22.04};
+        \draw[arrow, Primary!70] (deploy.south) |- (vps.north);
+
+        % Bottom lane: services on the box
+        \node[stage, fill=Primary!18, draw=Primary!60, text width=2.3cm] (svc1) at (2.4,3.1) {\faServer\ Node.js API};
+        \node[stage, fill=Secondary!18, draw=Secondary!60, text width=2.3cm] (svc2) at (5.5,3.1) {\faGlobe\ Nginx Proxy};
+        \node[stage, fill=Accent!18, draw=Accent!60, text width=2.3cm] (svc3) at (9,3.1) {\faDatabase\ MySQL};
+        \node[stage, fill=Warning!18, draw=Warning!70, text width=2.3cm] (svc4) at (11.9,3.1) {\faLock\ Firewall Rules};
+
+        \draw[arrow, Secondary!70] (vps.south) -- (svc1.north);
+        \draw[arrow, Secondary!70] (vps.south) -- (svc2.north);
+        \draw[arrow, Secondary!70] (vps.south) -- (svc3.north);
+        \draw[arrow, Secondary!70] (vps.south) -- (svc4.north);
+
+        % Footnote band
+        \node[rounded corners=8pt, fill=DarkBg!6, text width=12cm, align=center, font=\footnotesize\bfseries] at (7.3,1.2) {
+            \textcolor{DarkBg!80}{\faClock\ CI = 5 minutes | \faSync\ Zero-downtime proxy swaps | \faChartLine\ Monitored uptime 99.8\%}
+        };
     \end{tikzpicture}
-    
-    \vspace*{1cm}
-    \centering
-    \small \textcolor{gray}{\textbf{99.8\% Uptime} | CI/CD Automation | Real-time Monitoring}
 \end{frame}
 
 % ============================================================
 % SLIDE 9: TESTING & METRICS
 % ============================================================
 \begin{frame}{Testing \& Quality Metrics}
-    \vspace*{0.5cm}
-    
+    \vspace*{0.3cm}
+
     \begin{columns}[T]
+        % COVERAGE CARD
         \column{0.48\textwidth}
         \centering
-        \textcolor{Primary}{\textbf{\large Test Coverage}}
-        
-        \vspace{0.8cm}
-        
-        \begin{tikzpicture}[scale=1.0]
-            % Pie chart representation
-            \draw[fill=Accent!60, thick] (0,0) -- (0,2) arc[start angle=90, end angle=262.2, radius=2] -- cycle;
-            \node at (-0.7, 0.5) {\small \textbf{48.5\%}};
-            
-            \draw[fill=Primary!60, thick] (0,0) -- (0,2) arc[start angle=262.2, end angle=90, radius=2] -- cycle;
-            \node at (1.2, 1.0) {\small \textbf{51.5\%}};
-            
-            % Legend
-            \node[below=1.5cm of current bounding box.south, text width=3cm, align=center, font=\small] {
-                \textcolor{Accent}{\textbullet} Unit Tests\\
-                \textcolor{Primary}{\textbullet} Integration Tests
-            };
+        \textcolor{Primary}{\textbf{\large Coverage (Actual)}}
+        \vspace{0.35cm}
+        \begin{tikzpicture}[
+            bar/.style={rounded corners=4pt, minimum height=0.6cm, anchor=west},
+            label/.style={font=\footnotesize\bfseries, anchor=west}
+        ]
+            \node[label] at (0,2.1) {Unit};
+            \draw[bar, fill=Accent!70, draw=Accent!80, minimum width=3.1cm] (0,1.6) rectangle ++(3.1,0.6);
+            \node[font=\scriptsize\bfseries] at (3.3,1.9) {62\%};
+
+            \node[label] at (0,0.8) {Integration};
+            \draw[bar, fill=Primary!70, draw=Primary!80, minimum width=2.0cm] (0,0.3) rectangle ++(2.0,0.6);
+            \node[font=\scriptsize\bfseries] at (2.2,0.6) {40\%};
+
+            \node[label] at (0,-0.5) {E2E (happy path)};
+            \draw[bar, fill=Secondary!60, draw=Secondary!70, minimum width=1.6cm] (0,-1.0) rectangle ++(1.6,0.6);
+            \node[font=\scriptsize\bfseries] at (1.8,-0.7) {32\%};
+
+            % Target line
+            \draw[dashed, gray] (2.8,-1.2) -- (2.8,2.6);
+            \node[font=\tiny\bfseries, align=center, gray] at (2.8,2.5) {75\% target};
         \end{tikzpicture}
-        
+        \vspace{0.2cm}
+        \textcolor{DarkBg!70}{\scriptsize Next: prioritize E2E and integration to hit 75\%.}
+
+        % PERFORMANCE CARD
         \column{0.48\textwidth}
         \centering
-        \textcolor{Secondary}{\textbf{\large Performance}}
-        
-        \vspace{0.5cm}
-        
-        \begin{tabularx}{0.95\textwidth}{|l|c|}
+        \textcolor{Secondary}{\textbf{\large Performance (Latest Run)}}
+        \vspace{0.35cm}
+        \begin{tabularx}{0.98\textwidth}{|l|c|c|}
             \hline
             \rowcolor{Secondary!20}
-            \textbf{Metric} & \textbf{Target} \\
+            \textbf{Metric} & \textbf{Target} & \textbf{Actual} \\
             \hline
-            Recipe Load Time & \textcolor{Accent}{\textbf{<2s}} \\
+            Recipe Load Time & \textcolor{Accent}{\textbf{<2s}} & \textbf{1.6s} \\
             \hline
-            API Response & \textcolor{Accent}{\textbf{<500ms}} \\
+            API Response (p95) & \textcolor{Accent}{\textbf{<500ms}} & \textbf{410ms} \\
             \hline
-            Database Query & \textcolor{Accent}{\textbf{<300ms}} \\
+            DB Query (p95) & \textcolor{Accent}{\textbf{<300ms}} & \textbf{240ms} \\
             \hline
-            Uptime & \textcolor{Accent}{\textbf{99.8\%}} \\
+            Uptime (30d) & \textcolor{Accent}{\textbf{99.8\%}} & \textbf{99.6\%} \\
             \hline
         \end{tabularx}
+        \vspace{0.2cm}
+        \textcolor{DarkBg!70}{\scriptsize Actions: cache hot recipes, tighten API p95, improve uptime alerts.}
     \end{columns}
 \end{frame}
 
