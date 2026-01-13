@@ -511,52 +511,55 @@
 % SLIDE 5: SYSTEM ARCHITECTURE
 % ============================================================
 \begin{frame}{System Architecture}
-    \includegraphics[width=\paperwidth,height=\paperheight]{architecture-overview.png}
+    \includegraphics[width=15cm,height=7.5cm]{architecture-overview.png}
 \end{frame}
 
 % ============================================================
 % SLIDE 6: USER FLOW - MOOD FILTERING
 % ============================================================
 \begin{frame}{User Flow: Mood-Based Recipe Discovery}
-    \vspace*{0.5cm}
+    \vspace*{0.1cm}
     
-    \begin{tikzpicture}[
-        node distance=2cm,
-        scale=0.85,
-        every node/.style={rectangle, rounded corners=5pt, text centered, font=\small\bfseries}
-    ]
-        % Step 1
-        \node[fill=Primary!30, text width=2.2cm] (step1) at (0, 6) {Select\\Mood};
-        
-        % Step 2
-        \node[fill=Secondary!30, text width=2.2cm] (step2) at (3, 6) {Choose\\Ingredients};
-        
-        % Step 3
-        \node[fill=Accent!30, text width=2.2cm] (step3) at (6, 6) {Set Time\\Limit};
-        
-        % Step 4
-        \node[fill=Primary!30, text width=2.2cm] (step4) at (9, 6) {View\\Results};
-        
-        % Arrows
-        \draw[->, thick, color=Primary, shorten >=3pt, shorten <=3pt] (step1) -- (step2);
-        \draw[->, thick, color=Secondary, shorten >=3pt, shorten <=3pt] (step2) -- (step3);
-        \draw[->, thick, color=Accent, shorten >=3pt, shorten <=3pt] (step3) -- (step4);
-        
-        % Icons below
-        \node[below=0.5cm of step1, font=\Large, inner sep=0] {Mood};
-        \node[below=0.5cm of step2, font=\Large, inner sep=0] {Ingredients};
-        \node[below=0.5cm of step3, font=\Large, inner sep=0] {Time};
-        \node[below=0.5cm of step4, font=\Large, inner sep=0] {Results};
-        
-        % Mood Emotions
-        \node[below=2.2cm of step1, fill=Primary!20, text width=2.2cm, text height=1.2cm] {Happy • Sad • Energetic • Comfort • Healthy • Quick • Light};
+    \begin{tikzpicture}[remember picture, overlay]
+        \fill[Primary!6, rounded corners=12pt] ($(current page.west)+(0.4cm,1.2cm)$) rectangle ($(current page.east)+(-0.4cm,3.2cm)$);
     \end{tikzpicture}
-    
-    \vspace*{1.5cm}
-    
-    \begin{center}
-        \includegraphics[width=0.7\textwidth]{\detokenize{../../Diagrams/sequence diagram recipe by mood.png}}
-    \end{center}
+
+    \begin{tikzpicture}[
+        node distance=0.2cm,
+        scale=0.9,
+        every node/.style={font=\small\bfseries, align=center},
+        flowstep/.style={circle, minimum size=1.1cm, draw, ultra thick, text=white},
+        labelbox/.style={rounded corners=10pt, inner sep=6pt, text width=3cm, font=\footnotesize\bfseries, align=center}
+    ]
+        % Timeline rail
+        \draw[ultra thick, Primary!35, line cap=round] (0,6.5) -- (14,6.5);
+        \draw[ultra thick, Secondary!30, line cap=round, dashed] (0,6.3) -- (14,6.3);
+
+        % Steps
+        \node[flowstep, fill=Primary] (s1) at (0.5,7.5) {1};
+        \node[flowstep, fill=Secondary] (s2) at (5,7.5) {2};
+        \node[flowstep, fill=Accent] (s3) at (9.2,7.5) {3};
+        \node[flowstep, fill=Primary!85!black] (s4) at (13.4,7.5) {4};
+
+        % Step labels
+        \node[labelbox, fill=Primary!18, draw=Primary!60] (l1) at (0.5,9) {Mood\\Selector\\\faSmileBeam\ Filter by feelings};
+        \node[labelbox, fill=Secondary!15, draw=Secondary!55] (l2) at (5,9) {Smart Pantry\\\faCarrot\ Match ingredients};
+        \node[labelbox, fill=Accent!18, draw=Accent!60] (l3) at (9.2,9) {Time Guard\\\faClock\ Set prep window};
+        \node[labelbox, fill=Primary!15, draw=Primary!55] (l4) at (13.4,9) {Curated Results\\\faCheckCircle\ Best-fit recipes};
+
+        % Connectors
+        \draw[->, line width=2pt, Primary!80] (s1) -- (s2);
+        \draw[->, line width=2pt, Secondary!80] (s2) -- (s3);
+        \draw[->, line width=2pt, Accent!80] (s3) -- (s4);
+
+        % Mood palette chips
+        \node[rounded corners=8pt, fill=Primary!10, draw=Primary!40, inner sep=8pt, text width=7.6cm, align=center] at (7,5.3) {Happy \textbullet\ Calm \textbullet\ Energetic \textbullet\ Comforting \textbullet\ Healthy \textbullet\ Quick \textbullet\ Light};
+
+        % Callout card
+        \node[fill=Secondary!8, draw=Secondary!40, rounded corners=10pt, inner sep=10pt, text width=10.5cm, align=left, font=\footnotesize] at (6.5,3.1) {
+            \textbf{Why it impresses:} Adaptive filtering blends mood, pantry items, and prep time to present a shortlist that feels tailored. Real-time scoring ranks recipes by relevance, freshness, and dietary fit.
+        };
+    \end{tikzpicture}
 \end{frame}
 
 % ============================================================
