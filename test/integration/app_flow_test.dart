@@ -3,6 +3,7 @@ import 'package:pick_my_dish/main.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:pick_my_dish/Providers/recipe_provider.dart';
+import 'package:pick_my_dish/Providers/theme_provider.dart';
 import 'package:pick_my_dish/Providers/user_provider.dart';
 
 class MockUserProvider extends UserProvider {
@@ -20,6 +21,7 @@ void main() {
         providers: [
           ChangeNotifierProvider(create: (_) => UserProvider()),
           ChangeNotifierProvider(create: (_) => RecipeProvider()),
+          ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ],
         child: const PickMyDish(), // Wrap in MaterialApp
       ),
@@ -37,6 +39,7 @@ testWidgets('PickMyDish shows loading then MaterialApp', (WidgetTester tester) a
       providers: [
         ChangeNotifierProvider<UserProvider>.value(value: mockUserProvider),
         ChangeNotifierProvider(create: (_) => RecipeProvider()),
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
       ],
       child: const PickMyDish(),
     ),

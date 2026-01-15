@@ -58,18 +58,20 @@ class _RecipeUploadScreenState extends State<RecipeUploadScreen> {
     return showModalBottomSheet<ImageSource>(
       context: context,
       builder: (context) {
+        final theme = Theme.of(context);
+        final primaryColor = theme.primaryColor;
         return SafeArea(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                leading: const Icon(Icons.photo_camera, color: Colors.orange),
-                title: Text('Take Photo', style: text.copyWith(color: Colors.orangeAccent)),
+                leading: Icon(Icons.photo_camera, color: primaryColor),
+                title: Text('Take Photo', style: text.copyWith(color: primaryColor)),
                 onTap: () => Navigator.pop(context, ImageSource.camera),
               ),
               ListTile(
-                leading: const Icon(Icons.photo_library, color: Colors.orange),
-                title: Text('Choose from Gallery', style: text.copyWith(color: Colors.orangeAccent)),
+                leading: Icon(Icons.photo_library, color: primaryColor),
+                title: Text('Choose from Gallery', style: text.copyWith(color: primaryColor)),
                 onTap: () => Navigator.pop(context, ImageSource.gallery),
               ),
             ],
@@ -122,7 +124,7 @@ class _RecipeUploadScreenState extends State<RecipeUploadScreen> {
     if (_nameController.text.isEmpty || _selectedImage == null) {
       messenger.showSnackBar(
         SnackBar(content: Text('Please fill required fields'),
-        backgroundColor: Colors.orange,),
+        backgroundColor: Theme.of(context).primaryColor,),
       );
       return;
     }
@@ -160,13 +162,13 @@ class _RecipeUploadScreenState extends State<RecipeUploadScreen> {
       if (success) {
         messenger.showSnackBar(
           SnackBar(content: Text('Recipe uploaded successfully!'),
-          backgroundColor: Colors.green,),
+          backgroundColor: Theme.of(context).primaryColor,),
         );
         navigator.pop();
       } else {
         messenger.showSnackBar(
           SnackBar(content: Text('Upload failed. Please try again.'),
-          backgroundColor: Colors.red,),
+          backgroundColor: Theme.of(context).colorScheme.error,),
         );
       }
     } catch (e) {
@@ -174,20 +176,22 @@ class _RecipeUploadScreenState extends State<RecipeUploadScreen> {
       navigator.pop();
       messenger.showSnackBar(
         SnackBar(content: Text('Upload failed: $e'),
-        backgroundColor: Colors.red,),
+        backgroundColor: Theme.of(context).colorScheme.error,),
       );
     }
   }
   
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final primaryColor = theme.primaryColor;
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.black,
+        backgroundColor: theme.appBarTheme.backgroundColor ?? theme.scaffoldBackgroundColor,
         title: Text('Upload Recipe', style: title),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.orange), iconSize: iconSize,
+          icon: Icon(Icons.arrow_back, color: primaryColor), iconSize: iconSize,
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -247,7 +251,7 @@ class _RecipeUploadScreenState extends State<RecipeUploadScreen> {
             ElevatedButton(
               onPressed: _uploadRecipe,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange,
+                backgroundColor: primaryColor,
                 minimumSize: const Size(double.infinity, 50),
               ),
               child: Text('Upload Recipe', style: title.copyWith(fontSize: 20)),
@@ -259,6 +263,8 @@ class _RecipeUploadScreenState extends State<RecipeUploadScreen> {
   }
 
   Widget _buildImageSection() {
+    final theme = Theme.of(context);
+    final primaryColor = theme.primaryColor;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -270,15 +276,15 @@ class _RecipeUploadScreenState extends State<RecipeUploadScreen> {
             width: double.infinity,
             height: 200,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.1),
+              color: theme.cardColor.withValues(alpha: 0.6),
               borderRadius: BorderRadius.circular(15),
-              border: Border.all(color: Colors.orange, width: 2),
+              border: Border.all(color: primaryColor, width: 2),
             ),
             child: _selectedImage == null
                 ? Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.camera_alt, color: Colors.orange, size: 50),
+                      Icon(Icons.camera_alt, color: primaryColor, size: 50),
                       const SizedBox(height: 10),
                       Text('Tap to add image', style: text),
                     ],
@@ -294,6 +300,9 @@ class _RecipeUploadScreenState extends State<RecipeUploadScreen> {
   }
 
   Widget _buildEmotionsSection() {
+    final theme = Theme.of(context);
+    final primaryColor = theme.primaryColor;
+    final onSurfaceColor = theme.textTheme.bodyMedium?.color ?? theme.textTheme.bodyLarge?.color;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -308,11 +317,11 @@ class _RecipeUploadScreenState extends State<RecipeUploadScreen> {
               label: Text(emotion, style: text),
               selected: isSelected,
               onSelected: (_) => _toggleEmotion(emotion),
-              backgroundColor: const Color.fromARGB(255, 46, 32, 3).withValues(alpha: 0.3),
-              selectedColor: Colors.orange,
-              checkmarkColor: Colors.white,
+              backgroundColor: theme.cardColor.withValues(alpha: 0.6),
+              selectedColor: primaryColor,
+              checkmarkColor: theme.floatingActionButtonTheme.foregroundColor ?? onSurfaceColor,
               labelStyle: text.copyWith(
-                color: isSelected ? const Color.fromARGB(255, 31, 30, 30) : Colors.white,
+                color: isSelected ? theme.scaffoldBackgroundColor : onSurfaceColor,
               ),
             );
           }).toList(),
@@ -322,6 +331,8 @@ class _RecipeUploadScreenState extends State<RecipeUploadScreen> {
   }
 
   Widget _buildTextField(String hint, TextEditingController controller) {
+    final theme = Theme.of(context);
+    final primaryColor = theme.primaryColor;
     return TextField(
       controller: controller,
       style: text,
@@ -330,21 +341,23 @@ class _RecipeUploadScreenState extends State<RecipeUploadScreen> {
         hintStyle: placeHolder,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Colors.orange),
+          borderSide: BorderSide(color: primaryColor),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Colors.orange),
+          borderSide: BorderSide(color: primaryColor),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Colors.orange, width: 2),
+          borderSide: BorderSide(color: primaryColor, width: 2),
         ),
       ),
     );
   }
 
   Widget _buildTextArea(String hint, TextEditingController controller) {
+    final theme = Theme.of(context);
+    final primaryColor = theme.primaryColor;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -353,7 +366,7 @@ class _RecipeUploadScreenState extends State<RecipeUploadScreen> {
         Container(
           height: 250,
           decoration: BoxDecoration(
-            border: Border.all(color: Colors.orange),
+            border: Border.all(color: primaryColor),
             borderRadius: BorderRadius.circular(10),
           ),
           child: TextField(
@@ -380,6 +393,8 @@ class _RecipeUploadScreenState extends State<RecipeUploadScreen> {
     Function(String) onChanged,
     String label
   ) {
+    final theme = Theme.of(context);
+    final primaryColor = theme.primaryColor;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -388,20 +403,20 @@ class _RecipeUploadScreenState extends State<RecipeUploadScreen> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
-            border: Border.all(color: Colors.orange),
+            border: Border.all(color: primaryColor),
             borderRadius: BorderRadius.circular(10),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               value: currentValue,
               isExpanded: true,
-              dropdownColor: Colors.grey[900],
+              dropdownColor: theme.cardColor,
               style: text,
-              icon: Icon(Icons.arrow_drop_down, color: Colors.orange),
+              icon: Icon(Icons.arrow_drop_down, color: primaryColor),
               items: options.map((String option) {
                 return DropdownMenuItem<String>(
                   value: option,
-                  child: Text(option, style: text.copyWith(color: Colors.orange)),
+                  child: Text(option, style: text.copyWith(color: primaryColor)),
                 );
               }).toList(),
               onChanged: (String? newValue) {
@@ -417,6 +432,8 @@ class _RecipeUploadScreenState extends State<RecipeUploadScreen> {
   }
 
   Widget _buildNumberField(String hint, TextEditingController controller) {
+  final theme = Theme.of(context);
+  final primaryColor = theme.primaryColor;
   return TextField(
     controller: controller,
     style: text,
@@ -427,15 +444,15 @@ class _RecipeUploadScreenState extends State<RecipeUploadScreen> {
       hintStyle: placeHolder,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: Colors.orange),
+        borderSide: BorderSide(color: primaryColor),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: Colors.orange),
+        borderSide: BorderSide(color: primaryColor),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: Colors.orange, width: 2),
+        borderSide: BorderSide(color: primaryColor, width: 2),
       ),
     ),
   );

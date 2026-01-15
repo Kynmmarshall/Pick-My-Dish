@@ -125,12 +125,15 @@ class RecipesScreenState extends State<RecipesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final primaryColor = theme.primaryColor;
+    final onSurfaceColor = theme.textTheme.bodyMedium?.color ?? theme.textTheme.bodyLarge?.color;
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.black,
+        backgroundColor: theme.scaffoldBackgroundColor,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.orange), iconSize: iconSize,
+          icon: Icon(Icons.arrow_back, color: primaryColor), iconSize: iconSize,
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
@@ -148,9 +151,9 @@ class RecipesScreenState extends State<RecipesScreen> {
                       ),
                     );
                   },
-                  child: const Icon(
+                  child: Icon(
                     Icons.add_circle,
-                    color: Colors.orange,
+                    color: primaryColor,
                     size: iconSize,
                   ),
                 ),
@@ -166,9 +169,9 @@ class RecipesScreenState extends State<RecipesScreen> {
                       ),
                     );
                   },
-                  child: const Icon(
+                  child: Icon(
                     Icons.favorite_outlined,
-                    color: Colors.orange,
+                    color: primaryColor,
                     size: iconSize,
                   ),
                 ),
@@ -181,7 +184,7 @@ class RecipesScreenState extends State<RecipesScreen> {
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: BoxDecoration(color: Colors.black),
+        decoration: BoxDecoration(color: theme.scaffoldBackgroundColor),
         child: Padding(
           padding: const EdgeInsets.all(30),
           child: Column(
@@ -199,13 +202,13 @@ class RecipesScreenState extends State<RecipesScreen> {
               Container(
                 height: 50,
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.1),
+                  color: theme.cardColor.withValues(alpha: 0.9),
                   borderRadius: BorderRadius.circular(15),
                 ),
                 child: Row(
                   children: [
                     SizedBox(width: 15),
-                    Icon(Icons.search, color: Colors.white70),
+                    Icon(Icons.search, color: onSurfaceColor?.withValues(alpha: 0.7)),
                     SizedBox(width: 10),
                     Expanded(
                       child: TextField(
@@ -220,7 +223,7 @@ class RecipesScreenState extends State<RecipesScreen> {
                     ),
                     if (searchController.text.isNotEmpty)
                       IconButton(
-                        icon: Icon(Icons.clear, color: Colors.white70),
+                        icon: Icon(Icons.clear, color: onSurfaceColor?.withValues(alpha: 0.7)),
                         onPressed: () {
                           searchController.clear();
                         },
@@ -240,15 +243,18 @@ class RecipesScreenState extends State<RecipesScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _loadRecipes,
-        backgroundColor: Colors.orange,
-        child: Icon(Icons.refresh),
+        backgroundColor: primaryColor,
+        child: Icon(
+          Icons.refresh,
+          color: theme.floatingActionButtonTheme.foregroundColor ?? theme.iconTheme.color,
+        ),
       ),
     );
   }
 
   Widget _buildContent() {
     if (isLoading) {
-      return Center(child: CircularProgressIndicator(color: Colors.orange));
+      return Center(child: CircularProgressIndicator(color: Theme.of(context).primaryColor));
     }
     
     if (hasError) {
@@ -256,7 +262,7 @@ class RecipesScreenState extends State<RecipesScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error, color: Colors.red, size: 50),
+            Icon(Icons.error, color: Theme.of(context).colorScheme.error, size: 50),
             SizedBox(height: 20),
             Text('Failed to load recipes', style: text),
             SizedBox(height: 10),
@@ -293,6 +299,9 @@ class RecipesScreenState extends State<RecipesScreen> {
   }
 
   Widget buildRecipeCard(Recipe recipe) {
+    final theme = Theme.of(context);
+    final primaryColor = theme.primaryColor;
+    final onSurfaceColor = theme.textTheme.bodyMedium?.color ?? theme.textTheme.bodyLarge?.color;
     final recipeProvider = Provider.of<RecipeProvider>(context);
     bool isFavorite = recipeProvider.isFavorite(recipe.id);
     
@@ -300,7 +309,7 @@ class RecipesScreenState extends State<RecipesScreen> {
       onTap: () => _showRecipeDetails(recipe),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.1),
+          color: theme.cardColor,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Stack(
@@ -332,7 +341,7 @@ class RecipesScreenState extends State<RecipesScreen> {
                 },
                 child: Icon(
                   isFavorite ? Icons.favorite : Icons.favorite_border, // Use Recipe property
-                  color: Colors.orange,
+                  color: primaryColor,
                   size: 30,
                 ),
               ),
@@ -349,7 +358,7 @@ class RecipesScreenState extends State<RecipesScreen> {
                   Text(
                     recipe.category, // Use Recipe property
                     style: categoryText.copyWith(
-                      color: Color(0xFF2958FF),
+                      color: primaryColor,
                       fontSize: 15,
                     ),
                   ),
@@ -367,12 +376,12 @@ class RecipesScreenState extends State<RecipesScreen> {
                   // Time with Icon
                   Row(
                     children: [
-                      Icon(Icons.access_time, color: Colors.white, size: 16),
+                      Icon(Icons.access_time, color: onSurfaceColor, size: 16),
                       SizedBox(width: 5),
                       Text(
                         recipe.cookingTime, // Use Recipe property
                         style: TextStyle(
-                          color: Colors.orange,
+                          color: primaryColor,
                           fontSize: 13,
                           fontFamily: 'Lora',
                           fontWeight: FontWeight.w600,

@@ -6,8 +6,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:pick_my_dish/Providers/recipe_provider.dart';
+import 'package:pick_my_dish/Providers/theme_provider.dart';
 import 'package:pick_my_dish/Providers/user_provider.dart';
 import 'package:pick_my_dish/Screens/home_screen.dart';
+import 'package:pick_my_dish/Screens/login_screen.dart';
 import 'package:pick_my_dish/Services/api_service.dart';
 import 'package:pick_my_dish/main.dart';
 import 'package:provider/provider.dart';
@@ -83,6 +85,7 @@ void main() {
           providers: [
             ChangeNotifierProvider<UserProvider>.value(value: userProvider),
             ChangeNotifierProvider<RecipeProvider>.value(value: recipeProvider),
+            ChangeNotifierProvider<ThemeProvider>(create: (_) => ThemeProvider()),
           ],
           child: const PickMyDish(),
         ),
@@ -142,7 +145,7 @@ void main() {
 
       final throwingProvider = userProvider as _ThrowingUserProvider;
       expect(throwingProvider.attempted, isTrue);
-      expect(find.widgetWithText(ElevatedButton, 'Login'), findsOneWidget);
+      expect(find.byType(LoginScreen), findsOneWidget);
     });
   });
 }

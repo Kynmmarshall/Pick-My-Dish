@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pick_my_dish/Models/recipe_model.dart';
 import 'package:pick_my_dish/Providers/recipe_provider.dart';
+import 'package:pick_my_dish/Providers/theme_provider.dart';
 import 'package:pick_my_dish/Providers/user_provider.dart';
 import 'package:pick_my_dish/Screens/about_us_screen.dart';
 import 'package:pick_my_dish/Screens/login_screen.dart';
@@ -50,7 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
     'Light',
     'None',
   ];
-  List<String> timeOptions = ['<= 15mins', '<= 30mins', '<= 1hour', '<= 1hour 30mins', '2+ hours'];
+  List<String> timeOptions = ['<= 15mins', '<= 30mins', '<= 1hour', '<= 1hour 30mins', '<=3 hours'];
   List<Map<String, dynamic>> allIngredients = [];
 
   List<Recipe> personalizedRecipes = [];
@@ -68,7 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text('Please select at least one filter', style: text),
-          backgroundColor: Colors.orange,
+          backgroundColor: Theme.of(context).primaryColor,
         ),
       );
       return;
@@ -137,7 +138,7 @@ class _HomeScreenState extends State<HomeScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text('No recipes found with your criteria', style: text),
-          backgroundColor: Colors.orange,
+          backgroundColor: Theme.of(context).primaryColor,
         ),
       );
     } else {
@@ -151,7 +152,7 @@ class _HomeScreenState extends State<HomeScreen> {
     messenger.showSnackBar(
       SnackBar(
         content: Text('Error generating recipes: $e', style: text),
-        backgroundColor: Colors.red,
+        backgroundColor: Theme.of(context).colorScheme.error,
       ),
     );
   }
@@ -210,10 +211,10 @@ class _HomeScreenState extends State<HomeScreen> {
       final recipeMaps = await ApiService.getRecipes();
       final recipes = recipeMaps.map((map) => Recipe.fromJson(map)).toList();
       
-      // Take only first 3 recipes
+      // Take only first 5 recipes
       if (!mounted) return;
       setState(() {
-        _todayRecipes = recipes.take(3).toList();
+        _todayRecipes = recipes.take(5).toList();
       });
     } catch (e) {
         debugPrint('❌ Error loading today recipes: $e');
@@ -355,7 +356,7 @@ class _HomeScreenState extends State<HomeScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: Colors.black,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         title: Text(
           'Personalized Recipes (${recipes.length})',
           style: title.copyWith(fontSize: 24),
@@ -420,10 +421,14 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildPersonalizedRecipeCard(Recipe recipe) {
+    final theme = Theme.of(context);
+    final primaryColor = theme.primaryColor;
+    final onSurfaceColor = theme.textTheme.bodyLarge?.color ?? theme.textTheme.bodyMedium?.color;
+    final secondaryTextColor = theme.textTheme.bodyMedium?.color;
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: const Color(0xFF373737),
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(10),
       ),
       child: ListTile(
@@ -444,8 +449,8 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         title: Text(
           recipe.name,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: onSurfaceColor,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -454,23 +459,23 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             Text(
               'Time: ${recipe.cookingTime}',
-              style: const TextStyle(color: Colors.orange),
+              style: TextStyle(color: primaryColor),
             ),
             if (recipe.moods.isNotEmpty)
               Text(
                 'Mood: ${recipe.moods.join(', ')}',
-                style: const TextStyle(color: Colors.white70, fontSize: 12),
+                style: TextStyle(color: secondaryTextColor, fontSize: 12),
               ),
             if (recipe.category.isNotEmpty)
               Text(
                 'Category: ${recipe.category}',
-                style: const TextStyle(color: Colors.white70, fontSize: 12),
+                style: TextStyle(color: secondaryTextColor, fontSize: 12),
               ),
           ],
         ),
-        trailing: const Icon(
+        trailing: Icon(
           Icons.arrow_forward_ios,
-          color: Colors.orange,
+          color: primaryColor,
           size: 16,
         ),
         onTap: () {
@@ -493,11 +498,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final primaryColor = theme.primaryColor;
+    final onSurfaceColor = theme.textTheme.bodyLarge?.color ?? theme.textTheme.bodyMedium?.color;
+    final titleColor = theme.textTheme.titleLarge?.color ?? onSurfaceColor;
+    final surfaceColor = theme.scaffoldBackgroundColor;
+    final surfaceVariantColor = theme.cardColor;
     return Scaffold(
       key: _scaffoldKey,
       drawer: _buildSideMenu(),
        appBar: AppBar(
-        backgroundColor: Colors.black,
+        backgroundColor: theme.appBarTheme.backgroundColor ?? theme.scaffoldBackgroundColor,
         elevation: 0,
         leading: Padding(
           padding: const EdgeInsets.only(left: 30, top: 20),
@@ -506,9 +517,9 @@ class _HomeScreenState extends State<HomeScreen> {
               _scaffoldKey.currentState?.openDrawer();
             },
             
-              child: const Icon(
+              child: Icon(
                 Icons.menu,
-                color: Colors.orange,
+                color: primaryColor,
                 size: iconSize,
               ),
           ),
@@ -529,9 +540,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     );
                   },
-                  child: const Icon(
+                  child: Icon(
                     Icons.add_circle,
-                    color: Colors.orange,
+                    color: primaryColor,
                     size: iconSize,
                   ),
                 ),
@@ -547,9 +558,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     );
                   },
-                  child: const Icon(
+                  child: Icon(
                     Icons.favorite,
-                    color: Colors.orange,
+                    color: primaryColor,
                     size: iconSize,
                   ),
                 ),
@@ -563,9 +574,9 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Colors.black, Color(0xFF6B6B6B)],
+            colors: [surfaceColor, surfaceVariantColor],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             stops: [0.7, 1.0],
@@ -591,7 +602,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         builder: (context, userProvider, child) {
                           return Text(
                             '${userProvider.username}!', 
-                            style: title.copyWith(color: Colors.orange),
+                            style: title.copyWith(color: primaryColor),
                           );
                         },
                       ),
@@ -601,7 +612,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(height: 8),
                     Text(
                       "What would you like to cook today?",
-                      style: title.copyWith(color: Colors.orange),
+                      style: title.copyWith(color: theme.primaryColor),
                     ),
                     const SizedBox(height: 30),
 
@@ -613,10 +624,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
+                        Text(
                           "Today's Fresh Recipe",
                           style: TextStyle(
-                            color: Colors.white,
+                            color: titleColor,
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                           ),
@@ -630,10 +641,10 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             );
                           },
-                          child: const Text(
+                          child: Text(
                             "See All",
                             style: TextStyle(
-                              color: Colors.orange,
+                              color: primaryColor,
                               fontSize: 14,
                             ),
                           ),
@@ -658,17 +669,22 @@ class _HomeScreenState extends State<HomeScreen> {
         _loadIngredients();
       _loadFavorites();
         },
-        backgroundColor: Colors.orange,
-        child: Icon(Icons.refresh),
+        backgroundColor: primaryColor,
+        child: Icon(
+          Icons.refresh,
+          color: theme.floatingActionButtonTheme.foregroundColor ?? theme.iconTheme.color,
+        ),
       ),
     );
   }
 
   Widget _buildPersonalizationSection() {
+    final theme = Theme.of(context);
+    final primaryColor = theme.primaryColor;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.1),
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(15),
       ),
       child: Column(
@@ -682,18 +698,18 @@ class _HomeScreenState extends State<HomeScreen> {
             initialValue: selectedEmotion,
             decoration: InputDecoration(
               labelText: "How are you feeling?",
-              labelStyle: const TextStyle(color: Colors.white70),
+              labelStyle: placeHolder,
               border: const OutlineInputBorder(),
               filled: true,
-              fillColor: Colors.black.withValues(alpha: 0.3),
+              fillColor: theme.scaffoldBackgroundColor.withValues(alpha: 0.6),
             ),
-            dropdownColor: Colors.grey[900],
+            dropdownColor: theme.cardColor,
             items: emotions.map((emotion) {
               return DropdownMenuItem(
                 value: emotion,
                 child: Text(
                   emotion,
-                  style: const TextStyle(color: Colors.orange),
+                  style: TextStyle(color: primaryColor),
                 ),
               );
             }).toList(),
@@ -712,13 +728,9 @@ class _HomeScreenState extends State<HomeScreen> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 "Select Ingredients",
-                style: TextStyle(
-                  color: Colors.white70,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
+                style: text
               ),
               const SizedBox(height: 8),
               IngredientSelector(
@@ -730,7 +742,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     selectedIngredients = ids.map((id) => _getIngredientName(id)).toList();
                   });
                 },
-                hintText: "Search ingredients...",
+                hintText: 'Search ingredients...',
+                hintStyle: placeHolder,
                 allowAddingNew: false,
                 ingredientLoader: widget.ingredientLoaderOverride,
               ),
@@ -743,19 +756,19 @@ class _HomeScreenState extends State<HomeScreen> {
             initialValue: selectedTime,
             decoration: InputDecoration(
               labelText: "Cooking Time",
-              labelStyle: const TextStyle(color: Colors.white70),
+              labelStyle: placeHolder,
               border: const OutlineInputBorder(),
               filled: true,
-              fillColor: Colors.black.withValues(alpha: 0.3),
+              fillColor: theme.scaffoldBackgroundColor.withValues(alpha: 0.6),
             ),
-            dropdownColor: Colors.grey[900],
+            dropdownColor: theme.cardColor,
             items: timeOptions.map((time) {
               return DropdownMenuItem(
                 value: time,
                 child: Text(
                   time,
-                  style: const TextStyle(
-                    color: Color.fromARGB(255, 255, 123, 0),
+                  style: TextStyle(
+                    color: primaryColor,
                   ),
                 ),
               );
@@ -774,7 +787,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: ElevatedButton(
               onPressed: _generatePersonalisedRecipes,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange,
+                backgroundColor: primaryColor,
                 padding: const EdgeInsets.symmetric(vertical: 15),
               ),
               child: Text("Generate Personalized Recipes", style: text),
@@ -786,6 +799,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget buildRecipeCard(Recipe recipe) {
+    final theme = Theme.of(context);
+    final onSurfaceColor = theme.textTheme.bodyLarge?.color ?? theme.textTheme.bodyMedium?.color;
     final recipeProvider = Provider.of<RecipeProvider>(context);
     bool isFavorite = recipeProvider.isFavorite(recipe.id);
     return GestureDetector(
@@ -795,11 +810,11 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Container(
         height: 64,
         decoration: BoxDecoration(
-          color: const Color(0xFF373737),
+          color: theme.cardColor,
           borderRadius: BorderRadius.circular(10),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.25),
+              color: Theme.of(context).shadowColor.withValues(alpha: 0.25),
               blurRadius: 5,
               offset: const Offset(0, 5),
             ),
@@ -834,11 +849,11 @@ class _HomeScreenState extends State<HomeScreen> {
               top: 13,
               child: Text(
                 recipe.name,
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: 'Lora',
                   fontSize: 17.5,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: onSurfaceColor,
                 ),
               ),
             ),
@@ -849,15 +864,15 @@ class _HomeScreenState extends State<HomeScreen> {
               bottom: 10,
               child: Row(
                 children: [
-                  const Icon(Icons.access_time, color: Colors.white, size: 16),
+                  Icon(Icons.access_time, color: onSurfaceColor, size: 16),
                   const SizedBox(width: 5),
                   Text(
                     recipe.cookingTime,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: 'Lora',
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      color: Colors.orange,
+                      color: theme.primaryColor,
                     ),
                   ),
                 ],
@@ -874,7 +889,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 },
                 child: Icon(
                   isFavorite ? Icons.favorite : Icons.favorite_border,
-                  color: Colors.orange,
+                  color: theme.primaryColor,
                   size: 25,
                 ),
               ),
@@ -886,6 +901,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildSideMenu() {
+    final theme = Theme.of(context);
     
     // Load profile picture when menu opens
     if (widget.fetchProfilePictureInDrawer) {
@@ -904,7 +920,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Container(
       width: MediaQuery.of(context).size.width * 0.9,
       decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.8),
+        color: theme.scaffoldBackgroundColor.withValues(alpha: 0.9),
         borderRadius: const BorderRadius.only(
           topRight: Radius.circular(20),
           bottomRight: Radius.circular(20),
@@ -921,7 +937,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-          Container(color: Colors.black.withValues(alpha: 0.5)),
+          Container(color: Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.6)),
 
           Padding(
             padding: const EdgeInsets.all(30),
@@ -934,9 +950,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     const Spacer(),
                     GestureDetector(
                       onTap: () => Navigator.pop(context),
-                      child: const Icon(
+                      child: Icon(
                         Icons.arrow_back,
-                        color: Colors.orange,
+                        color: theme.primaryColor,
                         size: iconSize,
                       ),
                     ),
@@ -1008,6 +1024,32 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   );
                 }),
+                const SizedBox(height: 20),
+                // Theme Toggle
+                Consumer<ThemeProvider>(
+                  builder: (context, themeProvider, child) {
+                    return ListTile(
+                      leading: Icon(
+                        themeProvider.isDarkMode ? Icons.dark_mode : Icons.light_mode,
+                        color: theme.primaryColor,
+                        size: 32,
+                      ),
+                      title: Text(
+                        'Theme',
+                        style: text.copyWith(fontSize: 22),
+                      ),
+                      trailing: Switch(
+                        value: themeProvider.isDarkMode,
+                        onChanged: (value) {
+                          themeProvider.toggleTheme();
+                        },
+                        activeThumbColor: theme.primaryColor,
+                        inactiveThumbColor: theme.primaryColor.withValues(alpha: 0.5),
+                      ),
+                      contentPadding: EdgeInsets.zero,
+                    );
+                  },
+                ),
                 const Spacer(),
                 _buildMenuItem(Icons.logout, "Logout", () {
                   _logout();
@@ -1021,8 +1063,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildMenuItem(IconData icon, String title, Function onTap) {
+    final theme = Theme.of(context);
     return ListTile(
-      leading: Icon(icon, color: Colors.orange, size: 32),
+      leading: Icon(icon, color: theme.iconTheme.color ?? theme.primaryColor, size: 32),
       title: Text(title, style: text.copyWith(fontSize: 22)),
       onTap: () => onTap(),
       contentPadding: EdgeInsets.zero,
@@ -1031,7 +1074,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildRecipeList() {
   if (_loadingTodayRecipes) {
-    return Center(child: CircularProgressIndicator(color: Colors.orange));
+    return Center(child: CircularProgressIndicator(color: Theme.of(context).primaryColor));
   }
   
   if (_todayRecipes.isEmpty) {

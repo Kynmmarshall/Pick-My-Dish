@@ -31,6 +31,12 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final primaryColor = theme.primaryColor;
+    final onSurfaceColor = theme.textTheme.bodyMedium?.color ?? theme.textTheme.bodyLarge?.color;
+    final surfaceColor = theme.cardColor;
+    final surfaceVariantColor = theme.cardColor;
+    final errorColor = theme.colorScheme.error;
     final recipeProvider = Provider.of<RecipeProvider>(context, listen: true);
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     final isAdmin = userProvider.user?.isAdmin ?? false;
@@ -49,7 +55,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
     debugPrint('   Can delete: $canDelete');
 
     return Scaffold(
-      backgroundColor: Colors.black,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: CustomScrollView(
         slivers: [
           // Recipe Image Header
@@ -66,17 +72,17 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                 fit: BoxFit.cover,
               ),
             ),
-            backgroundColor: Colors.black,
+            backgroundColor: surfaceColor,
             leading: Padding(
               padding: const EdgeInsets.only(top: 20),
               child: IconButton(
               icon: Icon(
                 Icons.arrow_back, 
-                color: const Color.fromARGB(255, 255, 255, 255), 
+                color: theme.iconTheme.color ?? onSurfaceColor, 
                 size: 30,
                 shadows: [
                   Shadow(
-                    color: const Color.fromARGB(255, 0, 0, 0),
+                    color: Theme.of(context).shadowColor,
                     blurRadius: 6,
                     offset: Offset(0,3),
                   ),
@@ -88,13 +94,18 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
             actions: [
               if (canEdit || canDelete) // Show menu if user has permissions
                 PopupMenuButton<String>(
-                  icon: Icon(Icons.more_vert, color: const Color.fromARGB(255, 255, 255, 255), size: 50,shadows: [
-                  Shadow(
-                    color: const Color.fromARGB(255, 0, 0, 0),
-                    blurRadius: 6,
-                    offset: Offset(0,3),
+                  icon: Icon(
+                    Icons.more_vert,
+                    color: theme.iconTheme.color ?? onSurfaceColor,
+                    size: 50,
+                    shadows: [
+                      Shadow(
+                        color: Theme.of(context).shadowColor,
+                        blurRadius: 6,
+                        offset: Offset(0,3),
+                      ),
+                    ],
                   ),
-                ],),
                   onSelected: (value) {
                     if (value == 'edit') {
                       _navigateToEditScreen(recipe);
@@ -111,7 +122,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                           value: 'edit',
                           child: Row(
                             children: [
-                              Icon(Icons.edit, color: Colors.orange),
+                              Icon(Icons.edit, color: primaryColor),
                               SizedBox(width: 8),
                               Text('Edit Recipe'),
                             ],
@@ -126,7 +137,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                           value: 'delete',
                           child: Row(
                             children: [
-                              Icon(Icons.delete, color: Colors.red),
+                              Icon(Icons.delete, color: errorColor),
                               SizedBox(width: 8),
                               Text('Delete Recipe'),
                             ],
@@ -143,15 +154,15 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                 child: IconButton(
                   icon: Icon(
                     isFavorite ? Icons.favorite : Icons.favorite_border,
-                    color: Colors.orange,
+                    color: primaryColor,
                     size: 30,
                     shadows: [
-                  Shadow(
-                    color: const Color.fromARGB(255, 0, 0, 0),
-                    blurRadius: 6,
-                    offset: Offset(0,3),
-                  ),
-                ],
+                      Shadow(
+                        color: Theme.of(context).shadowColor,
+                        blurRadius: 6,
+                        offset: Offset(0,3),
+                      ),
+                    ],
                   ),
                   onPressed: () {
                     recipeProvider.toggleFavorite(recipe.id);
@@ -187,12 +198,18 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                             const SizedBox(height: 4),
                             Text(
                               'By ${recipe.authorName}',
-                              style: TextStyle(color: Colors.white70, fontSize: 16),
+                              style: TextStyle(
+                                color: onSurfaceColor?.withValues(alpha: 0.7),
+                                fontSize: 16,
+                              ),
                             ),
                             const SizedBox(height: 8),
                             Text(
                               recipe.category,
-                              style: categoryText.copyWith(fontSize: 18, color: Colors.blueAccent),
+                              style: categoryText.copyWith(
+                                fontSize: 18,
+                                color: primaryColor,
+                              ),
                             ),
                           ],
                         ),
@@ -201,18 +218,18 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                         decoration: BoxDecoration(
-                          color: Colors.orange,
+                          color: primaryColor,
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.access_time, color: Colors.white, size: 16),
+                            Icon(Icons.access_time, color: onSurfaceColor, size: 16),
                             const SizedBox(width: 5),
                             Text(
                               recipe.cookingTime,
-                              style: const TextStyle(
-                                color: Colors.white,
+                              style: TextStyle(
+                                color: onSurfaceColor,
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -230,13 +247,13 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(15),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.1),
+                      color: surfaceVariantColor.withValues(alpha: 0.4),
                       borderRadius: BorderRadius.circular(15),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.local_fire_department, color: Colors.orange, size: 20),
+                        Icon(Icons.local_fire_department, color: primaryColor, size: 20),
                         const SizedBox(width: 8),
                         Text(
                           '${recipe.calories} KCAL',
@@ -256,7 +273,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.1),
+                      color: surfaceVariantColor.withValues(alpha: 0.4),
                       borderRadius: BorderRadius.circular(15),
                     ),
                     child: Column(
@@ -267,7 +284,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                             padding: const EdgeInsets.symmetric(vertical: 8),
                             child: Row(
                               children: [
-                                const Icon(Icons.circle, color: Colors.orange, size: 8),
+                                Icon(Icons.circle, color: primaryColor, size: 8),
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: Text(
@@ -293,7 +310,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.1),
+                      color: surfaceVariantColor.withValues(alpha: 0.4),
                       borderRadius: BorderRadius.circular(15),
                     ),
                     child: Column(
@@ -309,14 +326,14 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                                   width: 30,
                                   height: 30,
                                   decoration: BoxDecoration(
-                                    color: Colors.orange,
+                                    color: primaryColor,
                                     shape: BoxShape.circle,
                                   ),
                                   child: Center(
                                     child: Text(
                                       '${entry.key + 1}',
-                                      style: const TextStyle(
-                                        color: Colors.white,
+                                      style:  TextStyle(
+                                        color: onSurfaceColor,
                                         fontWeight: FontWeight.bold,
                                         fontSize: 14,
                                       ),
@@ -351,15 +368,15 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                         (mood) => Container(
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                           decoration: BoxDecoration(
-                            color: Colors.orange.withValues(alpha: 0.2),
+                            color: primaryColor.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: Colors.orange),
+                            border: Border.all(color: primaryColor),
                           ),
                           child: Text(
                             mood,
                             style: text.copyWith(
                               fontSize: 14,
-                              color: Colors.orange,
+                              color: primaryColor,
                             ),
                           ),
                         ),
@@ -377,12 +394,12 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text('Happy cooking! 🍳', style: text),
-                            backgroundColor: Colors.green,
+                            backgroundColor: primaryColor,
                           ),
                         );
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.orange,
+                        backgroundColor: primaryColor,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(15),
@@ -407,8 +424,11 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
         await recipeProvider.loadSingleRecipe(recipe.id);
         setState(() {}); // Refresh UI if needed
       },
-      backgroundColor: Colors.orange,
-      child: const Icon(Icons.refresh),
+      backgroundColor: primaryColor,
+      child: Icon(
+        Icons.refresh,
+        color: theme.floatingActionButtonTheme.foregroundColor ?? theme.iconTheme.color,
+      ),
     ),
     );
   }
@@ -423,6 +443,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
   }
 
   void _deleteRecipe(Recipe recipe, int userId) async {
+    final theme = Theme.of(context);
     final messenger = ScaffoldMessenger.of(context);
     final navigator = Navigator.of(context);
     final recipeProvider = Provider.of<RecipeProvider>(context, listen: false);
@@ -432,15 +453,15 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
       builder: (context) => AlertDialog(
         title: Text('Delete Recipe', style: title),
         content: Text('Are you sure you want to delete "${recipe.name}"?', style: text),
-        backgroundColor: Colors.black,
+        backgroundColor: Theme.of(context).cardColor,
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text('Cancel', style: text.copyWith(color: Colors.white)),
+                child: Text('Cancel', style: text.copyWith(color: Theme.of(context).textTheme.bodyMedium?.color)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text('Delete', style: text.copyWith(color: Colors.red)),
+                child: Text('Delete', style: text.copyWith(color: Theme.of(context).colorScheme.error)),
           ),
         ],
       ),
@@ -462,7 +483,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
         messenger.showSnackBar(
           SnackBar(
             content: Text('Recipe deleted successfully', style: text),
-            backgroundColor: Colors.green,
+            backgroundColor: theme.primaryColor,
           ),
         );
         navigator.pop();
@@ -470,7 +491,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
         messenger.showSnackBar(
           SnackBar(
             content: Text('Failed to delete recipe', style: text),
-            backgroundColor: Colors.red,
+            backgroundColor: theme.colorScheme.error,
           ),
         );
       }

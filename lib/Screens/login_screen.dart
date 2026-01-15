@@ -29,7 +29,7 @@ class _LoginScreenState extends State<LoginScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text('Please fill in all fields', style: text),
-          backgroundColor: Colors.orange,
+          backgroundColor: Theme.of(context).primaryColor,
         ),
       );
       return;
@@ -38,8 +38,10 @@ class _LoginScreenState extends State<LoginScreen> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => const Center(
-        child: CircularProgressIndicator(color: Colors.orange),
+      builder: (context) => Center(
+        child: CircularProgressIndicator(
+          color: Theme.of(context).primaryColor,
+        ),
       ),
     );
 
@@ -87,7 +89,7 @@ class _LoginScreenState extends State<LoginScreen> {
         messenger.showSnackBar(
           SnackBar(
             content: Text('Invalid email or password', style: text),
-            backgroundColor: Colors.red,
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
@@ -98,7 +100,7 @@ class _LoginScreenState extends State<LoginScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text('Connection error: $e', style: text),
-          backgroundColor: Colors.red,
+          backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
     }
@@ -106,6 +108,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final primaryColor = theme.primaryColor;
+    final surfaceColor = theme.scaffoldBackgroundColor;
+    final onSurfaceColor = theme.textTheme.bodyMedium?.color ?? theme.textTheme.bodyLarge?.color;
+    final buttonTextColor = theme.floatingActionButtonTheme.foregroundColor ?? theme.textTheme.titleLarge?.color;
     return Scaffold(
       body: Container(
         width: double.infinity,
@@ -121,9 +128,12 @@ class _LoginScreenState extends State<LoginScreen> {
             Container(
               width: double.infinity,
               height: double.infinity,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Colors.transparent, Colors.black],
+                  colors: [
+                    surfaceColor.withValues(alpha: 0.0),
+                    surfaceColor.withValues(alpha: 0.9),
+                  ],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                 ),
@@ -158,9 +168,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
                       Row(
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.email,
-                            color: Colors.white,
+                            color: onSurfaceColor,
                             size: iconSize,
                           ),
                           const SizedBox(width: 10),
@@ -181,9 +191,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
                       Row(
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.key,
-                            color: Colors.white,
+                            color: onSurfaceColor,
                             size: iconSize,
                           ),
                           const SizedBox(width: 10),
@@ -200,7 +210,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     _isPasswordVisible
                                         ? Icons.visibility
                                         : Icons.visibility_off,
-                                    color: Colors.white,
+                                    color: onSurfaceColor,
                                   ),
                                   onPressed: () {
                                     setState(() {
@@ -240,7 +250,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ElevatedButton(
                         onPressed: _login,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.orange,
+                          backgroundColor: primaryColor,
                           minimumSize: const Size(double.infinity, 50),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
@@ -248,7 +258,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         child: Text(
                           "Login",
-                          style: title.copyWith(fontSize: 20),
+                          style: title.copyWith(fontSize: 20,
+                          color: buttonTextColor,),
+                          
                         ),
                       ),
 

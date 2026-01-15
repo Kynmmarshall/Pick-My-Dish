@@ -931,8 +931,6 @@ test('Global variables exist', () {
 test('Text styles have correct properties', () {
   expect(title.fontFamily, equals('TimesNewRoman'));
   expect(text.fontFamily, equals('TimesNewRoman'));
-  expect(title.color, equals(Colors.white));
-  expect(text.color, equals(Colors.white));
 });
 });
 

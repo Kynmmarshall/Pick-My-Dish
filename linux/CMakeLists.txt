@@ -2,6 +2,10 @@
 cmake_minimum_required(VERSION 3.13)
 project(runner LANGUAGES CXX)
 
+if(NOT UNIX)
+  set(CMAKE_DISABLE_FIND_PACKAGE_PkgConfig TRUE)
+endif()
+
 # The name of the executable created for the application. Change this to change
 # the on-disk name of your application.
 set(BINARY_NAME "pick_my_dish")
@@ -51,8 +55,14 @@ set(FLUTTER_MANAGED_DIR "${CMAKE_CURRENT_SOURCE_DIR}/flutter")
 add_subdirectory(${FLUTTER_MANAGED_DIR})
 
 # System-level dependencies.
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(GTK REQUIRED IMPORTED_TARGET gtk+-3.0)
+if(UNIX)
+  find_package(PkgConfig)
+  if(PkgConfig_FOUND)
+    pkg_check_modules(GTK REQUIRED IMPORTED_TARGET gtk+-3.0)
+  else()
+    message(STATUS "PkgConfig not found; GTK dependencies will be skipped.")
+  endif()
+endif()
 
 # Application build; see runner/CMakeLists.txt.
 add_subdirectory("runner")

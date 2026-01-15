@@ -1,10 +1,12 @@
 // main.dart - SIMPLER VERSION
 import 'package:flutter/material.dart';
 import 'package:pick_my_dish/Providers/recipe_provider.dart';
+import 'package:pick_my_dish/Providers/theme_provider.dart';
 import 'package:pick_my_dish/Providers/user_provider.dart';
 import 'package:pick_my_dish/Screens/home_screen.dart';
 import 'package:pick_my_dish/Screens/login_screen.dart';
 import 'package:pick_my_dish/Services/api_service.dart';
+import 'package:pick_my_dish/Themes/theme.dart';
 import 'package:provider/provider.dart';
 
 void main() async{
@@ -17,6 +19,7 @@ void main() async{
       providers: [
         ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => RecipeProvider()),
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
       ],
       child: const PickMyDish(),
     ),
@@ -85,14 +88,21 @@ class _PickMyDishState extends State<PickMyDish> {
       );
     }
     
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Consumer<UserProvider>(
-        builder: (context, userProvider, child) {
-          // Show login screen if not logged in, home screen if logged in
-          return userProvider.isLoggedIn ? HomeScreen() : LoginScreen();
-        },
-      ),
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          theme: lightTheme,
+          darkTheme: darkTheme,
+          themeMode: themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+          home: Consumer<UserProvider>(
+            builder: (context, userProvider, child) {
+              // Show login screen if not logged in, home screen if logged in
+              return userProvider.isLoggedIn ? HomeScreen() : LoginScreen();
+            },
+          ),
+        );
+      },
     );
   }
 }

@@ -64,11 +64,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _isEditing = false;
       });
       messenger.showSnackBar(
-        SnackBar(content: Text('Username updated!'), backgroundColor: Colors.green),
+        SnackBar(content: Text('Username updated!'), backgroundColor: Theme.of(context).primaryColor),
       );
     } else {
       messenger.showSnackBar(
-        SnackBar(content: Text('Update failed!'), backgroundColor: Colors.red),
+        SnackBar(content: Text('Update failed!'), backgroundColor: Theme.of(context).colorScheme.error),
       );
     }
   }
@@ -101,18 +101,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return showModalBottomSheet<ImageSource>(
       context: context,
       builder: (context) {
+        final theme = Theme.of(context);
+        final primaryColor = theme.primaryColor;
         return SafeArea(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                leading: const Icon(Icons.photo_camera, color: Colors.orange),
-                title: Text('Take Photo', style: text.copyWith(color: Colors.orangeAccent)),
+                leading: Icon(Icons.photo_camera, color: primaryColor),
+                title: Text('Take Photo', style: text.copyWith(color: primaryColor)),
                 onTap: () => Navigator.pop(context, ImageSource.camera),
               ),
               ListTile(
-                leading: const Icon(Icons.photo_library, color: Colors.orange),
-                title: Text('Choose from Gallery', style: text.copyWith(color: Colors.orangeAccent)),
+                leading: Icon(Icons.photo_library, color: primaryColor),
+                title: Text('Choose from Gallery', style: text.copyWith(color: primaryColor)),
                 onTap: () => Navigator.pop(context, ImageSource.gallery),
               ),
             ],
@@ -130,7 +132,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final source = await _chooseImageSource();
       if (source == null || !mounted) return;
 
-      final messenger = ScaffoldMessenger.of(context);
       final userProvider = Provider.of<UserProvider>(context, listen: false);
       final picker = ImagePicker();
 
@@ -157,18 +158,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
           userProvider.updateProfilePicture(actualImagePath);
           setState(() {});
 
+          if (!mounted) return;
+          final messenger = ScaffoldMessenger.of(context);
+          final theme = Theme.of(context);
           messenger.showSnackBar(
             SnackBar(
               content: Text('Profile picture updated!', style: text),
-              backgroundColor: Colors.green,
+              backgroundColor: theme.primaryColor,
             ),
           );
         }
       } else {
+        if (!mounted) return;
+        final messenger = ScaffoldMessenger.of(context);
+        final theme = Theme.of(context);
         messenger.showSnackBar(
           SnackBar(
             content: Text('Failed to update picture', style: text),
-            backgroundColor: Colors.red,
+            backgroundColor: theme.colorScheme.error,
           ),
         );
       }
@@ -181,11 +188,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final primaryColor = theme.primaryColor;
+    final onSurfaceColor = theme.textTheme.bodyMedium?.color ?? theme.textTheme.bodyLarge?.color;
     return Scaffold(
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(color: Colors.black),
+        decoration: BoxDecoration(color: theme.scaffoldBackgroundColor),
         child: SingleChildScrollView( // FIX: Add scrollable container
           child: Stack(
             children: [
@@ -199,9 +209,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Navigator.pop(context);
                     }
                   },
-                  child: const Icon(
+                  child: Icon(
                     Icons.arrow_back,
-                    color: Colors.orange,
+                    color: primaryColor,
                     size: iconSize,
                   ),
                 ),
@@ -230,15 +240,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             onTap: _pickImage,
                             child: Container(
                               padding: const EdgeInsets.all(8),
-                              decoration: const BoxDecoration(
-                                color: Colors.orange,
+                                decoration: BoxDecoration(
+                                  color: primaryColor,
                                 shape: BoxShape.circle,
                               ),
-                              child: const Icon(
-                                Icons.camera_alt,
-                                color: Colors.white,
-                                size: 20,
-                              ),
+                                child: Icon(
+                                  Icons.camera_alt,
+                                  color: theme.floatingActionButtonTheme.foregroundColor ?? onSurfaceColor,
+                                  size: 20,
+                                ),
                             ),
                           ),
                         ),
@@ -287,7 +297,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               key: const Key('save_button'), // FIX: Add key
                               onPressed: _saveProfile,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.green,
+                                backgroundColor: primaryColor,
                                 minimumSize: const Size(double.infinity, 50),
                               ),
                               child: Text(
@@ -302,7 +312,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               key: const Key('cancel_button'), // FIX: Add key
                               onPressed: _cancelEdit,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.red,
+                                backgroundColor: theme.colorScheme.error,
                                 minimumSize: const Size(double.infinity, 50),
                               ),
                               child: Text(
@@ -322,7 +332,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           });
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.orange,
+                          backgroundColor: primaryColor,
                           minimumSize: const Size(double.infinity, 50),
                         ),
                         child: Text(
@@ -338,7 +348,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       width: double.infinity,
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.1), 
+                        color: theme.cardColor.withValues(alpha: 0.6), 
                         borderRadius: BorderRadius.circular(15),
                       ),
                       child: Column(
@@ -382,7 +392,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           _logout();
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
+                          backgroundColor: theme.colorScheme.error,
                           minimumSize: const Size(double.infinity, 50),
                         ),
                         child: Text("Logout", style: text.copyWith(fontSize: 20)),
@@ -401,10 +411,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildInfoRow(IconData icon, String title, String value) {
+    final theme = Theme.of(context);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, color: Colors.orange, size: 20),
+        Icon(icon, color: theme.primaryColor, size: 20),
         const SizedBox(width: 10),
         Text("$title: ", style: text.copyWith(fontWeight: FontWeight.bold)),
         Expanded(

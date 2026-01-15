@@ -83,7 +83,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Please login to manage favorites', style: text),
-          backgroundColor: Colors.orange,
+          backgroundColor: Theme.of(context).primaryColor,
         ),
       );
       return;
@@ -94,15 +94,15 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
       builder: (context) => AlertDialog(
         title: Text('Remove from favorites?', style: title),
         content: Text('Remove "${recipe.name}" from your favorites?', style: text),
-        backgroundColor: Colors.black,
+        backgroundColor: Theme.of(context).cardColor,
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text('Cancel', style: text.copyWith(color: Colors.white)),
+            child: Text('Cancel', style: text.copyWith(color: Theme.of(context).textTheme.bodyMedium?.color)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text('Remove', style: text.copyWith(color: Colors.red)),
+            child: Text('Remove', style: text.copyWith(color: Theme.of(context).colorScheme.error)),
           ),
         ],
       ),
@@ -117,19 +117,22 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
   Widget _buildEmptyState() {
     final userProvider = Provider.of<UserProvider>(context);
+    final theme = Theme.of(context);
+    final primaryColor = theme.primaryColor;
+    final onSurfaceColor = theme.textTheme.bodyMedium?.color ?? theme.textTheme.bodyLarge?.color;
     
     if (userProvider.userId == 0) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.favorite_border, color: Colors.orange, size: 60),
+            Icon(Icons.favorite_border, color: primaryColor, size: 60),
             SizedBox(height: 20),
             Text('Login to save favorites', style: title.copyWith(fontSize: 20)),
             SizedBox(height: 10),
             Text(
               'Your favorite recipes will appear here',
-              style: text.copyWith(color: Colors.white70),
+              style: text.copyWith(color: onSurfaceColor?.withValues(alpha: 0.7)),
               textAlign: TextAlign.center,
             ),
             SizedBox(height: 20),
@@ -138,7 +141,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                 Navigator.pop(context);
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange,
+                backgroundColor: primaryColor,
               ),
               child: Text('Go Home', style: text),
             ),
@@ -151,13 +154,13 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.favorite_border, color: Colors.orange, size: 60),
+          Icon(Icons.favorite_border, color: primaryColor, size: 60),
           SizedBox(height: 20),
           Text('No favorite recipes yet', style: title.copyWith(fontSize: 20)),
           SizedBox(height: 10),
           Text(
             'Tap the heart icon on any recipe to add it here',
-            style: text.copyWith(color: Colors.white70),
+            style: text.copyWith(color: onSurfaceColor?.withValues(alpha: 0.7)),
             textAlign: TextAlign.center,
           ),
           SizedBox(height: 20),
@@ -166,7 +169,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
               Navigator.pop(context);
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.orange,
+              backgroundColor: primaryColor,
             ),
             child: Text('Browse Recipes', style: text),
           ),
@@ -180,12 +183,16 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     final recipeProvider = Provider.of<RecipeProvider>(context);
     final userProvider = Provider.of<UserProvider>(context);
     final favoriteRecipes = recipeProvider.favorites;
+    final theme = Theme.of(context);
+    final primaryColor = theme.primaryColor;
+    final onSurfaceColor = theme.textTheme.bodyMedium?.color ?? theme.textTheme.bodyLarge?.color;
+    final surfaceColor = theme.cardColor;
 
     return Scaffold(
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(color: Colors.black),
+        decoration: BoxDecoration(color: Theme.of(context).scaffoldBackgroundColor),
         child: Padding(
           padding: const EdgeInsets.all(30),
           child: Column(
@@ -203,15 +210,15 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                           '(${favoriteRecipes.length})',
                           style: title.copyWith(
                             fontSize: 18,
-                            color: Colors.orange,
+                            color: primaryColor,
                           ),
                         ),
                       const SizedBox(width: 20),
                       GestureDetector(
                         onTap: () => Navigator.pop(context),
-                        child: const Icon(
+                        child: Icon(
                           Icons.arrow_back,
-                          color: Colors.white,
+                          color: onSurfaceColor,
                           size: 30,
                         ),
                       ),
@@ -225,13 +232,13 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
               if (userProvider.userId != 0)
                 Row(
                   children: [
-                    const Icon(Icons.person, color: Colors.orange, size: 25),
+                    Icon(Icons.person, color: primaryColor, size: 25),
                     const SizedBox(width: 8),
                     Text(
                       userProvider.username,
                       style: text.copyWith(
                         fontSize: 17,
-                        color: Colors.white70,
+                        color: onSurfaceColor?.withValues(alpha: 0.7),
                       ),
                     ),
                   ],
@@ -241,9 +248,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
               // Loading indicator
               if (_isLoading)
-                const Expanded(
+                Expanded(
                   child: Center(
-                    child: CircularProgressIndicator(color: Colors.orange),
+                    child: CircularProgressIndicator(color: primaryColor),
                   ),
                 )
               else if (favoriteRecipes.isEmpty)
@@ -252,8 +259,8 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                 Expanded(
                   child: RefreshIndicator(
                     onRefresh: _loadFavorites,
-                    color: Colors.orange,
-                    backgroundColor: Colors.black,
+                    color: primaryColor,
+                    backgroundColor: surfaceColor,
                     child: ListView.builder(
                       itemCount: favoriteRecipes.length,
                       itemBuilder: (context, index) {
@@ -261,12 +268,12 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                         return Dismissible(
                           key: Key('fav_${recipe.id}_$index'),
                           background: Container(
-                            color: Colors.red,
+                            color: theme.colorScheme.error,
                             alignment: Alignment.centerRight,
                             padding: const EdgeInsets.only(right: 20),
-                            child: const Icon(
+                            child: Icon(
                               Icons.delete,
-                              color: Colors.white,
+                              color: theme.floatingActionButtonTheme.foregroundColor ?? theme.iconTheme.color,
                               size: 30,
                             ),
                           ),
@@ -276,15 +283,15 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                               builder: (context) => AlertDialog(
                                 title: Text('Remove from favorites?', style: title),
                                 content: Text('Remove "${recipe.name}" from your favorites?', style: text),
-                                backgroundColor: Colors.black,
+                                backgroundColor: surfaceColor,
                                 actions: [
                                   TextButton(
                                     onPressed: () => Navigator.pop(context, false),
-                                    child: Text('Cancel', style: text.copyWith(color: Colors.white)),
+                                    child: Text('Cancel', style: text.copyWith(color: onSurfaceColor)),
                                   ),
                                   TextButton(
                                     onPressed: () => Navigator.pop(context, true),
-                                    child: Text('Remove', style: text.copyWith(color: Colors.red)),
+                                    child: Text('Remove', style: text.copyWith(color: theme.colorScheme.error)),
                                   ),
                                 ],
                               ),
@@ -315,14 +322,18 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   }
 
   Widget _buildRecipeCard(Recipe recipe) {
+    final theme = Theme.of(context);
+    final primaryColor = theme.primaryColor;
+    final onSurfaceColor = theme.textTheme.bodyMedium?.color ?? theme.textTheme.bodyLarge?.color;
+    final surfaceVariantColor = theme.cardColor;
     return Container(
       height: 100,
       decoration: BoxDecoration(
-        color: const Color(0xFF373737),
+        color: surfaceVariantColor,
         borderRadius: BorderRadius.circular(10),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.25),
+            color: Theme.of(context).shadowColor.withValues(alpha: 0.25),
             blurRadius: 5,
             offset: const Offset(0, 5),
           ),
@@ -358,11 +369,11 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             right: 50,
             child: Text(
               recipe.name,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: 'Lora',
                 fontSize: 17.5,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: onSurfaceColor,
               ),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
@@ -376,10 +387,10 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
               top: 40,
               child: Text(
                 recipe.category,
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: 'Lora',
                   fontSize: 12,
-                  color: Colors.orange,
+                  color: primaryColor,
                 ),
               ),
             ),
@@ -390,15 +401,15 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             bottom: 15,
             child: Row(
               children: [
-                const Icon(Icons.access_time, color: Colors.orange, size: 12),
+                Icon(Icons.access_time, color: primaryColor, size: 12),
                 const SizedBox(width: 5),
                 Text(
                   recipe.cookingTime,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: 'Lora',
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
-                    color: Colors.orange,
+                    color: primaryColor,
                   ),
                 ),
               ],
@@ -410,7 +421,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             right: 15,
             top: 15,
             child: IconButton(
-              icon: const Icon(Icons.favorite, color: Colors.orange, size: 24),
+              icon: Icon(Icons.favorite, color: primaryColor, size: 24),
               onPressed: () {
                 _removeFavorite(recipe);
               },
@@ -427,9 +438,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                 width: MediaQuery.of(context).size.width - 180,
                 child: Text(
                   recipe.moods.join(', '),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 10,
-                    color: Colors.white70,
+                    color: onSurfaceColor?.withValues(alpha: 0.7),
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,

@@ -50,24 +50,27 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final primaryColor = theme.primaryColor;
+    final onSurfaceColor = theme.textTheme.bodyMedium?.color ?? theme.textTheme.bodyLarge?.color;
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Image.asset('assets/logo/logo.png'),
             const SizedBox(height: 20),
-            const Text(
+            Text(
               "What should I eat today?",
               style: TextStyle(
-                color: Colors.white,
+                color: onSurfaceColor,
                 fontSize: 18,
                 fontFamily: 'TimesNewRoman',
               ),
             ),
             const SizedBox(height: 20),
-            const CircularProgressIndicator(color: Colors.orange),
+            CircularProgressIndicator(color: primaryColor),
           ],
         ),
       ),

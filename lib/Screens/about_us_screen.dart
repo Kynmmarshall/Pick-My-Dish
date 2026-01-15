@@ -10,22 +10,25 @@ class AboutUsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final developers = _getDevelopers();
+    final theme = Theme.of(context);
+    final primaryColor = theme.primaryColor;
+    final surfaceColor = theme.appBarTheme.backgroundColor ?? theme.scaffoldBackgroundColor;
     
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: CustomScrollView(
         slivers: [
           // App Bar
           SliverAppBar(
-            backgroundColor: Colors.black,
+            backgroundColor: surfaceColor,
             pinned: true,
             leading: Padding(
               padding: const EdgeInsets.only(left: 30, top: 20),
               child: GestureDetector(
                 onTap: () => Navigator.pop(context),
-                child: const Icon(
+                child: Icon(
                   Icons.arrow_back,
-                  color: Colors.orange,
+                  color: primaryColor,
                   size: iconSize,
                 ),
               ),
@@ -38,13 +41,13 @@ class AboutUsScreen extends StatelessWidget {
             expandedHeight: 180,
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      Color(0xFFE53935),
-                      Color(0xFFFF9800),
+                      primaryColor.withValues(alpha: 0.8),
+                      primaryColor,
                     ],
                   ),
                 ),
@@ -67,7 +70,7 @@ class AboutUsScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // App Description
-                  _buildAppDescription(),
+                  _buildAppDescription(context),
                   const SizedBox(height: 32),
                   
                   // Team Section Title
@@ -85,7 +88,7 @@ class AboutUsScreen extends StatelessWidget {
                   const SizedBox(height: 30),
                   
                   // App Info Section
-                  _buildAppInfoSection(),
+                  _buildAppInfoSection(context),
                   
                   const SizedBox(height: 40),
                 ],
@@ -97,12 +100,13 @@ class AboutUsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildAppDescription() {
+  Widget _buildAppDescription(BuildContext context) {
+    final surfaceColor = Theme.of(context).scaffoldBackgroundColor;
+    final onSurfaceColor = Theme.of(context).textTheme.bodyMedium?.color ?? Theme.of(context).textTheme.bodyLarge?.color;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(15),
+        color: surfaceColor.withValues(alpha: 0.8),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -131,7 +135,7 @@ class AboutUsScreen extends StatelessWidget {
           const SizedBox(height: 10),
           Text(
             'We believe cooking should be fun, easy, and accessible to everyone. Our app connects food lovers and helps them discover new recipes tailored to their preferences.',
-            style: text.copyWith(fontSize: 16, color: Colors.white70, height: 1.5),
+            style: text.copyWith(fontSize: 16, color: onSurfaceColor?.withValues(alpha: 0.7), height: 1.5),
           ),
         ],
       ),
@@ -139,14 +143,17 @@ class AboutUsScreen extends StatelessWidget {
   }
 
   Widget _buildDeveloperCard(BuildContext context, Developer developer) {
+    final theme = Theme.of(context);
+    final primaryColor = theme.primaryColor;
+    final onSurfaceColor = theme.textTheme.bodyMedium?.color ?? theme.textTheme.bodyLarge?.color;
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
-        color: const Color(0xFF373737),
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(15),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.3),
+            color: Theme.of(context).shadowColor.withValues(alpha: 0.3),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -166,7 +173,7 @@ class AboutUsScreen extends StatelessWidget {
                   height: 80,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.orange, width: 2),
+                    border: Border.all(color: primaryColor, width: 2),
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(60),
@@ -175,13 +182,13 @@ class AboutUsScreen extends StatelessWidget {
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) => 
                         Container(
-                          color: Colors.grey[800],
+                          color: theme.cardColor,
                           child: Center(
                             child: Text(
                               developer.name[0],
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 24,
-                                color: Colors.white,
+                                color: onSurfaceColor,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -206,7 +213,7 @@ class AboutUsScreen extends StatelessWidget {
                         developer.role,
                         style: text.copyWith(
                           fontSize: 16,
-                          color: Colors.orange,
+                          color: primaryColor,
                         ),
                       ),
                       const SizedBox(height: 10),
@@ -214,7 +221,7 @@ class AboutUsScreen extends StatelessWidget {
                         developer.description,
                         style: text.copyWith(
                           fontSize: 14,
-                          color: Colors.white70,
+                          color: onSurfaceColor?.withValues(alpha: 0.7),
                           height: 1.4,
                         ),
                       ),
@@ -229,7 +236,7 @@ class AboutUsScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
             decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha: 0.3),
+              color: Theme.of(context).shadowColor.withValues(alpha: 0.3),
               borderRadius: const BorderRadius.only(
                 bottomLeft: Radius.circular(15),
                 bottomRight: Radius.circular(15),
@@ -243,7 +250,7 @@ class AboutUsScreen extends StatelessWidget {
                   style: text.copyWith(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: Colors.orange,
+                    color: primaryColor,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -253,9 +260,9 @@ class AboutUsScreen extends StatelessWidget {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.check_circle,
-                          color: Colors.green,
+                          color: primaryColor,
                           size: 16,
                         ),
                         const SizedBox(width: 8),
@@ -304,11 +311,14 @@ class AboutUsScreen extends StatelessWidget {
   }
 
   Widget _buildSocialButton(BuildContext context, IconData icon, String label, String url) {
+    final theme = Theme.of(context);
+    final surfaceColor = theme.scaffoldBackgroundColor;
+    final onSurfaceColor = theme.textTheme.bodyMedium?.color ?? theme.textTheme.bodyLarge?.color;
     return ElevatedButton.icon(
       onPressed: () => _launchUrl(url),
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.black.withValues(alpha: 0.5),
-        foregroundColor: Colors.white,
+        backgroundColor: surfaceColor.withValues(alpha: 0.8),
+        foregroundColor: onSurfaceColor,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
@@ -322,11 +332,14 @@ class AboutUsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildAppInfoSection() {
+  Widget _buildAppInfoSection(BuildContext context) {
+    final theme = Theme.of(context);
+    final primaryColor = theme.primaryColor;
+    final onSurfaceColor = theme.textTheme.bodyMedium?.color ?? theme.textTheme.bodyLarge?.color;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.1),
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(15),
       ),
       child: Column(
@@ -339,6 +352,7 @@ class AboutUsScreen extends StatelessWidget {
           const SizedBox(height: 15),
           
           _buildInfoRow(
+            context,
             Icons.star,
             'App Version',
             '1.0.0',
@@ -346,6 +360,7 @@ class AboutUsScreen extends StatelessWidget {
           const SizedBox(height: 10),
           
           _buildInfoRow(
+            context,
             Icons.update,
             'Last Updated',
             'December 2025',
@@ -353,6 +368,7 @@ class AboutUsScreen extends StatelessWidget {
           const SizedBox(height: 10),
           
           _buildInfoRow(
+            context,
             Icons.people,
             'Team Size',
             '2 Developers',
@@ -360,6 +376,7 @@ class AboutUsScreen extends StatelessWidget {
           const SizedBox(height: 10),
           
           _buildInfoRow(
+            context,
             Icons.language,
             'Technologies',
             'Flutter, Node.js, MySQL',
@@ -372,23 +389,24 @@ class AboutUsScreen extends StatelessWidget {
             style: text.copyWith(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: Colors.orange,
+              color: primaryColor,
             ),
           ),
           const SizedBox(height: 8),
           Text(
             'To make cooking accessible and enjoyable for everyone by providing personalized recipe recommendations and fostering a community of food lovers.',
-            style: text.copyWith(fontSize: 14, color: Colors.white70, height: 1.5),
+            style: text.copyWith(fontSize: 14, color: onSurfaceColor?.withValues(alpha: 0.7), height: 1.5),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String title, String value) {
+  Widget _buildInfoRow(BuildContext context, IconData icon, String title, String value) {
+    final theme = Theme.of(context);
     return Row(
       children: [
-        Icon(icon, color: Colors.orange, size: 20),
+        Icon(icon, color: theme.primaryColor, size: 20),
         const SizedBox(width: 12),
         Expanded(
           child: Text(

@@ -20,6 +20,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final primaryColor = theme.primaryColor;
+    final onSurfaceColor = theme.textTheme.bodyMedium?.color ?? theme.textTheme.bodyLarge?.color;
+    final surfaceColor = theme.scaffoldBackgroundColor;
+    final buttonTextColor = theme.floatingActionButtonTheme.foregroundColor ?? theme.textTheme.titleLarge?.color;
     return Scaffold(
       body: Container(
             width: double.infinity,
@@ -38,8 +43,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                     Colors.transparent,
-                     Colors.black,
+                     surfaceColor.withValues(alpha: 0.0),
+                     surfaceColor.withValues(alpha: 0.9),
                     ],
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
@@ -80,9 +85,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
               
                   Row(
                     children: [
-                      Icon(Icons.person,
-                      color: Colors.white,
-                      size: iconSize,),
+                      Icon(
+                        Icons.person,
+                        color: onSurfaceColor,
+                        size: iconSize,
+                      ),
                       SizedBox(width: 10,),
                       Expanded(child:
                       TextField(
@@ -100,9 +107,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                   Row(
                     children: [
-                      Icon(Icons.email,
-                      color: Colors.white,
-                      size: iconSize,),
+                      Icon(
+                        Icons.email,
+                        color: onSurfaceColor,
+                        size: iconSize,
+                      ),
                       SizedBox(width: 10,),
                       Expanded(child:
                       TextField(
@@ -165,12 +174,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ElevatedButton(
                     onPressed: _register,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange, // Your color
+                      backgroundColor: primaryColor,
                       minimumSize: Size(double.infinity, 50),
                     ),
                     child: Text(
                       "Register",
-                      style:  title,
+                      style:  title.copyWith(color: buttonTextColor),
                     ),
                   ),
                   
@@ -216,6 +225,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   // Add this widget to show password strength
   Widget _buildPasswordStrengthIndicator(String password) {
     final strength = _checkPasswordStrength(password);
+    final theme = Theme.of(context);
+    final primaryColor = theme.primaryColor;
     
     Color color;
     String text;
@@ -223,17 +234,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
     
     switch (strength) {
       case PasswordStrength.weak:
-        color = Colors.red;
+        color = theme.colorScheme.error;
         text = 'Weak';
         width = 0.3;
         break;
       case PasswordStrength.medium:
-        color = Colors.orange;
+        color = primaryColor;
         text = 'Medium';
         width = 0.6;
         break;
       case PasswordStrength.strong:
-        color = Colors.green;
+        color = primaryColor;
         text = 'Strong';
         width = 1.0;
         break;
@@ -252,7 +263,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           height: 4,
           width: double.infinity,
           decoration: BoxDecoration(
-            color: Colors.grey[300],
+            color: theme.cardColor.withValues(alpha: 0.6),
             borderRadius: BorderRadius.circular(2),
           ),
           child: Align(
@@ -286,7 +297,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     messenger.showSnackBar(
       SnackBar(
         content: Text('Please fill in all fields', style: text),
-        backgroundColor: Colors.orange,
+        backgroundColor: Theme.of(context).primaryColor,
       ),
     );
     return;
@@ -297,7 +308,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     messenger.showSnackBar(
       SnackBar(
         content: Text('Please enter a valid email address (e.g., john.smith@gmail.com)', style: text),
-        backgroundColor: Colors.orange,
+        backgroundColor: Theme.of(context).primaryColor,
       ),
     );
     return;
@@ -308,7 +319,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     messenger.showSnackBar(
       SnackBar(
         content: Text('Password must be at least 8 characters long', style: text),
-        backgroundColor: Colors.orange,
+        backgroundColor: Theme.of(context).primaryColor,
       ),
     );
     return;
@@ -320,7 +331,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     messenger.showSnackBar(
       SnackBar(
         content: Text('Password is too weak. Include uppercase, lowercase, numbers, and special characters', style: text),
-        backgroundColor: Colors.orange,
+        backgroundColor: Theme.of(context).primaryColor,
       ),
     );
     return;
@@ -331,7 +342,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     messenger.showSnackBar(
       SnackBar(
         content: Text('Passwords do not match', style: text),
-        backgroundColor: Colors.orange,
+        backgroundColor: Theme.of(context).primaryColor,
       ),
     );
     return;
@@ -340,8 +351,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
   showDialog(
     context: context,
     barrierDismissible: false,
-    builder: (context) => const Center(
-      child: CircularProgressIndicator(color: Colors.orange),
+    builder: (context) => Center(
+      child: CircularProgressIndicator(
+        color: Theme.of(context).primaryColor,
+      ),
     ),
   );
 
@@ -355,7 +368,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text('Registration successful! Please login.', style: text),
-          backgroundColor: Colors.green,
+          backgroundColor: Theme.of(context).primaryColor,
         ),
       );
       navigator.pop();
@@ -363,7 +376,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text('Registration failed', style: text),
-          backgroundColor: Colors.red,
+          backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
     }
@@ -373,7 +386,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     messenger.showSnackBar(
       SnackBar(
         content: Text('Error: $e', style: text),
-        backgroundColor: Colors.red,
+        backgroundColor: Theme.of(context).colorScheme.error,
       ),
     );
   }

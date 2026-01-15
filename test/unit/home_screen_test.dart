@@ -7,6 +7,7 @@ import 'package:http/testing.dart';
 import 'package:pick_my_dish/Models/recipe_model.dart';
 import 'package:pick_my_dish/Models/user_model.dart';
 import 'package:pick_my_dish/Providers/recipe_provider.dart';
+import 'package:pick_my_dish/Providers/theme_provider.dart';
 import 'package:pick_my_dish/Providers/user_provider.dart';
 import 'package:pick_my_dish/Screens/favorite_screen.dart';
 import 'package:pick_my_dish/Screens/home_screen.dart';
@@ -69,6 +70,7 @@ void main() {
           providers: [
             ChangeNotifierProvider<UserProvider>.value(value: userProvider),
             ChangeNotifierProvider<RecipeProvider>.value(value: recipeProvider),
+            ChangeNotifierProvider<ThemeProvider>(create: (_) => ThemeProvider()),
           ],
           child: MaterialApp(
             home: HomeScreen(
