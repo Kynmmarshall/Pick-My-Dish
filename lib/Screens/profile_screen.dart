@@ -302,7 +302,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                               child: Text(
                                 "Save Changes",
-                                style: text.copyWith(fontSize: 18),
+                                style: text2.copyWith(fontSize: 18),
                               ),
                             ),
                           ),
@@ -317,7 +317,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                               child: Text(
                                 "Cancel",
-                                style: text.copyWith(fontSize: 18),
+                                style: text2.copyWith(fontSize: 18),
                               ),
                             ),
                           ),
