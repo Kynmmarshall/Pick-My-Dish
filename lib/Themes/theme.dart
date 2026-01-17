@@ -80,6 +80,7 @@ ThemeData darkTheme = ThemeData(
   brightness: Brightness.dark,
   primaryColor: Colors.orange,
   scaffoldBackgroundColor: const Color.fromARGB(255, 0, 0, 0),
+  cardColor: const Color.fromARGB(255, 47, 48, 51),
   appBarTheme: const AppBarTheme(
     backgroundColor: Color.fromARGB(255, 0, 0, 0),
     foregroundColor: Colors.white,
