@@ -43,7 +43,7 @@ class _RecipeEditScreenState extends State<RecipeEditScreen> {
   ];
   
   final List<String> _emotions = [
-    'Happy', 'Sad', 'Energetic', 'Comfort', 'Healthy', 'Quick', 'Light'
+    'Happy', 'Energetic', 'Comfort', 'Healthy', 'Quick', 'Light'
   ];
 
   @override

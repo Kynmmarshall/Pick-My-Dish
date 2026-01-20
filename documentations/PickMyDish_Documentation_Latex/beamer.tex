@@ -131,7 +131,7 @@
 \setbeamertemplate{background}{
     \begin{tikzpicture}[remember picture, overlay]
         % Main gradient background
-        \fill[top color=white, bottom color=Primary!5] 
+        \fill[top color=white, bottom color=Primary!25] 
             (current page.south west) rectangle (current page.north east);
         
         % Decorative circles pattern
@@ -297,108 +297,114 @@
         \node at (7.65,0.5) {\Huge \textcolor{Primary!60}{\faLongArrowAltRight}};
     \end{tikzpicture}
 \end{frame}
+
 % ============================================================
-% SLIDE 3: KEY FEATURES
+% SLIDE 3: SCRUM & KANBAN PROCESS
 % ============================================================
-\begin{frame}{Key Features}
+\begin{frame}{Scrum \& Kanban Process}
     \vspace*{0.2cm}
     
     \centering
-    \textcolor{Primary}{\large \textbf{Intelligent Features for Seamless Cooking}}
+    \textcolor{Primary}{\large \textbf{Agile Project Management Methodology}}
     
-    \begin{tikzpicture}[
-        feature/.style={
-            rectangle,
-            rounded corners=12pt,
-            inner sep=12pt,
-            text width=2.9cm,
-            minimum height=0.5cm,
-            text centered,
-            font=\small\bfseries,
-            drop shadow={shadow xshift=2pt, shadow yshift=2pt, opacity=0.2},
-            align=center
-        }
-    ]
-        % Row 1 - Top Features
-        \node[feature, 
-              fill=Primary!15, 
-              draw=Primary!40, 
-              line width=1pt,
-              label={[Primary, yshift=0.06cm]\large\faSmileBeam}] 
-              (f1) at (0, 15) {Mood\\Filtering};
-              
-        \node[feature, 
-              fill=Secondary!15, 
-              draw=Secondary!40, 
-              line width=1pt,
-              label={[Secondary, yshift=0.06cm]\large\faCarrot}] 
-              (f2) at (6, 15) {Smart Ingredient\\Matching};
-              
-        \node[feature, 
-              fill=Accent!15, 
-              draw=Accent!40, 
-              line width=1pt,
-              label={[Accent, yshift=0.06cm]\large\faClock}] 
-              (f3) at (11.5, 15) {Time-Aware\\Planning};
-
-        % Decorative connector
-        \draw[Primary!30, line width=2pt, dashed] (f1) -- (f2);
-        \draw[Secondary!30, line width=2pt, dashed] (f2) -- (f3);
+    \vspace{0.3cm}
+    
+    \begin{columns}[T]
+        % Left Column: Daily Scrum Meeting
+        \begin{column}{0.48\textwidth}
+            \centering
+            \begin{tikzpicture}
+                % Title box
+                \node[rectangle,
+                      rounded corners=8pt,
+                      fill=Primary!15,
+                      draw=Primary!40,
+                      line width=1pt,
+                      inner sep=8pt,
+                      minimum width=5cm,
+                      text=Primary,
+                      font=\bfseries] (scrum-title) at (0,0) 
+                      {\faCalendarCheck~Daily Scrum Meeting};
+                
+                % Image placeholder
+                \node[rectangle,
+                      rounded corners=8pt,
+                      fill=gray!10,
+                      draw=gray!50,
+                      dashed,
+                      line width=1pt,
+                      inner sep=8pt,
+                      minimum width=5cm,
+                      minimum height=3.5cm,
+                      below=0.2cm of scrum-title] (scrum-image) 
+                      {\includegraphics[width=6cm]{discord-standup.png.png}};
+                
+                % Description
+                \node[rectangle,
+                    text width=7cm,
+                    align=left,
+                    font=\small,
+                    below=0.2cm of scrum-image] (scrum-desc) {
+                    \textbf{Daily Scrum:} 15-min team sync\\
+                    \textbf{3 Questions:} Yesterday/Today/Blockers\\
+                    \textbf{Outcome:} Kanban board updates\\
+                };
+            \end{tikzpicture}
+        \end{column}
         
-        % Row 2 - Middle Features
-        \node[feature, 
-              fill=Primary!10, 
-              draw=Primary!30, 
-              line width=1pt,
-              label={[Primary, yshift=0.06cm]\large\faHeart}] 
-              (f4) at (0, 11.4) {Personal\\Favorites};
-              
-        \node[feature, 
-              fill=Secondary!10, 
-              draw=Secondary!30, 
-              line width=1pt,
-              label={[Secondary, yshift=0.06cm]\large\faWifi}] 
-              (f5) at (6, 11.4) {Offline\\Access};
-              
-        \node[feature, 
-              fill=Accent!10, 
-              draw=Accent!30, 
-              line width=1pt,
-              label={[Accent, yshift=0.06cm]\large\faUserCircle}] 
-              (f6) at (11.5, 11.4) {User\\Profiles};
+        % Right Column: Kanban Board
+        \begin{column}{0.48\textwidth}
+            \centering
+            \begin{tikzpicture}
+                % Title box
+                \node[rectangle,
+                      rounded corners=8pt,
+                      fill=Secondary!15,
+                      draw=Secondary!40,
+                      line width=1pt,
+                      inner sep=8pt,
+                      minimum width=5cm,
+                      text=Secondary,
+                      font=\bfseries] (kanban-title) at (0,0) 
+                      {\faColumns~Kanban Board};
+                
+                % Image placeholder
+                \node[rectangle,
+                      rounded corners=8pt,
+                      fill=gray!10,
+                      draw=gray!50,
+                      dashed,
+                      line width=1pt,
+                      inner sep=5pt,
+                      minimum width=5cm,
+                      minimum height=3.5cm,
+                      below=0.2cm of kanban-title] (kanban-image) 
+                      {\includegraphics[width=6cm]{github-kanban.png}};
+                
+                % Description
+                \node[rectangle,
+                    text width=7cm,
+                    align=left,
+                    font=\small,
+                    below=0.3cm of kanban-image] (kanban-desc) {
+                    \textbf{Kanban Flow:} \textit{To Do → In Progress → Review → Done}\\
+                    \textbf{WIP Limits:} Max 3 tasks/column\\
 
-        % Row 3 - Bottom Features
-        \node[feature, 
-              fill=Primary!20, 
-              draw=Primary!50, 
-              line width=1pt,
-              label={[Primary, yshift=0.06cm]\large\faUpload}] 
-              (f7) at (3, 13.4) {Recipe\\Sharing};
-              
-        \node[feature, 
-              fill=Secondary!20, 
-              draw=Secondary!50, 
-              line width=1pt,
-              label={[Secondary, yshift=0.06cm]\large\faCogs}] 
-              (f8) at (8.8, 13.4) {Admin\\Dashboard};
-
-        % Background highlight
-        \fill[Primary!3, rounded corners=20pt] 
-            (current page.west) ++(0.5cm, 1cm) rectangle 
-            (current page.east) ++(-0.5cm, 6.5cm);
-    \end{tikzpicture}
+                };
+            \end{tikzpicture}
+        \end{column}
+    \end{columns}
     
-    \vspace*{0.12cm}
-    
-    \begin{tikzpicture}[overlay, remember picture]
-        % Decorative bottom bar
-        \fill[Primary!20, rounded corners=4pt] 
-            (current page.south west) ++(2cm, 0.8cm) rectangle 
-            (current page.south east) ++(-2cm, 1cm);
-            
-        \node[text=DarkBg, font=\small] at (current page.south) 
-            {\faStar~All features designed for intuitive user experience~\faStar};
-    \end{tikzpicture}
+    % Bottom decorative bar
+    \vspace{0.3cm}
+    \begin{center}
+        \begin{tikzpicture}
+            \fill[Primary!20, rounded corners=4pt] 
+                (0,0) rectangle (12cm, 0.8cm);
+            \node[text=DarkBg, font=\small] at (6cm, 0.4cm) 
+                {\faTrello~Agile methodology for efficient project management~\faTasks};
+        \end{tikzpicture}
+    \end{center}
 \end{frame}
 
 % ============================================================

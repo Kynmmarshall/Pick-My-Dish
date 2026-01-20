@@ -43,7 +43,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   List<String> emotions = [
     'Happy',
-    'Sad',
     'Energetic',
     'Comfort',
     'Healthy',

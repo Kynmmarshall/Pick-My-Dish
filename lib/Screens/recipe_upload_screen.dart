@@ -50,7 +50,7 @@ class _RecipeUploadScreenState extends State<RecipeUploadScreen> {
 ];
 
   final List<String> _emotions = [
-    'Happy', 'Sad', 'Energetic', 'Comfort', 
+    'Happy', 'Energetic', 'Comfort', 
     'Healthy', 'Quick', 'Light'
   ];
 
