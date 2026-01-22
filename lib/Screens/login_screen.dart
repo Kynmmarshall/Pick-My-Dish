@@ -172,7 +172,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           Expanded(
                             child: TextField(
                               controller: _emailController,
-                              style: text,
+                              style: text2,
                               decoration: InputDecoration(
                                 hintText: "Email Address",
                                 hintStyle: placeHolder2,
@@ -195,7 +195,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           Expanded(
                             child: TextField(
                               controller: _passwordController,
-                              style: text,
+                              style: text2,
                               obscureText: !_isPasswordVisible,
                               decoration: InputDecoration(
                                 hintText: "Password",

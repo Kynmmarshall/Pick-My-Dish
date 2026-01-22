@@ -88,7 +88,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       SizedBox(width: 10,),
                       Expanded(child:
                       TextField(
-                        style: text,
+                        style: text2,
                         controller: _userNameController,
                         decoration: InputDecoration(
                           hintText: "User Name",
@@ -110,7 +110,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       SizedBox(width: 10,),
                       Expanded(child:
                       TextField(
-                        style: text,
+                        style: text2,
                         controller: _emailController,
                         decoration: InputDecoration(
                           hintText: "Email Address",
@@ -129,7 +129,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       
                       child: TextField(
                         controller: _passwordController,
-                        style: text,
+                        style: text2,
                         obscureText: true,
                         decoration: InputDecoration(
                           labelText: 'Password',
@@ -150,7 +150,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       constraints: BoxConstraints(maxWidth: 400),
                       child: TextField(
                         controller: _confirmPasswordController,
-                        style: text,
+                        style: text2,
                         obscureText: true,
                         decoration: InputDecoration(
                           labelText: 'Confirm Password',
