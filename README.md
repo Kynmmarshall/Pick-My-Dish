@@ -32,6 +32,7 @@ Pick My Dish is an intelligent recipe management application that helps you disc
 2. Download the latest APK file
 3. Enable "Install from unknown sources" in settings
 4. Install and enjoy!
+test
 
 ### **📥 Alternative Download**
 ```bash
