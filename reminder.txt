@@ -1,5 +1,0 @@
-CachedProfileImage(
-  imagePath: recipe['image'],
-  radius: 0, // Not circular
-  isProfilePicture: false,
-)   -----> to implement image caching on recipe
