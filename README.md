@@ -53,7 +53,7 @@ curl -O https://pickmydish.duckdns.org/app-release.apk
 - **Node.js** - Scalable server runtime
 - **Express.js** - Web application framework
 - **PostgreSQL** - Relational database
-- **JWT** - Secure authentication.
+- **JWT** - Secure authentication
 
 ### Architecture
 ```
